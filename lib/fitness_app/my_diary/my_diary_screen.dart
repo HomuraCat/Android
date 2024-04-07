@@ -7,6 +7,7 @@ import 'package:best_flutter_ui_templates/fitness_app/my_diary/meals_list_view.d
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/knowledge_learning/knowledge_learning.dart';
 import 'package:flutter/material.dart';
 
+
 class MyDiaryScreen extends StatefulWidget {
   const MyDiaryScreen({Key? key, this.animationController}) : super(key: key);
 
@@ -71,7 +72,7 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => KnowledgeLearningPage()),
+            MaterialPageRoute(builder: (context) => LearnSection()),
           );
         },
       ),
@@ -98,7 +99,7 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
           Navigator.push(
             context,
             // TODO
-            MaterialPageRoute(builder: (context) => KnowledgeLearningPage()),
+            MaterialPageRoute(builder: (context) => LearnSection()),
           );
         },
       ),
@@ -128,7 +129,7 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => KnowledgeLearningPage()),
+            MaterialPageRoute(builder: (context) => LearnSection()),
           );
         },
       ),

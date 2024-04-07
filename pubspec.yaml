@@ -32,8 +32,10 @@ dependencies:
     flutter_rating_bar: ^4.0.1
     intl: ^0.17.0
     animations: ^2.0.3
-    video_player: ^2.2.14
     shared_preferences: ^2.1.1
+    video_player: ^2.8.5
+    chewie: ^1.8.1
+    fijkplayer: ^0.10.0 
 
 dev_dependencies:
     flutter_test:
@@ -56,6 +58,7 @@ flutter:
         - assets/fitness_app/
         - assets/hotel/
         - assets/introduction_animation/
+        - assets/videos/
 
     # An image asset can refer to one or more resolution-specific "variants", see
     # https://flutter.dev/assets-and-images/#resolution-aware.
