@@ -5,7 +5,10 @@ import 'package:best_flutter_ui_templates/fitness_app/ui_view/title_view.dart';
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_theme.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/meals_list_view.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/knowledge_learning/knowledge_learning.dart';
+import 'package:best_flutter_ui_templates/fitness_app/my_diary/sport_advice/sport_advice.dart';
+import 'package:best_flutter_ui_templates/fitness_app/my_diary/recipe/recipe.dart';
 import 'package:flutter/material.dart';
+
 
 class MyDiaryScreen extends StatefulWidget {
   const MyDiaryScreen({Key? key, this.animationController}) : super(key: key);
@@ -71,7 +74,7 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => KnowledgeLearningPage()),
+            MaterialPageRoute(builder: (context) => LearnSection()),
           );
         },
       ),
@@ -87,7 +90,7 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
     );
     listViews.add(
       TitleView(
-        titleTxt: '今日食谱',
+        titleTxt: '食谱推荐',
         subTxt: '详情',
         animation: Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
             parent: widget.animationController!,
@@ -98,7 +101,7 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
           Navigator.push(
             context,
             // TODO
-            MaterialPageRoute(builder: (context) => KnowledgeLearningPage()),
+            MaterialPageRoute(builder: (context) => RecipeListPage()),
           );
         },
       ),
@@ -128,7 +131,7 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => KnowledgeLearningPage()),
+            MaterialPageRoute(builder: (context) => SportSection()),
           );
         },
       ),
@@ -239,7 +242,7 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  'My Diary',
+                                  '主页',
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                     fontFamily: FitnessAppTheme.fontName,

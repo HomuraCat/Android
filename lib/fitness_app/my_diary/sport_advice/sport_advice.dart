@@ -3,25 +3,25 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/knowledge_learning/weekly_test_page.dart';
 
-class KnowledgeLearningPage extends StatefulWidget {
+class SportAdvicePage extends StatefulWidget {
   @override
-  _KnowledgeLearningPageState createState() => _KnowledgeLearningPageState();
+  _SportAdvicePageState createState() => _SportAdvicePageState();
 }
 
-class LearnSection extends StatefulWidget {
+class SportSection extends StatefulWidget {
   @override
-  _LearnSectionState createState() => _LearnSectionState();
+  _SportSectionState createState() => _SportSectionState();
 }
 
-class _LearnSectionState extends State<LearnSection> {
+class _SportSectionState extends State<SportSection> {
   // 假设这是您的视频列表数据
   final List<Map<String, String>> videos = [
     {
-      'title': '视频标题1',
+      'title': '仰卧起坐',
       'status': '学习',
     },
     {
-      'title': '视频标题2',
+      'title': '立定跳远',
       'status': '学习',
     },
   ];
@@ -38,7 +38,6 @@ class _LearnSectionState extends State<LearnSection> {
             const SizedBox(height: 4),
             const SizedBox(height: 60),
             // 这里假设 buildTestButton 是一个创建按钮的函数
-            buildTestButton(context),
             const SizedBox(height: 24),
             // 构建视频列表
             for (var video in videos) buildVideoListItem(video),
@@ -48,23 +47,8 @@ class _LearnSectionState extends State<LearnSection> {
     );
   }
 
-  Widget buildTestButton(BuildContext context) {
-    return Align(
-      child: SizedBox(
-        height: 35,
-        width: 150,
-        child: FloatingActionButton(
-          backgroundColor: Colors.black,
-          child: Text('开始测试',
-              style: Theme.of(context).primaryTextTheme.headlineSmall),
-          onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => WeeklyTestPage()));
-          },
-        ),
-      ),
-    );
-  }
+
+ 
   // 构建视频列表项的函数
   Widget buildVideoListItem(Map<String, String> video) {
     return Card(
@@ -81,7 +65,7 @@ class _LearnSectionState extends State<LearnSection> {
           bool? updated = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => KnowledgeLearningPage(),
+              builder: (context) => SportAdvicePage(),
             ),
           );
 
@@ -96,18 +80,20 @@ class _LearnSectionState extends State<LearnSection> {
   }
 }
 
-class _KnowledgeLearningPageState extends State<KnowledgeLearningPage> {
+class _SportAdvicePageState extends State<SportAdvicePage> {
   List<Widget> listViews = <Widget>[];
   final ScrollController scrollController = ScrollController();
   late VideoPlayerController _videoPlayerController;
   ChewieController? _chewieController;
+  bool isPracticeVideo = false; 
+  String buttonText = '跟练';
   int currentVideoIndex = 0;
   double topBarOpacity = 0.0;
-  //String info = "你好，我是肺癌知识。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。";
-  String info = "你好，我是肺癌知识。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。";
-  
+  String info = "温馨提示：感觉不适请立即停止运动。";
+
   final List<String> _videoSources = [
     'assets/videos/1.mp4',
+    'assets/videos/2.mp4',
   ];
 
   @override
@@ -139,7 +125,7 @@ class _KnowledgeLearningPageState extends State<KnowledgeLearningPage> {
   }
 
   Future<void> _initializeVideoPlayer() async {
-    _videoPlayerController = VideoPlayerController.asset(_videoSources[currentVideoIndex]);
+    _videoPlayerController = VideoPlayerController.asset(_videoSources[isPracticeVideo ? 1 : 0]);
     await _videoPlayerController.initialize();
     _videoPlayerController.addListener(_checkVideo); // Add listener
     _createChewieController();
@@ -149,7 +135,7 @@ class _KnowledgeLearningPageState extends State<KnowledgeLearningPage> {
 void _checkVideo() {
   final bool isPlaying = _videoPlayerController.value.isPlaying;
   final bool isVideoEnded = _videoPlayerController.value.position >= _videoPlayerController.value.duration;
-  if (!isPlaying && isVideoEnded) {
+  if (!isPlaying && isVideoEnded && buttonText == '教学') {
     // If the video has finished playing, mark it as learned
     _markVideoAsLearned();
   }
@@ -157,7 +143,8 @@ void _checkVideo() {
 
   void _markVideoAsLearned() {
     // Logic to mark the video as "已学"
-    Navigator.pop(context, true);
+    print("HERE");
+    //Navigator.pop(context, true);
   }
 
   @override
@@ -165,6 +152,7 @@ void _checkVideo() {
     _videoPlayerController.removeListener(_checkVideo); // Remove listener
     _videoPlayerController.dispose();
     _chewieController?.dispose();
+    //scrollController.dispose();
     super.dispose();
   }
 
@@ -172,7 +160,7 @@ void _checkVideo() {
   void _createChewieController() {
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,
-      autoPlay: false,
+      autoPlay: true,
       looping: false,
       // Here you can add additional options, subtitles, or any other custom configurations.
       // Example for adding an option:
@@ -200,9 +188,9 @@ void _checkVideo() {
   }
 
   Future<void> _toggleVideo() async {
-    final newIndex = (currentVideoIndex + 1) % _videoSources.length;
     setState(() {
-      currentVideoIndex = newIndex;
+      isPracticeVideo = !isPracticeVideo;
+      buttonText = isPracticeVideo ? '教学' : '跟练';
     });
     await _videoPlayerController.dispose();
     await _initializeVideoPlayer();
@@ -213,7 +201,7 @@ void _checkVideo() {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('知识学习'),
+        title: Text('运动建议'),
       ),
       body: Column(
         children: [
@@ -229,35 +217,25 @@ void _checkVideo() {
                       children: const [
                         CircularProgressIndicator(),
                         SizedBox(height: 20),
-                        Text('Loading'),
+                        Text('加载中...'),
                       ],
                     ),
             ),
           ),
           TextButton(
-            onPressed: () {
-              _chewieController?.enterFullScreen();
-            },
-            child: const Text('点击全屏'),
+            onPressed: _toggleVideo,
+            child: Text(buttonText),
           ),
           Expanded(
             child: SingleChildScrollView(
+              controller: scrollController,
               child: Text(info),
             ),
           ),
-          //ElevatedButton(
-          //  onPressed: () {
-          //    // Logic to mark the video as "已学"
-          //    Navigator.pop(context, true);
-          //  },
-          //  child: Text('标记为已学'),
-          //),
-          // Add any other controls or information you want to display
         ],
       ),
     );
   }
-
 
 
   Future<bool> getData() async {
