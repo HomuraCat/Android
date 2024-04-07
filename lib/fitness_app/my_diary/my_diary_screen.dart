@@ -5,6 +5,7 @@ import 'package:best_flutter_ui_templates/fitness_app/ui_view/title_view.dart';
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_theme.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/meals_list_view.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/knowledge_learning/knowledge_learning.dart';
+import 'package:best_flutter_ui_templates/fitness_app/my_diary/sport_advice/sport_advice.dart';
 import 'package:flutter/material.dart';
 
 
@@ -129,7 +130,7 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => LearnSection()),
+            MaterialPageRoute(builder: (context) => SportSection()),
           );
         },
       ),

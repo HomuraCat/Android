@@ -141,15 +141,39 @@ class _KnowledgeLearningPageState extends State<KnowledgeLearningPage> {
   Future<void> _initializeVideoPlayer() async {
     _videoPlayerController = VideoPlayerController.asset(_videoSources[currentVideoIndex]);
     await _videoPlayerController.initialize();
+    _videoPlayerController.addListener(_checkVideo); // Add listener
     _createChewieController();
     setState(() {});
   }
+
+void _checkVideo() {
+  final bool isPlaying = _videoPlayerController.value.isPlaying;
+  final bool isVideoEnded = _videoPlayerController.value.position >= _videoPlayerController.value.duration;
+  if (!isPlaying && isVideoEnded) {
+    // If the video has finished playing, mark it as learned
+    _markVideoAsLearned();
+  }
+}
+
+  void _markVideoAsLearned() {
+    // Logic to mark the video as "已学"
+    Navigator.pop(context, true);
+  }
+
+  @override
+  void dispose() {
+    _videoPlayerController.removeListener(_checkVideo); // Remove listener
+    _videoPlayerController.dispose();
+    _chewieController?.dispose();
+    super.dispose();
+  }
+
 
   void _createChewieController() {
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,
       autoPlay: true,
-      looping: true,
+      looping: false,
       // Here you can add additional options, subtitles, or any other custom configurations.
       // Example for adding an option:
       additionalOptions: (context) => [
@@ -184,12 +208,6 @@ class _KnowledgeLearningPageState extends State<KnowledgeLearningPage> {
     await _initializeVideoPlayer();
   }
 
-  @override
-  void dispose() {
-    _videoPlayerController.dispose();
-    _chewieController?.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -227,13 +245,13 @@ class _KnowledgeLearningPageState extends State<KnowledgeLearningPage> {
               child: Text(info),
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              // Logic to mark the video as "已学"
-              Navigator.pop(context, true);
-            },
-            child: Text('标记为已学'),
-          ),
+          //ElevatedButton(
+          //  onPressed: () {
+          //    // Logic to mark the video as "已学"
+          //    Navigator.pop(context, true);
+          //  },
+          //  child: Text('标记为已学'),
+          //),
           // Add any other controls or information you want to display
         ],
       ),
