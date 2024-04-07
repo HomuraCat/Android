@@ -23,7 +23,7 @@ class _AccountPageState extends State<AccountPage> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   image: const DecorationImage(
-                      image: AssetImage("images/southeast.jpeg"),
+                      image: AssetImage("assets/images/southeast.jpeg"),
                       fit: BoxFit.cover)),
             ),
             Container(
@@ -49,7 +49,7 @@ class _AccountPageState extends State<AccountPage> {
                             style: TextStyle(fontSize: 17, color: Colors.grey),
                           ),
                           Image(
-                            image: AssetImage("images/icon_right.png"),
+                            image: AssetImage("assets/images/icon_right.png"),
                             width: 15,
                           )
                         ],
@@ -85,14 +85,14 @@ class _AccountPageState extends State<AccountPage> {
                   height: 10,
                 ),
                 const MineCell(
-                  imageName: 'images/southeast.jpeg',
+                  imageName: 'assets/images/southeast.jpeg',
                   title: '基本信息',
                 ),
                 const SizedBox(
                   height: 10,
                 ),
                 const MineCell(
-                  imageName: 'images/southeast.jpeg',
+                  imageName: 'assets/images/southeast.jpeg',
                   title: '每日上报',
                 ),
                 Row(
@@ -101,7 +101,7 @@ class _AccountPageState extends State<AccountPage> {
                   ],
                 ),
                 const MineCell(
-                  imageName: 'images/southeast.jpeg',
+                  imageName: 'assets/images/southeast.jpeg',
                   title: '评估日记',
                 ),
                 Row(
@@ -117,14 +117,14 @@ class _AccountPageState extends State<AccountPage> {
                   ],
                 ),
                 const MineCell(
-                  imageName: 'images/southeast.jpeg',
+                  imageName: 'assets/images/southeast.jpeg',
                   title: '喜欢',
                 ),
                 const SizedBox(
                   height: 10,
                 ),
                 const MineCell(
-                  imageName: 'images/southeast.jpeg',
+                  imageName: 'assets/images/southeast.jpeg',
                   title: '设置',
                 ),
               ])

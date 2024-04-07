@@ -58,7 +58,7 @@ class MineCell extends StatelessWidget {
                         )
                       : Container(),
                   const Image(
-                    image: AssetImage('images/icon_right.png'),
+                    image: AssetImage('assets/images/icon_right.png'),
                     width: 14,
                   )
                 ],
