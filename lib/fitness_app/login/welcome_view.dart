@@ -49,8 +49,8 @@ class WelcomeView extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
-                  primary: Colors.black, // Background color
-                  onPrimary: Colors.white, // Text color
+                  backgroundColor: Colors.black, // Background color
+                  foregroundColor: Colors.white, // Text color
                   elevation: 4.0, // Shadow depth
                 ),
               ),
@@ -70,7 +70,7 @@ class WelcomeView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   side: BorderSide(color: Colors.black),
-                  primary: Colors.black, // Text color
+                  foregroundColor: Colors.black, // Text color
                 ),
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.1),
