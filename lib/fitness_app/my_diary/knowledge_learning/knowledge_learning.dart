@@ -172,7 +172,7 @@ void _checkVideo() {
   void _createChewieController() {
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,
-      autoPlay: true,
+      autoPlay: false,
       looping: false,
       // Here you can add additional options, subtitles, or any other custom configurations.
       // Example for adding an option:
