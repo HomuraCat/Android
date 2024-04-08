@@ -34,7 +34,6 @@ class _DailyReportPageState extends State<DailyReportPage> {
     int last_submitday, last_submitmonth, last_submityear;
     Map<String, dynamic> config =
         await SpStorage.instance.readDailyReportConfig();
-    print(config);
     submitstate = config['submitstate'] ?? false;
     last_submityear = config['submityear'] ?? 0;
     last_submitmonth = config['submitmonth'] ?? 0;
@@ -284,7 +283,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
       Radio(
           value: 1,
           groupValue: _selectedValue,
-          onChanged: (value) {
+          onChanged: submitstate ? null : (value) {
             setState(() {
               _selectedValue = value as int;
             });
@@ -296,7 +295,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
       Radio(
           value: 2,
           groupValue: _selectedValue,
-          onChanged: (value) {
+          onChanged: submitstate ? null : (value) {
             setState(() {
               _selectedValue = value as int;
             });
@@ -353,7 +352,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
                     setState(() => submitstate = true);
                     DateTime this_submit_time = DateTime.now();
                     if (CompareTime(RefreshTime, this_submit_time)) {
-                      this_submit_time.add(Duration(days: 1));
+                      this_submit_time = this_submit_time.add(const Duration(days: 1));
                     }
                     SpStorage.instance.saveDailyReportConfig(
                         submitstate: submitstate,

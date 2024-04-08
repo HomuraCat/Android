@@ -24,6 +24,12 @@ class SpStorage {
     return json.decode(content);
   }
 
+    Future<Map<String, dynamic>> readWeeklyTestConfig() async {
+    await initSpWhenNull();
+    String content = _sp!.getString('WeeklyTest-config') ?? "{}";
+    return json.decode(content);
+  }
+
   Future<bool> saveDailyReportConfig(
       {required bool submitstate,
       int? submityear,

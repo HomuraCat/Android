@@ -21,6 +21,36 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
     super.initState();
     timer =
         Timer.periodic(const Duration(seconds: 1), (Timer t) => CheckTime());
+    _initConfig();
+  }
+
+  void _initConfig() async {
+    int last_submitday, last_submitmonth, last_submityear;
+    Map<String, dynamic> config =
+        await SpStorage.instance.readWeeklyTestConfig();
+    submitstate = config['submitstate'] ?? false;
+    last_submityear = config['submityear'] ?? 0;
+    last_submitmonth = config['submitmonth'] ?? 0;
+    last_submitday = config['submitday'] ?? 0;
+    if (last_submityear < DateTime.now().year) {
+      submitstate = false;
+    }
+    if (last_submityear == DateTime.now().year &&
+        last_submitmonth < DateTime.now().month) {
+      submitstate = false;
+    }
+    if (last_submityear == DateTime.now().year &&
+        last_submitmonth == DateTime.now().month &&
+        last_submitday < DateTime.now().day) {
+      submitstate = false;
+    }
+    if (last_submityear == DateTime.now().year &&
+        last_submitmonth == DateTime.now().month &&
+        last_submitday == DateTime.now().day &&
+        CompareTime(RefreshTime, DateTime.now())) {
+      submitstate = false;
+    }
+    setState(() {});
   }
 
   @override
@@ -44,6 +74,7 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
           children: [
             const SizedBox(height: 6),
             SelectQuestion(
+                submitstate: submitstate,
                 question: "1. 肺病是常见的恶性肿瘤之一，其发生主要与以下哪个因素有关？",
                 choose1: "A. 病毒感染",
                 choose2: "B. 遗传因素",
@@ -51,6 +82,7 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
                 choose4: "D. 吸烟和环境"),
             const SizedBox(height: 6),
             SelectQuestion(
+                submitstate: submitstate,
                 question: "2. 肺痛的临床表现主要包括下列哪项?",
                 choose1: "A. 咳嗽、咳痰、胸痛",
                 choose2: "B. 发热、乏力、食欲减退",
@@ -58,6 +90,7 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
                 choose4: "D. 头晕、恶心、呕吐"),
             const SizedBox(height: 6),
             SelectQuestion(
+                submitstate: submitstate,
                 question: "3. 肺癌的治疗方法主要包括下列哪些?",
                 choose1: "A. 手术切除",
                 choose2: "B. 化疗",
@@ -65,6 +98,7 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
                 choose4: "D. 全部都包括"),
             const SizedBox(height: 6),
             SelectQuestion(
+                submitstate: submitstate,
                 question: "4. 下列哪种检查方法可以帮助确诊肺癌?",
                 choose1: "A. X线胸片",
                 choose2: "B. 超声检查",
@@ -72,6 +106,7 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
                 choose4: "D. 病理活检"),
             const SizedBox(height: 6),
             SelectQuestion(
+                submitstate: submitstate,
                 question: "5. 对丁肺癌患者的护理注意事项，以下哪一项是正确的?",
                 choose1: "A. 鼓励患者主动咳嗽",
                 choose2: "B. 给予高蛋白饮食",
@@ -104,7 +139,7 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
                     setState(() => submitstate = true);
                     DateTime this_submit_time = DateTime.now();
                     if (CompareTime(RefreshTime, this_submit_time)) {
-                      this_submit_time.add(Duration(days: 1));
+                      this_submit_time = this_submit_time.add(Duration(days: 1));
                     }
                     SpStorage.instance.saveWeeklyTestConfig(
                         submitstate: submitstate,

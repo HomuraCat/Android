@@ -21,6 +21,7 @@ class ChildPage extends StatelessWidget {
 class SelectQuestion extends StatefulWidget {
   const SelectQuestion(
       {Key? key,
+      required this.submitstate,
       required this.question,
       required this.choose1,
       required this.choose2,
@@ -28,6 +29,7 @@ class SelectQuestion extends StatefulWidget {
       required this.choose4})
       : super(key: key);
   final String question, choose1, choose2, choose3, choose4;
+  final bool submitstate;
 
   @override
   State<SelectQuestion> createState() => _SelectQuestionState();
@@ -53,7 +55,7 @@ class _SelectQuestionState extends State<SelectQuestion> {
         Radio(
             value: 1,
             groupValue: _selectedValue,
-            onChanged: (value) {
+            onChanged: widget.submitstate ? null : (value) {
               setState(() {
                 _selectedValue = value as int;
               });
@@ -67,7 +69,7 @@ class _SelectQuestionState extends State<SelectQuestion> {
         Radio(
             value: 2,
             groupValue: _selectedValue,
-            onChanged: (value) {
+            onChanged: widget.submitstate ? null : (value) {
               setState(() {
                 _selectedValue = value as int;
               });
@@ -81,7 +83,7 @@ class _SelectQuestionState extends State<SelectQuestion> {
         Radio(
             value: 3,
             groupValue: _selectedValue,
-            onChanged: (value) {
+            onChanged: widget.submitstate ? null : (value) {
               setState(() {
                 _selectedValue = value as int;
               });
@@ -95,7 +97,7 @@ class _SelectQuestionState extends State<SelectQuestion> {
         Radio(
             value: 4,
             groupValue: _selectedValue,
-            onChanged: (value) {
+            onChanged: widget.submitstate ? null : (value) {
               setState(() {
                 _selectedValue = value as int;
               });
