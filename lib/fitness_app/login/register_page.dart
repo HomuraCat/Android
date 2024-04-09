@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/cupertino.dart';
 
 void main() {
   runApp(MyApp());
@@ -102,14 +103,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   void _showDialog(BuildContext context, String message,
       {VoidCallback? onDialogClose}) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Text("Message"),
           content: Text(message),
           actions: <Widget>[
-            TextButton(
+            CupertinoDialogAction(
               child: Text("Close"),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
@@ -125,21 +126,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void showUserAgreement() {
-    showDialog(
+    showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Text('用户协议'), // User Agreement
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 Text(
-                    '这里是用户协议的内容...'), // Here is the content of the user agreement...
+                  '这里是用户协议的内容...', // Here is the content of the user agreement...
+                ),
               ],
             ),
           ),
           actions: <Widget>[
-            TextButton(
+            CupertinoDialogAction(
               child: Text('关闭'), // Close
               onPressed: () {
                 Navigator.of(context).pop();
@@ -152,21 +154,20 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void showPrivacyPolicy() {
-    showDialog(
+    showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Text('隐私政策'), // Privacy Policy
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text(
-                    '这里是隐私政策的内容...'), // Here is the content of the privacy policy...
-              ],
+          content: CupertinoScrollbar(
+            child: SingleChildScrollView(
+              child: Text(
+                '这里是隐私政策的内容...', // Here is the content of the privacy policy...
+              ),
             ),
           ),
           actions: <Widget>[
-            TextButton(
+            CupertinoDialogAction(
               child: Text('关闭'), // Close
               onPressed: () {
                 Navigator.of(context).pop();
@@ -197,6 +198,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     labelText: '请输入手机号', // Please enter your phone number
                   ),
                   onChanged: (value) => phoneNumber = value,
+                  keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return '手机号不能为空'; // Phone number cannot be empty

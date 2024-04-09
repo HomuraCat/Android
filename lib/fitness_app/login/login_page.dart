@@ -120,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
     return TextFormField(
       keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(
-        labelText: '邮箱地址',
+        labelText: '账号',
         labelStyle: TextStyle(color: CupertinoColors.systemGrey),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: CupertinoColors.systemGrey2),
@@ -136,8 +136,8 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty || !value.contains('@')) {
-          return '请输入有效的邮箱地址';
+        if (value == null || value.isEmpty) {
+          return '请输入有效的账号地址';
         }
         return null;
       },
