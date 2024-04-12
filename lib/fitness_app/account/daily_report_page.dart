@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'dart:async';
-import '../utils/Spsave_module.dart';
+import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 
 class DailyReportPage extends StatefulWidget {
   const DailyReportPage({Key? key}) : super(key: key);
@@ -15,7 +17,8 @@ class _DailyReportPageState extends State<DailyReportPage> {
       high_pressure,
       low_pressure,
       medication_type,
-      medication_dosage;
+      medication_dosage,
+      last_time = "";
   double _pain = 1.0, _tiredness = 1.0, _sleep = 1.0;
   bool submitstate = false;
   int _selectedValue = 1;
@@ -32,29 +35,31 @@ class _DailyReportPageState extends State<DailyReportPage> {
 
   void _initConfig() async {
     int last_submitday, last_submitmonth, last_submityear;
-    Map<String, dynamic> config =
-        await SpStorage.instance.readDailyReportConfig();
-    submitstate = config['submitstate'] ?? false;
-    last_submityear = config['submityear'] ?? 0;
-    last_submitmonth = config['submitmonth'] ?? 0;
-    last_submitday = config['submitday'] ?? 0;
-    if (last_submityear < DateTime.now().year) {
-      submitstate = false;
-    }
-    if (last_submityear == DateTime.now().year &&
-        last_submitmonth < DateTime.now().month) {
-      submitstate = false;
-    }
-    if (last_submityear == DateTime.now().year &&
-        last_submitmonth == DateTime.now().month &&
-        last_submitday < DateTime.now().day) {
-      submitstate = false;
-    }
-    if (last_submityear == DateTime.now().year &&
-        last_submitmonth == DateTime.now().month &&
-        last_submitday == DateTime.now().day &&
-        CompareTime(RefreshTime, DateTime.now())) {
-      submitstate = false;
+    GetSubmitTime(context);
+    if (last_time != "ERROR"){
+      submitstate = true;
+      List<String> temp_last_time = last_time.split(' ');
+      last_submityear = int.parse(temp_last_time[0]);
+      last_submitmonth = int.parse(temp_last_time[1]);
+      last_submitday = int.parse(temp_last_time[2]);
+      if (last_submityear < DateTime.now().year) {
+        submitstate = false;
+      }
+      if (last_submityear == DateTime.now().year &&
+          last_submitmonth < DateTime.now().month) {
+        submitstate = false;
+      }
+      if (last_submityear == DateTime.now().year &&
+          last_submitmonth == DateTime.now().month &&
+          last_submitday < DateTime.now().day) {
+        submitstate = false;
+      }
+      if (last_submityear == DateTime.now().year &&
+          last_submitmonth == DateTime.now().month &&
+          last_submitday == DateTime.now().day &&
+          CompareTime(RefreshTime, DateTime.now())) {
+        submitstate = false;
+      }
     }
     setState(() {});
   }
@@ -349,16 +354,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
               : () {
                   if ((_formKey.currentState as FormState).validate()) {
                     (_formKey.currentState as FormState).save();
-                    setState(() => submitstate = true);
-                    DateTime this_submit_time = DateTime.now();
-                    if (CompareTime(RefreshTime, this_submit_time)) {
-                      this_submit_time = this_submit_time.add(const Duration(days: 1));
-                    }
-                    SpStorage.instance.saveDailyReportConfig(
-                        submitstate: submitstate,
-                        submityear: this_submit_time.year,
-                        submitmonth: this_submit_time.month,
-                        submitday: this_submit_time.day);
+                    SendQuestionnaire(context);
                   }
                 },
         ),
@@ -387,7 +383,93 @@ class _DailyReportPageState extends State<DailyReportPage> {
         (current_time.second == RefreshTime.second));
     if (flag) {
       setState(() => submitstate = false);
-      SpStorage.instance.saveDailyReportConfig(submitstate: submitstate);
     }
+  }
+
+  Future<void> GetSubmitTime(BuildContext context) async {
+    DateTime this_submit_time = DateTime.now();
+    if (CompareTime(RefreshTime, this_submit_time)) {
+      this_submit_time = this_submit_time.add(const Duration(days: 1));
+    }
+    var url = Uri.parse('http://10.0.2.2:5001/questionnaire/get_time');
+
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{'name': 'testing'}),
+    );
+    
+    if (response.statusCode == 200) {
+      var responseData = jsonDecode(response.body);
+      if (responseData != 0) setState(() => last_time = jsonDecode(response.body).toString());
+        else setState(() => last_time = "ERROR");
+    } else setState(() => last_time = "ERROR");
+  }
+
+  Future<void> SendQuestionnaire(BuildContext context) async {
+    DateTime this_submit_time = DateTime.now();
+    if (CompareTime(RefreshTime, this_submit_time)) {
+      this_submit_time = this_submit_time.add(const Duration(days: 1));
+    }
+    var url = Uri.parse('http://10.0.2.2:5001/questionnaire/send');
+
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'name': 'testing',
+        'temperature': _temperature,
+        'high_pressure': high_pressure,
+        'low_pressure': low_pressure,
+        'medication_type': medication_type,
+        'medication_dosage': medication_dosage,
+        'pain': _pain.toString(), 
+        'tiredness': _tiredness.toString(), 
+        'sleep': _sleep.toString(),
+        'medication_intime': _selectedValue.toString(),
+        'submityear': this_submit_time.year.toString(),
+        'submitmonth': this_submit_time.month.toString(),
+        'submitday': this_submit_time.day.toString(),
+        'type': 'daily_report'
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      var responseData = jsonDecode(response.body);
+      if (responseData == 1) {
+        setState(() => submitstate = true);
+        _showDialog(context, '提交成功！', onDialogClose: () {
+          Navigator.pop(context);
+        });
+      }
+    } else print('Request failed with status: ${response.statusCode}.');
+  }
+
+  void _showDialog(BuildContext context, String message,
+      {VoidCallback? onDialogClose}) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text("Message"),
+          content: Text(message),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                if (onDialogClose != null) {
+                  onDialogClose(); // Call the callback if it's provided
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
