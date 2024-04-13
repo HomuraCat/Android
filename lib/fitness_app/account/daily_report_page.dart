@@ -57,7 +57,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
       if (last_submityear == DateTime.now().year &&
           last_submitmonth == DateTime.now().month &&
           last_submitday == DateTime.now().day &&
-          CompareTime(RefreshTime, DateTime.now())) {
+          !CompareTime(RefreshTime, DateTime.now())) {
         submitstate = false;
       }
     }

@@ -18,15 +18,15 @@ class MealsListData {
   static List<MealsListData> tabIconsList = <MealsListData>[
     MealsListData(
       imagePath: 'assets/fitness_app/breakfast.png',
-      titleTxt: '面包鸡蛋',
+      titleTxt: '早餐',
       kacl: 226,
-      meals: <String>['富含纤维', '好消化'],
+      meals: <String>['富含蛋白质'],
       startColor: '#FA7D82',
       endColor: '#FFB295',
     ),
     MealsListData(
       imagePath: 'assets/fitness_app/lunch.png',
-      titleTxt: '盖浇饭',
+      titleTxt: '午餐',
       kacl: 602,
       meals: <String>['高能量', '高脂肪'],
       startColor: '#738AE6',
@@ -34,7 +34,7 @@ class MealsListData {
     ),
     MealsListData(
       imagePath: 'assets/fitness_app/snack.png',
-      titleTxt: '水果',
+      titleTxt: '晚餐',
       kacl: 114,
       meals: <String>['易消化', '开胃'],
       startColor: '#FE95B6',

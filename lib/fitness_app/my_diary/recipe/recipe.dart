@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() => runApp(MyApp());
 
@@ -24,27 +26,25 @@ class RecipeListPage extends StatefulWidget {
 
 class _RecipeListPageState extends State<RecipeListPage> {
   // 此处为食谱数据列表示例
-  List<Map<String, dynamic>> recipes = [
-    {
-      'image': 'assets/images/userImage.png',
-      'name': '西红柿炒鸡蛋',
-      'calories': '250卡',
-      'nutrients': '蛋白质: 10g 碳水化合物: 35g 脂肪: 10g',
-      'ingredients': ['西红柿', '2个鸡蛋'],
-      'video': 'assets/videos/1.mp4',
-      'completed': false,
-    },
-    {
-      'image': 'assets/images/userImage.png',
-      'name': '人类',
-      'calories': '114514卡',
-      'nutrients': '蛋白质: 10g 碳水化合物: 35g 脂肪: 10g',
-      'ingredients': ['人类'],
-      'video': 'assets/videos/2.mp4',
-      'completed': false,
-    },
-    // 其他食谱数据...
-  ];
+  List<Map<String, dynamic>> recipes = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchRecipes();
+  }
+
+  Future<void> fetchRecipes() async {
+    var url = Uri.parse('http://10.0.2.2:5001/recipes');
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      setState(() {
+        recipes = List<Map<String, dynamic>>.from(jsonData);
+      });
+    } else {
+      throw Exception('Failed to load recipes');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -224,28 +224,28 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
             ),
             SizedBox(height: 16),
              
-            Padding(
-              padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-                    if (states.contains(MaterialState.pressed))
-                      return isCompleted ? Colors.green[800]! : Colors.blue[800]!; // Pressed color
-                    return isCompleted ? Colors.green : Colors.blue; // Default color
-                  }),
-                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white), // Text color
-                  minimumSize: MaterialStateProperty.all<Size>(Size(double.infinity, 50)), // Button width and height
-                ),
-                onPressed: () {
-                  setState(() {
-                    isCompleted = !isCompleted;
-                    widget.recipe['completed'] = isCompleted;
-                    // Additional logic can be added here, e.g., updating the database
-                  });
-                },
-                child: Text(isCompleted ? '已制作' : '待制作'),
-              ),
-            ),
+            //Padding(
+            //  padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+            //  child: ElevatedButton(
+            //    style: ButtonStyle(
+            //      backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+            //        if (states.contains(MaterialState.pressed))
+            //          return isCompleted ? Colors.green[800]! : Colors.blue[800]!; // Pressed color
+            //        return isCompleted ? Colors.green : Colors.blue; // Default color
+            //      }),
+            //      foregroundColor: MaterialStateProperty.all<Color>(Colors.white), // Text color
+            //      minimumSize: MaterialStateProperty.all<Size>(Size(double.infinity, 50)), // Button width and height
+            //    ),
+            //    onPressed: () {
+            //      setState(() {
+            //        isCompleted = !isCompleted;
+            //        widget.recipe['completed'] = isCompleted;
+            //        // Additional logic can be added here, e.g., updating the database
+            //      });
+            //    },
+            //    child: Text(isCompleted ? '已制作' : '待制作'),
+            //  ),
+            //),
             // 如果有更多信息，请在此处添加
           ],
         ),

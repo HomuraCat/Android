@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/knowledge_learning/weekly_test_page.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 class KnowledgeLearningPage extends StatefulWidget {
+  final Map<String, dynamic> video;
+
+  KnowledgeLearningPage({Key? key, required this.video}) : super(key: key);
+
   @override
   _KnowledgeLearningPageState createState() => _KnowledgeLearningPageState();
 }
@@ -15,17 +20,32 @@ class LearnSection extends StatefulWidget {
 
 class _LearnSectionState extends State<LearnSection> {
   // 假设这是您的视频列表数据
-  final List<Map<String, String>> videos = [
-    {
-      'title': '视频标题1',
-      'status': '学习',
-    },
-    {
-      'title': '视频标题2',
-      'status': '学习',
-    },
-  ];
+  List<Map<String, dynamic>> videos = [];
 
+  @override
+  void initState() {
+    super.initState();
+    fetchVideos();
+  }
+
+  Future<void> fetchVideos() async {
+    var url = Uri.parse('http://10.0.2.2:5001/mylearn_videos');
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body) as List;
+      setState(() {
+        videos = jsonData.map((data) => {
+          'title': data['title'],
+          'status': data['status'],
+          'source': data['source'],
+          'info': data['info'],
+          'completed': data['completed'] == 1
+        }).toList();
+      });
+    } else {
+      throw Exception('Failed to load videos');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,10 +57,8 @@ class _LearnSectionState extends State<LearnSection> {
             const SizedBox(height: 60),
             const SizedBox(height: 4),
             const SizedBox(height: 60),
-            // 这里假设 buildTestButton 是一个创建按钮的函数
             buildTestButton(context),
             const SizedBox(height: 24),
-            // 构建视频列表
             for (var video in videos) buildVideoListItem(video),
           ],
         ),
@@ -66,12 +84,12 @@ class _LearnSectionState extends State<LearnSection> {
     );
   }
   // 构建视频列表项的函数
-  Widget buildVideoListItem(Map<String, String> video) {
+  Widget buildVideoListItem(Map<String, dynamic> video) {
     return Card(
       child: ListTile(
-        title: Text(video['title']!),
+        title: Text(video['title']),
         trailing: Text(
-          video['status']!,
+          video['status'],
           style: TextStyle(
             color: video['status'] == '已学' ? Colors.green : Colors.blue,
           ),
@@ -81,7 +99,7 @@ class _LearnSectionState extends State<LearnSection> {
           bool? updated = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => KnowledgeLearningPage(),
+              builder: (context) => KnowledgeLearningPage(video: video),
             ),
           );
 
@@ -103,9 +121,7 @@ class _KnowledgeLearningPageState extends State<KnowledgeLearningPage> {
   ChewieController? _chewieController;
   int currentVideoIndex = 0;
   double topBarOpacity = 0.0;
-  //String info = "你好，我是肺癌知识。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。";
-  String info = "你好，我是肺癌知识。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。以下文字是为了让这段文字尽可能长来看看UI效果。";
-  
+  String info = "";
   final List<String> _videoSources = [
     'assets/videos/1.mp4',
   ];
@@ -113,6 +129,7 @@ class _KnowledgeLearningPageState extends State<KnowledgeLearningPage> {
   @override
   void initState() {
     super.initState();
+    info = widget.video['info']; 
     _initializeVideoPlayer();
       scrollController.addListener(() {
       if (scrollController.offset >= 24) {
@@ -138,13 +155,12 @@ class _KnowledgeLearningPageState extends State<KnowledgeLearningPage> {
     });
   }
 
-  Future<void> _initializeVideoPlayer() async {
-    _videoPlayerController = VideoPlayerController.asset(_videoSources[currentVideoIndex]);
-    await _videoPlayerController.initialize();
-    _videoPlayerController.addListener(_checkVideo); // Add listener
-    _createChewieController();
-    setState(() {});
-  }
+Future<void> _initializeVideoPlayer() async {
+  _videoPlayerController = VideoPlayerController.asset(widget.video['source']);
+  await _videoPlayerController.initialize();
+  _createChewieController();
+  setState(() {});
+}
 
 void _checkVideo() {
   final bool isPlaying = _videoPlayerController.value.isPlaying;
@@ -213,7 +229,7 @@ void _checkVideo() {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('知识学习'),
+        title: Text(widget.video['title']),
       ),
       body: Column(
         children: [
@@ -245,14 +261,6 @@ void _checkVideo() {
               child: Text(info),
             ),
           ),
-          //ElevatedButton(
-          //  onPressed: () {
-          //    // Logic to mark the video as "已学"
-          //    Navigator.pop(context, true);
-          //  },
-          //  child: Text('标记为已学'),
-          //),
-          // Add any other controls or information you want to display
         ],
       ),
     );
