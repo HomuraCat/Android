@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/knowledge_learning/weekly_test_page.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 class SportAdvicePage extends StatefulWidget {
+
+  final Map<String, dynamic> video;
+  SportAdvicePage({Key? key, required this.video}) : super(key: key);
   @override
   _SportAdvicePageState createState() => _SportAdvicePageState();
 }
@@ -15,20 +19,37 @@ class SportSection extends StatefulWidget {
 
 class _SportSectionState extends State<SportSection> {
   // 假设这是您的视频列表数据
-  final List<Map<String, String>> videos = [
-    {
-      'title': '仰卧起坐',
-      'status': '学习',
-    },
-    {
-      'title': '立定跳远',
-      'status': '学习',
-    },
-  ];
-
+  List<Map<String, dynamic>> videos = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchVideos();
+  }
+  Future<void> fetchVideos() async {
+    var url = Uri.parse('http://10.0.2.2:5001/mysport_videos');
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body) as List;
+      setState(() {
+        videos = jsonData.map((data) => {
+          'id': data['id'],
+          'title': data['title'],
+          'source_1': data['source_1'],
+          'source_2': data['source_2'],
+          'completed': data['completed'] == 1
+        }).toList();
+      });
+    } else {
+      throw Exception('Failed to load videos');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
+      appBar: AppBar(
+        title: Text("运动建议"),
+      ),
       body: Form(
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: ListView(
@@ -50,34 +71,33 @@ class _SportSectionState extends State<SportSection> {
 
  
   // 构建视频列表项的函数
-  Widget buildVideoListItem(Map<String, String> video) {
-    return Card(
-      child: ListTile(
-        title: Text(video['title']!),
-        trailing: Text(
-          video['status']!,
-          style: TextStyle(
-            color: video['status'] == '已学' ? Colors.green : Colors.blue,
+Widget buildVideoListItem(Map<String, dynamic> video) {
+  return Card(
+    child: ListTile(
+      title: Text(video['title']),
+      subtitle: Text(video['completed'] ? '已学' : '学习中'),  // Show learning status as a subtitle
+      trailing: Icon(video['completed'] ? Icons.check_circle : Icons.play_circle_fill, 
+                     color: video['completed'] ? Colors.green : Colors.blue),
+      onTap: () async {
+        // Navigate to the video page whether it's completed or not
+        bool? updated = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SportAdvicePage(video: video),
           ),
-        ),
-        leading: Icon(Icons.play_circle_fill),
-        onTap: () async {
-          bool? updated = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SportAdvicePage(),
-            ),
-          );
+        );
 
-          if (updated != null && updated) {
-            setState(() {
-              video['status'] = '已学';
-            });
-          }
-        },
-      ),
-    );
-  }
+        // Only update the state if there was a change and the video was not previously completed
+        if (updated != null && updated && !video['completed']) {
+          setState(() {
+            video['status'] = '已学';
+            video['completed'] = true;
+          });
+        }
+      },
+    ),
+  );
+}
 }
 
 class _SportAdvicePageState extends State<SportAdvicePage> {
@@ -91,10 +111,6 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
   double topBarOpacity = 0.0;
   String info = "温馨提示：感觉不适请立即停止运动。";
 
-  final List<String> _videoSources = [
-    'assets/videos/1.mp4',
-    'assets/videos/2.mp4',
-  ];
 
   @override
   void initState() {
@@ -124,35 +140,51 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
     });
   }
 
-  Future<void> _initializeVideoPlayer() async {
-    _videoPlayerController = VideoPlayerController.asset(_videoSources[isPracticeVideo ? 1 : 0]);
-    await _videoPlayerController.initialize();
-    _videoPlayerController.addListener(_checkVideo); // Add listener
-    _createChewieController();
-    setState(() {});
-  }
+Future<void> _initializeVideoPlayer() async {
+  //_videoPlayerController = VideoPlayerController.asset(widget.video['source']);
+  //print("!@#!@#");
+  //print(widget.video);
+  //_videoPlayerController = VideoPlayerController.asset("assets/videos/2.mp4");
+  _videoPlayerController = isPracticeVideo ? VideoPlayerController.asset(widget.video['source_2']) : VideoPlayerController.asset(widget.video['source_1']);
+  await _videoPlayerController.initialize();
+  _createChewieController();
+  setState(() {});
+  _videoPlayerController.addListener(_checkVideo);
+}
 
 void _checkVideo() {
   final bool isPlaying = _videoPlayerController.value.isPlaying;
   final bool isVideoEnded = _videoPlayerController.value.position >= _videoPlayerController.value.duration;
-  if (!isPlaying && isVideoEnded && buttonText == '教学') {
+  if (!isPlaying && isVideoEnded && isPracticeVideo) {
     // If the video has finished playing, mark it as learned
     _markVideoAsLearned();
   }
 }
 
-  void _markVideoAsLearned() {
-    // Logic to mark the video as "已学"
-    print("HERE");
-    //Navigator.pop(context, true);
+void _markVideoAsLearned() async {
+  // Assuming 'id' is a property of your video that identifies it uniquely in the backend.
+  var url = Uri.parse('http://10.0.2.2:5001/update_sport_video_status/${widget.video['id']}');
+  var response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'completed': '1'})
+  );
+
+  if (response.statusCode == 200) {
+    // Optionally handle the response, e.g., showing a success message
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Video marked as completed!")));
+  } else {
+    // Handle error, e.g., showing an error message
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to update video status.")));
   }
+}
 
   @override
   void dispose() {
     _videoPlayerController.removeListener(_checkVideo); // Remove listener
     _videoPlayerController.dispose();
     _chewieController?.dispose();
-    //scrollController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -201,7 +233,7 @@ void _checkVideo() {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('运动建议'),
+        title: Text(widget.video['title']),
       ),
       body: Column(
         children: [
@@ -222,14 +254,40 @@ void _checkVideo() {
                     ),
             ),
           ),
-          TextButton(
-            onPressed: _toggleVideo,
-            child: Text(buttonText),
-          ),
+          Padding(
+              padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+              child: ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                    if (states.contains(MaterialState.pressed))
+                      return buttonText == "跟练" ? Colors.green[800]! : Colors.blue[800]!; // Pressed color
+                    return buttonText == "教学" ? Colors.green : Colors.blue; // Default color
+                  }),
+                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white), // Text color
+                  minimumSize: MaterialStateProperty.all<Size>(Size(double.infinity, 50)), // Button width and height
+                ),
+                onPressed: () {
+                  setState(() {
+                    buttonText = buttonText == "跟练" ? "教学" : "跟练";
+                  });
+                  _toggleVideo();
+                },
+                child: 
+                  Text(buttonText,
+                  style: TextStyle(
+                    fontSize: 30, // Increase the font size here
+                  ),
+                )
+              ),
+            ),
           Expanded(
             child: SingleChildScrollView(
               controller: scrollController,
-              child: Text(info),
+              child: Text(info,
+                style: TextStyle(
+                    fontSize:   20, // Increase the font size here
+                  ),
+              ),
             ),
           ),
         ],

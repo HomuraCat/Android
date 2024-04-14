@@ -35,6 +35,7 @@ class _LearnSectionState extends State<LearnSection> {
       var jsonData = jsonDecode(response.body) as List;
       setState(() {
         videos = jsonData.map((data) => {
+          'id': data['id'],
           'title': data['title'],
           'status': data['status'],
           'source': data['source'],
@@ -49,6 +50,9 @@ class _LearnSectionState extends State<LearnSection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("知识学习"),
+      ),
       body: Form(
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: ListView(
@@ -84,34 +88,33 @@ class _LearnSectionState extends State<LearnSection> {
     );
   }
   // 构建视频列表项的函数
-  Widget buildVideoListItem(Map<String, dynamic> video) {
-    return Card(
-      child: ListTile(
-        title: Text(video['title']),
-        trailing: Text(
-          video['status'],
-          style: TextStyle(
-            color: video['status'] == '已学' ? Colors.green : Colors.blue,
+Widget buildVideoListItem(Map<String, dynamic> video) {
+  return Card(
+    child: ListTile(
+      title: Text(video['title']),
+      subtitle: Text(video['completed'] ? '已学' : '学习中'),  // Show learning status as a subtitle
+      trailing: Icon(video['completed'] ? Icons.check_circle : Icons.play_circle_fill, 
+                     color: video['completed'] ? Colors.green : Colors.blue),
+      onTap: () async {
+        // Navigate to the video page whether it's completed or not
+        bool? updated = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => KnowledgeLearningPage(video: video),
           ),
-        ),
-        leading: Icon(Icons.play_circle_fill),
-        onTap: () async {
-          bool? updated = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => KnowledgeLearningPage(video: video),
-            ),
-          );
+        );
 
-          if (updated != null && updated) {
-            setState(() {
-              video['status'] = '已学';
-            });
-          }
-        },
-      ),
-    );
-  }
+        // Only update the state if there was a change and the video was not previously completed
+        if (updated != null && updated && !video['completed']) {
+          setState(() {
+            video['status'] = '已学';
+            video['completed'] = true;
+          });
+        }
+      },
+    ),
+  );
+}
 }
 
 class _KnowledgeLearningPageState extends State<KnowledgeLearningPage> {
@@ -160,6 +163,7 @@ Future<void> _initializeVideoPlayer() async {
   await _videoPlayerController.initialize();
   _createChewieController();
   setState(() {});
+  _videoPlayerController.addListener(_checkVideo);
 }
 
 void _checkVideo() {
@@ -171,11 +175,23 @@ void _checkVideo() {
   }
 }
 
-  void _markVideoAsLearned() {
-    // Logic to mark the video as "已学"
-    Navigator.pop(context, true);
-  }
+void _markVideoAsLearned() async {
+  // Assuming 'id' is a property of your video that identifies it uniquely in the backend.
+  var url = Uri.parse('http://10.0.2.2:5001/update_learn_video_status/${widget.video['id']}');
+  var response = await http.post(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'completed': '1'})
+  );
 
+  if (response.statusCode == 200) {
+    // Optionally handle the response, e.g., showing a success message
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("视频标记为已完成!")));
+  } else {
+    // Handle error, e.g., showing an error message
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("视频标记失败！")));
+  }
+}
   @override
   void dispose() {
     _videoPlayerController.removeListener(_checkVideo); // Remove listener

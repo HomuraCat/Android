@@ -2,29 +2,54 @@ import 'package:best_flutter_ui_templates/fitness_app/fitness_app_theme.dart';
 import 'package:best_flutter_ui_templates/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
-
-class MediterranesnDietView extends StatelessWidget {
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+class MediterranesnDietView extends StatefulWidget {
   final AnimationController? animationController;
   final Animation<double>? animation;
 
-  const MediterranesnDietView(
-      {Key? key, this.animationController, this.animation})
+  const MediterranesnDietView({Key? key, this.animationController, this.animation})
       : super(key: key);
 
   @override
+  _MediterranesnDietViewState createState() => _MediterranesnDietViewState();
+}
+
+class _MediterranesnDietViewState extends State<MediterranesnDietView> {
+  int completed = 10;
+  int uncompleted = 5;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRecipes();
+  }
+
+  Future<void> fetchRecipes() async {
+    var url = Uri.parse('http://10.0.2.2:5001/learn_number');
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      setState(() {
+        completed = jsonData["completed"];
+        uncompleted = jsonData["uncompleted"];
+      });
+    } else {
+      throw Exception('Failed to load learn number');
+    }
+  }
+  @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: animationController!,
+      animation: widget.animationController!,
       builder: (BuildContext context, Widget? child) {
         // TODO get the completed and uncompleted from the backend
-        int completed = 10;
-        int uncompleted = 5;
         int progress = (completed / (uncompleted + completed) * 100).toInt();
         return FadeTransition(
-          opacity: animation!,
+          opacity: widget.animationController!,
           child: new Transform(
             transform: new Matrix4.translationValues(
-                0.0, 30 * (1.0 - animation!.value), 0.0),
+                0.0, 30 * (1.0 - widget.animationController!.value), 0.0),
             child: Padding(
               padding: const EdgeInsets.only(
                   left: 24, right: 24, top: 16, bottom: 18),
@@ -110,7 +135,7 @@ class MediterranesnDietView extends StatelessWidget {
                                                       const EdgeInsets.only(
                                                           left: 4, bottom: 3),
                                                   child: Text(
-                                                    '${(completed * animation!.value).toInt()}',
+                                                    '${(completed * widget.animationController!.value).toInt()}',
                                                     textAlign: TextAlign.center,
                                                     style: TextStyle(
                                                       fontFamily:
@@ -208,7 +233,7 @@ class MediterranesnDietView extends StatelessWidget {
                                                       const EdgeInsets.only(
                                                           left: 4, bottom: 3),
                                                   child: Text(
-                                                    '${(uncompleted * animation!.value).toInt()}',  
+                                                    '${(uncompleted * widget.animationController!.value).toInt()}',  
                                                     textAlign: TextAlign.center,
                                                     style: TextStyle(
                                                       fontFamily:
@@ -282,7 +307,7 @@ class MediterranesnDietView extends StatelessWidget {
                                             CrossAxisAlignment.center,
                                         children: <Widget>[
                                           Text(
-                                            '${(progress * animation!.value).toInt()}%',
+                                            '${(progress * widget.animationController!.value).toInt()}%',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               fontFamily:
@@ -308,7 +333,7 @@ class MediterranesnDietView extends StatelessWidget {
                                             HexColor("#8A98E8")
                                           ],
                                           angle: progress / 100 * 360 * 
-                                                  (animation!.value)),
+                                                  (widget.animationController!.value)),
                                       child: SizedBox(
                                         width: 108,
                                         height: 108,
