@@ -17,8 +17,8 @@ class _DailyReportPageState extends State<DailyReportPage> {
       high_pressure,
       low_pressure,
       medication_type,
-      medication_dosage,
-      last_time = "";
+      medication_dosage;
+  String last_time = "";
   double _pain = 1.0, _tiredness = 1.0, _sleep = 1.0;
   bool submitstate = false;
   int _selectedValue = 1;
@@ -35,7 +35,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
 
   void _initConfig() async {
     int last_submitday, last_submitmonth, last_submityear;
-    GetSubmitTime(context);
+    await GetSubmitTime(context);
     if (last_time != "ERROR"){
       submitstate = true;
       List<String> temp_last_time = last_time.split(' ');
@@ -57,7 +57,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
       if (last_submityear == DateTime.now().year &&
           last_submitmonth == DateTime.now().month &&
           last_submitday == DateTime.now().day &&
-          !CompareTime(RefreshTime, DateTime.now())) {
+          CompareTime(RefreshTime, DateTime.now())) {
         submitstate = false;
       }
     }
@@ -402,10 +402,10 @@ class _DailyReportPageState extends State<DailyReportPage> {
     );
     
     if (response.statusCode == 200) {
-      var responseData = jsonDecode(response.body);
-      if (responseData != 0) setState(() => last_time = jsonDecode(response.body).toString());
+      if (response.body != 0) setState(() => last_time = response.body);
         else setState(() => last_time = "ERROR");
-    } else setState(() => last_time = "ERROR");
+    }
+      else setState(() => last_time = "ERROR");
   }
 
   Future<void> SendQuestionnaire(BuildContext context) async {

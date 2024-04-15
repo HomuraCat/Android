@@ -24,6 +24,12 @@ class SpStorage {
     return json.decode(content);
   }
 
+    Future<Map<String, dynamic>> readAccount() async {
+    await initSpWhenNull();
+    String content = _sp!.getString('Account-config') ?? "{}";
+    return json.decode(content);
+  }
+
   Future<bool> saveWeeklyTestConfig(
       {required bool submitstate,
       int? submityear,
@@ -37,5 +43,16 @@ class SpStorage {
       'submitday': submitday
     });
     return _sp!.setString('WeeklyTest-config', content);
+  }
+
+  Future<bool> saveAccount(
+      {required String patientID,
+      required String name}) async {
+    await initSpWhenNull();
+    String content = json.encode({
+      'patientID': patientID,
+      'name': name
+    });
+    return _sp!.setString('Account-config', content);
   }
 }

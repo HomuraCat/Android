@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/common_tools.dart';
 import 'daily_report_page.dart';
+import 'basic_information_page.dart';
 
 class MineCell extends StatelessWidget {
   final String? title;
@@ -19,6 +20,10 @@ class MineCell extends StatelessWidget {
           case "每日上报":
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (BuildContext context) => DailyReportPage()));
+            break;
+          case "基本信息":
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => BasicInforPage()));
             break;
           default:
             Navigator.of(context).push(MaterialPageRoute(

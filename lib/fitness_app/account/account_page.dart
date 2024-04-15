@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'cell.dart';
+import '../utils/Spsave_module.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({Key? key}) : super(key: key);
@@ -8,6 +9,21 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+  late String patientID = "", name = "";
+
+  @override
+  void initState(){
+    super.initState();
+    _InitConfig();
+  }
+
+  void _InitConfig() async{
+    Map<String, dynamic> account = await SpStorage.instance.readAccount();
+    patientID = account['patientID'];
+    name = account['name'];
+    setState(() {});
+  }
+
   Widget headerWidget() {
     return Container(
       height: 110,
@@ -35,7 +51,7 @@ class _AccountPageState extends State<AccountPage> {
                   Container(
                     height: 35,
                     child: Text(
-                      "测试人员",
+                      name.isEmpty ?"加载中..." :name,
                       style: TextStyle(fontSize: 25, color: Colors.grey),
                     ),
                   ),
@@ -43,9 +59,9 @@ class _AccountPageState extends State<AccountPage> {
                       height: 35,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const <Widget>[
+                        children: <Widget>[
                           Text(
-                            "ID：12345",
+                            patientID.isEmpty ?"加载中..." :"ID:" + patientID,
                             style: TextStyle(fontSize: 17, color: Colors.grey),
                           ),
                           Image(

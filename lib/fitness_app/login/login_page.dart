@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_home_screen.dart';
+import '../utils/Spsave_module.dart';
 
 Future<void> registerUser(
     String email, String password, BuildContext context) async {
@@ -24,10 +25,13 @@ Future<void> registerUser(
 
     if (responseData == 2) {
       _showDialog(context, '用户不存在！');
-    } else if (responseData == 1) {
-      Navigator.pushNamed(context, "/app");
     } else if (responseData == 0) {
       _showDialog(context, '用户或密码错误！');
+    } else{
+      SpStorage.instance.saveAccount(
+                        patientID: "0",
+                        name: "testing");
+      Navigator.pushNamed(context, "/app");
     }
   } else {
     print('Request failed with status: ${response.statusCode}.');
@@ -231,6 +235,9 @@ class _LoginPageState extends State<LoginPage> {
             borderRadius: BorderRadius.circular(8),
             onPressed: () {
               // Assuming this code is within a Widget that has a BuildContext
+              SpStorage.instance.saveAccount(
+                        patientID: "114514",
+                        name: "测试人员");
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => FitnessAppHomeScreen()),
