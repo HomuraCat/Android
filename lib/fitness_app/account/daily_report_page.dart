@@ -17,8 +17,8 @@ class _DailyReportPageState extends State<DailyReportPage> {
       high_pressure,
       low_pressure,
       medication_type,
-      medication_dosage;
-  String last_time = "";
+      medication_dosage,
+      last_time;
   double _pain = 1.0, _tiredness = 1.0, _sleep = 1.0;
   bool submitstate = false;
   int _selectedValue = 1;
@@ -364,9 +364,9 @@ class _DailyReportPageState extends State<DailyReportPage> {
 
   Widget buildSubmitText() {
     return const Padding(
-        padding: EdgeInsets.only(left: 140),
+        padding: EdgeInsets.only(left: 150),
         child: Text(
-          '提交成功！',
+          '已提交',
           style: TextStyle(fontSize: 17, color: Colors.red),
         ));
   }
