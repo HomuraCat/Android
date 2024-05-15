@@ -19,7 +19,7 @@ class MineCell extends StatelessWidget {
         switch (this.title) {
           case "每日上报":
             Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => DailyReportPage()));
+                builder: (BuildContext context) => ShowDailyReportPage()));
             break;
           case "基本信息":
             Navigator.of(context).push(MaterialPageRoute(

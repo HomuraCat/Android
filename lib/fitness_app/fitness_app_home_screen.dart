@@ -5,6 +5,7 @@ import 'bottom_navigation_view/bottom_bar_view.dart';
 import 'fitness_app_theme.dart';
 import 'my_diary/my_diary_screen.dart';
 import 'account/account_page.dart';
+import 'account/daily_report_page.dart';
 
 class FitnessAppHomeScreen extends StatefulWidget {
   @override
@@ -78,7 +79,8 @@ class _FitnessAppHomeScreenState extends State<FitnessAppHomeScreen>
         ),
         BottomBarView(
           tabIconsList: tabIconsList,
-          addClick: () {},
+          addClick: () {Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => DailyReportPage()));},
           changeIndex: (int index) {
             if (index == 0 || index == 2) {
               animationController?.reverse().then<dynamic>((data) {
