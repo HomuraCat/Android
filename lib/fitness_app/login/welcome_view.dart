@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:best_flutter_ui_templates/fitness_app/login/login_page.dart';
-import 'package:best_flutter_ui_templates/fitness_app/login/register_page.dart';
 
 class WelcomeView extends StatelessWidget {
   const WelcomeView({Key? key}) : super(key: key);
@@ -22,13 +21,13 @@ class WelcomeView extends StatelessWidget {
               ),
               SizedBox(height: 24),
               Text(
-                "Welcome",
+                "欢迎",
                 style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
               ),
               Padding(
                 padding: const EdgeInsets.all(32.0),
                 child: Text(
-                  "Stay organised and live stress-free with you-do app",
+                  "请选择你的身份",
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 18),
                 ),
@@ -39,19 +38,17 @@ class WelcomeView extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            RegistrationPage()), // Changed to RegisterPage to match import
+                        builder: (context) => LoginPage(title: "登录", status: false)),
                   );
                 },
-                child: Text('Sign Up'),
+                child: Text('我是护士'),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
-                  backgroundColor: Colors.black, // Background color
-                  foregroundColor: Colors.white, // Text color
-                  elevation: 4.0, // Shadow depth
+                  side: BorderSide(color: Colors.black),
+                  foregroundColor: Colors.black, // Text color
                 ),
               ),
               SizedBox(height: 12),
@@ -60,10 +57,10 @@ class WelcomeView extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => LoginPage(title: "登录")),
+                        builder: (context) => LoginPage(title: "登录", status: true)),
                   );
                 },
-                child: Text('Login'),
+                child: Text('我是患者'),
                 style: OutlinedButton.styleFrom(
                   minimumSize: Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(

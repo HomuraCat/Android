@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_home_screen.dart';
+import 'package:best_flutter_ui_templates/fitness_app/fitness_app_home_screen_nurseside.dart';
 import '../utils/Spsave_module.dart';
+import 'package:best_flutter_ui_templates/fitness_app/login/register_page.dart';
 
 Future<void> registerUser(
-    String email, String password, BuildContext context) async {
+    String email, String password, bool my_status, BuildContext context) async {
   var url = Uri.parse('http://10.0.2.2:5001/login');
 
   var response = await http.post(
@@ -31,7 +33,8 @@ Future<void> registerUser(
       SpStorage.instance.saveAccount(
                         patientID: "0",
                         name: "testing");
-      Navigator.pushNamed(context, "/app");
+      if (my_status) Navigator.push(context, MaterialPageRoute(builder: (context) => FitnessAppHomeScreen()));
+        else Navigator.push(context, MaterialPageRoute(builder: (context) => FitnessAppHomeScreenNurseSide()));
     }
   } else {
     print('Request failed with status: ${response.statusCode}.');
@@ -59,8 +62,9 @@ void _showDialog(BuildContext context, String message) {
 }
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key, required this.title}) : super(key: key);
+  const LoginPage({Key? key, required this.title, required this.status}) : super(key: key);
   final String title;
+  final bool status;
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -89,7 +93,9 @@ class _LoginPageState extends State<LoginPage> {
             buildPasswordTextField(),
             buildForgetPasswordText(),
             const SizedBox(height: 70),
-            buildLoginButton(),
+            if (widget.status) buildRegisterButton(),
+            if (widget.status) const SizedBox(height: 20),
+            buildLoginButton(widget.status),
           ],
         ),
       ),
@@ -204,7 +210,31 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Column buildLoginButton() {
+  Column buildRegisterButton() {
+    return Column(
+      children: [
+        SizedBox(
+          height: 56,
+          width: double.infinity,
+          child: CupertinoButton(
+            child: Text('注册'),
+            color: CupertinoColors.black,
+            borderRadius: BorderRadius.circular(8),
+            onPressed: () {
+              Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            RegistrationPage()), // Changed to RegisterPage to match import
+                  );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column buildLoginButton(my_status) {
     return Column(
       children: [
         SizedBox(
@@ -212,12 +242,12 @@ class _LoginPageState extends State<LoginPage> {
           width: double.infinity,
           child: CupertinoButton(
             child: Text('登录'),
-            color: CupertinoColors.black,
+            color: CupertinoColors.activeBlue,
             borderRadius: BorderRadius.circular(8),
             onPressed: () {
               if (_formKey.currentState?.validate() ?? false) {
                 _formKey.currentState?.save();
-                registerUser(_email, _password, context);
+                registerUser(_email, _password, my_status, context);
               }
             },
           ),
@@ -238,10 +268,14 @@ class _LoginPageState extends State<LoginPage> {
               SpStorage.instance.saveAccount(
                         patientID: "114514",
                         name: "测试人员");
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FitnessAppHomeScreen()),
-              );
+              if (my_status) Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => FitnessAppHomeScreen()),
+                            );
+                else Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => FitnessAppHomeScreenNurseSide()),
+                      );
             },
           ),
         ),
