@@ -241,7 +241,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   onChanged: (value) => email = value,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '邮箱不能为空'; // Email cannot be empty
+                      return null; // Email cannot be empty
                     }
                     // Simple email validation regex
                     String pattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
