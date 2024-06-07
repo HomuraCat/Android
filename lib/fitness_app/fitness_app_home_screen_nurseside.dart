@@ -2,7 +2,6 @@ import 'package:best_flutter_ui_templates/fitness_app/models/tabIcon_data.dart';
 import 'package:flutter/material.dart';
 import 'bottom_navigation_view/bottom_bar_view.dart';
 import 'fitness_app_theme.dart';
-import 'account/account_page.dart';
 import 'utils/common_tools.dart';
 import 'daily_report_statistic/daily_report_statistic_page.dart';
 
@@ -106,7 +105,7 @@ class _FitnessAppHomeScreenNurseSideState extends State<FitnessAppHomeScreenNurs
                 }
                 setState(() {
                   tabBody =
-                      AccountPage();
+                      ChildPage(title: "第四页面");
                 });
               });
             }

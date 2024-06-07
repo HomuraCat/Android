@@ -546,13 +546,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
       }
     }
 
-    if (submitstate)
-    {
-      Map<String, dynamic> account = await SpStorage.instance.readAccount();
-      patientID = account['patientID'];
-      name = account['name'];
-      await GetDailyInfo(context);
-    }
+    if (submitstate) await GetDailyInfo(context);
     setState(() {});
   }
 
