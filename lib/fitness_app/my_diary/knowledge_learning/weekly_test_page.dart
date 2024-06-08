@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:best_flutter_ui_templates/fitness_app/utils/Spsave_module.dart';
-import 'package:best_flutter_ui_templates/fitness_app/utils/common_tools.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class WeeklyTestPage extends StatefulWidget {
   const WeeklyTestPage({Key? key}) : super(key: key);
@@ -11,23 +12,30 @@ class WeeklyTestPage extends StatefulWidget {
 }
 
 class _WeeklyTestPageState extends State<WeeklyTestPage> {
-  final GlobalKey _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool submitstate = false;
   DateTime RefreshTime = DateTime(0, 1, 1, 13, 15);
   Timer? timer;
+  List<Map<String, dynamic>> questions = [];
 
   @override
   void initState() {
     super.initState();
-    timer =
-        Timer.periodic(const Duration(seconds: 1), (Timer t) => CheckTime());
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) => CheckTime());
     _initConfig();
+    fetchSurveys();
   }
 
   void _initConfig() async {
     int last_submitday, last_submitmonth, last_submityear;
-    Map<String, dynamic> config =
-        await SpStorage.instance.readWeeklyTestConfig();
+    // 模拟从持久化存储中读取配置
+    Map<String, dynamic> config = {
+      'submitstate': false,
+      'submityear': 0,
+      'submitmonth': 0,
+      'submitday': 0
+    };
+
     submitstate = config['submitstate'] ?? false;
     last_submityear = config['submityear'] ?? 0;
     last_submitmonth = config['submitmonth'] ?? 0;
@@ -53,6 +61,57 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
     setState(() {});
   }
 
+  Future<void> fetchSurveys() async {
+    var url = Uri.parse('http://10.0.2.2:5001/surveys');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body) as List;
+      DateTime now = DateTime.now();
+      var dateFormat = DateFormat('EEE, dd MMM yyyy HH:mm:ss \'GMT\''); // 解析日期格式
+
+      var activeSurvey = jsonData.firstWhere(
+        (survey) {
+          DateTime startTime = dateFormat.parseUTC(survey['scheduled_start_time']).toLocal();
+          DateTime endTime = dateFormat.parseUTC(survey['scheduled_end_time']).toLocal();
+          return startTime.isBefore(now) && endTime.isAfter(now);
+        },
+        orElse: () => null,
+      );
+
+      if (activeSurvey != null) {
+        fetchQuestions(activeSurvey['survey_id']);
+      } else {
+        // Handle case where no active survey is found
+        setState(() {
+          questions = [];
+        });
+      }
+    } else {
+      throw Exception('Failed to load surveys');
+    }
+  }
+
+  Future<void> fetchQuestions(int surveyId) async {
+    var url = Uri.parse('http://10.0.2.2:5001/surveys/$surveyId');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      setState(() {
+        questions = (jsonData['questions'] as List).map((data) => {
+          'question': data['question'],
+          'choice1': data['choice1'],
+          'choice2': data['choice2'],
+          'choice3': data['choice3'],
+          'choice4': data['choice4'],
+        }).toList();
+      });
+    } else {
+      throw Exception('Failed to load questions');
+    }
+  }
+
   @override
   void dispose() {
     timer?.cancel();
@@ -64,7 +123,7 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('每周小测试'),
+        title: const Text('每周小测试'),
       ),
       body: Form(
         key: _formKey,
@@ -72,50 +131,25 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           children: [
-            const SizedBox(height: 6),
-            SelectQuestion(
-                submitstate: submitstate,
-                question: "1. 肺病是常见的恶性肿瘤之一，其发生主要与以下哪个因素有关？",
-                choose1: "A. 病毒感染",
-                choose2: "B. 遗传因素",
-                choose3: "C. 不良饮食习惯",
-                choose4: "D. 吸烟和环境"),
-            const SizedBox(height: 6),
-            SelectQuestion(
-                submitstate: submitstate,
-                question: "2. 肺痛的临床表现主要包括下列哪项?",
-                choose1: "A. 咳嗽、咳痰、胸痛",
-                choose2: "B. 发热、乏力、食欲减退",
-                choose3: "C. 骨痛、压痛、体重减轻",
-                choose4: "D. 头晕、恶心、呕吐"),
-            const SizedBox(height: 6),
-            SelectQuestion(
-                submitstate: submitstate,
-                question: "3. 肺癌的治疗方法主要包括下列哪些?",
-                choose1: "A. 手术切除",
-                choose2: "B. 化疗",
-                choose3: "C. 放疗",
-                choose4: "D. 全部都包括"),
-            const SizedBox(height: 6),
-            SelectQuestion(
-                submitstate: submitstate,
-                question: "4. 下列哪种检查方法可以帮助确诊肺癌?",
-                choose1: "A. X线胸片",
-                choose2: "B. 超声检查",
-                choose3: "C. 噬共振成像",
-                choose4: "D. 病理活检"),
-            const SizedBox(height: 6),
-            SelectQuestion(
-                submitstate: submitstate,
-                question: "5. 对丁肺癌患者的护理注意事项，以下哪一项是正确的?",
-                choose1: "A. 鼓励患者主动咳嗽",
-                choose2: "B. 给予高蛋白饮食",
-                choose3: "C. 经常性史换护理用品",
-                choose4: "D. 避免与患者密切接触"),
+            ...questions.map((question) {
+              return Column(
+                children: [
+                  const SizedBox(height: 6),
+                  SelectQuestion(
+                    submitstate: submitstate,
+                    question: question['question'] as String,
+                    choose1: question['choice1'] as String,
+                    choose2: question['choice2'] as String,
+                    choose3: question['choice3'] as String,
+                    choose4: question['choice4'] as String,
+                  ),
+                ],
+              );
+            }).toList(),
             const SizedBox(height: 60),
             buildSubmitButton(context),
             if (submitstate) buildSubmitText(),
-            const SizedBox(height: 60)
+            const SizedBox(height: 60),
           ],
         ),
       ),
@@ -134,18 +168,20 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
           onPressed: submitstate
               ? null
               : () {
-                  if ((_formKey.currentState as FormState).validate()) {
-                    (_formKey.currentState as FormState).save();
+                  if (_formKey.currentState!.validate()) {
+                    _formKey.currentState!.save();
                     setState(() => submitstate = true);
                     DateTime this_submit_time = DateTime.now();
                     if (CompareTime(RefreshTime, this_submit_time)) {
-                      this_submit_time = this_submit_time.add(Duration(days: 1));
+                      this_submit_time = this_submit_time.add(const Duration(days: 1));
                     }
-                    SpStorage.instance.saveWeeklyTestConfig(
-                        submitstate: submitstate,
-                        submityear: this_submit_time.year,
-                        submitmonth: this_submit_time.month,
-                        submitday: this_submit_time.day);
+                    // 模拟保存配置到持久化存储
+                    Map<String, dynamic> config = {
+                      'submitstate': submitstate,
+                      'submityear': this_submit_time.year,
+                      'submitmonth': this_submit_time.month,
+                      'submitday': this_submit_time.day
+                    };
                   }
                 },
         ),
@@ -155,14 +191,15 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
 
   Widget buildSubmitText() {
     return const Padding(
-        padding: EdgeInsets.only(left: 140),
-        child: Text(
-          '提交成功！',
-          style: TextStyle(fontSize: 17, color: Colors.red),
-        ));
+      padding: EdgeInsets.only(left: 140),
+      child: Text(
+        '提交成功！',
+        style: TextStyle(fontSize: 17, color: Colors.red),
+      ),
+    );
   }
 
-  bool CompareTime(time1, time2) {
+  bool CompareTime(DateTime time1, DateTime time2) {
     return time1.hour * 3600 + time1.minute * 60 + time1.second <=
         time2.hour * 3600 + time2.minute * 60 + time2.second;
   }
@@ -174,7 +211,103 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
         (current_time.second == RefreshTime.second));
     if (flag) {
       setState(() => submitstate = false);
-      SpStorage.instance.saveWeeklyTestConfig(submitstate: submitstate);
+      // 模拟保存配置到持久化存储
+      Map<String, dynamic> config = {
+        'submitstate': submitstate
+      };
     }
+  }
+}
+
+class SelectQuestion extends StatefulWidget {
+  const SelectQuestion(
+      {Key? key,
+      required this.submitstate,
+      required this.question,
+      required this.choose1,
+      required this.choose2,
+      required this.choose3,
+      required this.choose4})
+      : super(key: key);
+  final String question, choose1, choose2, choose3, choose4;
+  final bool submitstate;
+
+  @override
+  State<SelectQuestion> createState() => _SelectQuestionState();
+}
+
+class _SelectQuestionState extends State<SelectQuestion> {
+  int _selectedValue = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      Row(children: [
+        Expanded(
+            child: Text(
+          widget.question,
+          textAlign: TextAlign.left,
+          style: const TextStyle(fontSize: 18),
+          maxLines: 4,
+          overflow: TextOverflow.ellipsis,
+        ))
+      ]),
+      Row(children: [
+        Radio(
+            value: 1,
+            groupValue: _selectedValue,
+            onChanged: widget.submitstate ? null : (value) {
+              setState(() {
+                _selectedValue = value as int;
+              });
+            }),
+        Text(
+          widget.choose1,
+          style: const TextStyle(fontSize: 18),
+        )
+      ]),
+      Row(children: [
+        Radio(
+            value: 2,
+            groupValue: _selectedValue,
+            onChanged: widget.submitstate ? null : (value) {
+              setState(() {
+                _selectedValue = value as int;
+              });
+            }),
+        Text(
+          widget.choose2,
+          style: const TextStyle(fontSize: 18),
+        )
+      ]),
+      Row(children: [
+        Radio(
+            value: 3,
+            groupValue: _selectedValue,
+            onChanged: widget.submitstate ? null : (value) {
+              setState(() {
+                _selectedValue = value as int;
+              });
+            }),
+        Text(
+          widget.choose3,
+          style: const TextStyle(fontSize: 18),
+        )
+      ]),
+      Row(children: [
+        Radio(
+            value: 4,
+            groupValue: _selectedValue,
+            onChanged: widget.submitstate ? null : (value) {
+              setState(() {
+                _selectedValue = value as int;
+              });
+            }),
+        Text(
+          widget.choose4,
+          style: const TextStyle(fontSize: 18),
+        )
+      ])
+    ]);
   }
 }
