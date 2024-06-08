@@ -100,7 +100,6 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
         onTap: () {
           Navigator.push(
             context,
-            // TODO
             MaterialPageRoute(builder: (context) => RecipeListPage()),
           );
         },

@@ -5,7 +5,6 @@ import 'package:best_flutter_ui_templates/fitness_app/my_diary/knowledge_learnin
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 class SportAdvicePage extends StatefulWidget {
-
   final Map<String, dynamic> video;
   SportAdvicePage({Key? key, required this.video}) : super(key: key);
   @override
@@ -18,13 +17,14 @@ class SportSection extends StatefulWidget {
 }
 
 class _SportSectionState extends State<SportSection> {
-  // 假设这是您的视频列表数据
   List<Map<String, dynamic>> videos = [];
+
   @override
   void initState() {
     super.initState();
     fetchVideos();
   }
+
   Future<void> fetchVideos() async {
     var url = Uri.parse('http://10.0.2.2:5001/mysport_videos');
     var response = await http.get(url);
@@ -36,37 +36,105 @@ class _SportSectionState extends State<SportSection> {
           'title': data['title'],
           'source_1': data['source_1'],
           'source_2': data['source_2'],
-          'completed': data['completed'] == 1
+          'completed': data['completed'] == 1,
+          'image': data['image']
         }).toList();
       });
     } else {
       throw Exception('Failed to load videos');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       appBar: AppBar(
         title: Text("运动建议"),
       ),
-      body: Form(
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          children: [
-            const SizedBox(height: 60),
-            const SizedBox(height: 4),
-            const SizedBox(height: 60),
-            // 这里假设 buildTestButton 是一个创建按钮的函数
-            const SizedBox(height: 24),
-            // 构建视频列表
-            for (var video in videos) buildVideoListItem(video),
-          ],
+      body: GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 1,
+          childAspectRatio: 1.0,
         ),
+        itemCount: videos.length,
+        itemBuilder: (context, index) {
+          return buildVideoGridItem(videos[index]);
+        },
       ),
     );
   }
+
+Widget buildVideoGridItem(Map<String, dynamic> video) {
+  return GestureDetector(
+    onTap: () async {
+      bool? updated = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SportAdvicePage(video: video),
+        ),
+      );
+      if (updated != null && updated && !video['completed']) {
+        setState(() {
+          video['status'] = '已学';
+          video['completed'] = true;
+        });
+      }
+    },
+    child: Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30)
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 2,
+            child: ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(30)), // 设置所有角的圆角
+              child: Image.asset(
+                video['image'],  // Use Image.asset for local assets
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                //Icon(
+                //  video['completed'] ? Icons.check_circle : Icons.play_circle_fill,
+                //  color: video['completed'] ? Colors.green : Colors.blue,
+                //  size: 24,
+                //),
+                Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Text(
+                    video['title'],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Text(
+                  video['completed'] ? '已学' : '学习中',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
 
  

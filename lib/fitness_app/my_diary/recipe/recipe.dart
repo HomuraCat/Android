@@ -54,8 +54,8 @@ class _RecipeListPageState extends State<RecipeListPage> {
       ),
       body: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, // 每行两个项
-          childAspectRatio: 0.8, // 调整宽高比例
+          crossAxisCount: 2,
+          childAspectRatio: 0.8,
         ),
         itemCount: recipes.length,
         itemBuilder: (context, index) {
@@ -69,15 +69,21 @@ class _RecipeListPageState extends State<RecipeListPage> {
               );
             },
             child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30)
+              ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch, // 使图片宽度撑满
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(30)), // 设置所有角的圆角
                     child: Image.asset(
                       recipes[index]['image'],
-                      fit: BoxFit.cover, // 填充方式
+                      fit: BoxFit.cover, // 图片填充方式
                     ),
                   ),
+                ),
                   Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text(
