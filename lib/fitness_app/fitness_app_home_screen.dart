@@ -6,6 +6,7 @@ import 'fitness_app_theme.dart';
 import 'my_diary/my_diary_screen.dart';
 import 'account/account_page.dart';
 import 'account/daily_report_page.dart';
+import 'motion/motion_page.dart';
 
 class FitnessAppHomeScreen extends StatefulWidget {
   @override
@@ -79,10 +80,12 @@ class _FitnessAppHomeScreenState extends State<FitnessAppHomeScreen>
         ),
         BottomBarView(
           tabIconsList: tabIconsList,
-          addClick: () {Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => DailyReportPage()));},
+          addClick: () {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => DailyReportPage()));
+          },
           changeIndex: (int index) {
-            if (index == 0 || index == 2) {
+            if (index == 0) {
               animationController?.reverse().then<dynamic>((data) {
                 if (!mounted) {
                   return;
@@ -102,14 +105,22 @@ class _FitnessAppHomeScreenState extends State<FitnessAppHomeScreen>
                       TrainingScreen(animationController: animationController);
                 });
               });
-            } else if (index == 3){
+            } else if (index == 2) {
               animationController?.reverse().then<dynamic>((data) {
                 if (!mounted) {
                   return;
                 }
                 setState(() {
-                  tabBody =
-                      AccountPage();
+                  tabBody = MotionPage();
+                });
+              });
+            } else if (index == 3) {
+              animationController?.reverse().then<dynamic>((data) {
+                if (!mounted) {
+                  return;
+                }
+                setState(() {
+                  tabBody = AccountPage();
                 });
               });
             }

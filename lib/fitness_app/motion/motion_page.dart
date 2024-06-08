@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class MotionPage extends StatefulWidget {
@@ -7,46 +8,60 @@ class MotionPage extends StatefulWidget {
   State<MotionPage> createState() => _MotionPageState();
 }
 
-class _MotionPageState extends State<MotionPage> {
+class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
   List<String> _statusMessages = [
     '今天的天气真好，阳光明媚，适合外出。',
     '在工作中遇到了一些挑战，但我相信我可以克服它们。',
     '看到了一部非常感人的电影，让我思考了很多人生的意义。',
     '“努力不一定成功，但放弃一定会失败。”这句话今天给了我很大的启发。',
   ];
+  AnimationController? animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    animationController = AnimationController(
+        duration: const Duration(milliseconds: 800), vsync: this);
+    animationController!.forward();
+  }
+
+  @override
+  void dispose() {
+    animationController?.dispose();
+    super.dispose();
+  }
 
   void _showPostDialog() {
     TextEditingController _textFieldController = TextEditingController();
-    showDialog(
+    showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: const Text('发布动态'),
-          content: TextField(
+          content: CupertinoTextField(
             controller: _textFieldController,
             autofocus: true,
-            minLines: 3,
             maxLines: 5,
-            decoration: const InputDecoration(
-              hintText: '分享新鲜事...',
-              border: OutlineInputBorder(),
-            ),
+            placeholder: '分享新鲜事...',
           ),
           actions: <Widget>[
-            TextButton(
+            CupertinoDialogAction(
               child: const Text('取消'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
-            TextButton(
+            CupertinoDialogAction(
               child: const Text('发布'),
+              isDefaultAction: true,
               onPressed: () {
-                setState(() {
-                  _statusMessages.add(_textFieldController.text);
-                  _textFieldController.clear();
-                });
-                Navigator.of(context).pop();
+                if (_textFieldController.text.isNotEmpty) {
+                  setState(() {
+                    _statusMessages.add(_textFieldController.text);
+                    _textFieldController.clear();
+                  });
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ],
@@ -57,73 +72,94 @@ class _MotionPageState extends State<MotionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('动态', style: TextStyle(color: Colors.black)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add, color: Colors.black),
-            onPressed: _showPostDialog,
-          ),
-        ],
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: const Text('动态'),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.add),
+          onPressed: _showPostDialog,
+        ),
+        automaticallyImplyLeading:
+            false, // This line prevents auto-generating the back button
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(8.0),
-        itemCount: _statusMessages.length,
-        itemBuilder: (context, index) {
-          final int reversedIndex = _statusMessages.length - 1 - index;
-          final message = _statusMessages[reversedIndex];
-          return Dismissible(
-            key: Key('$reversedIndex-${_statusMessages[reversedIndex]}'),
-            direction: DismissDirection.endToStart,
-            onDismissed: (direction) {
-              setState(() {
-                _statusMessages.removeAt(reversedIndex);
-              });
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text('动态已删除')));
-            },
-            background: Container(
-              alignment: AlignmentDirectional.centerEnd,
-              color: Colors.red,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(0, 0, 16, 0),
-                child: Icon(Icons.delete, color: Colors.white),
-              ),
-            ),
-            child: Card(
-              margin: const EdgeInsets.symmetric(vertical: 4.0),
-              child: ListTile(
-                title: Text(
-                  message,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+      child: SafeArea(
+        child: ListView.builder(
+          padding: const EdgeInsets.all(8.0),
+          itemCount: _statusMessages.length,
+          itemBuilder: (context, index) {
+            final int reversedIndex = _statusMessages.length - 1 - index;
+            final message = _statusMessages[reversedIndex];
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1, 0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                    parent: animationController!,
+                    curve: Interval(
+                        (1 / (_statusMessages.length + 1)) * (index + 1), 1.0,
+                        curve: Curves.easeOut))),
+                child: CupertinoContextMenu(
+                  actions: [
+                    CupertinoContextMenuAction(
+                      child: const Text('删除'),
+                      onPressed: () {
+                        setState(() {
+                          _statusMessages.removeAt(reversedIndex);
+                          Navigator.pop(context);
+                        });
+                      },
+                    ),
+                  ],
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: CupertinoColors.systemGrey6,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: Offset(0, 2),
+                          )
+                        ]),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      title: Text(
+                        message,
+                        style: const TextStyle(fontSize: 16),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      onTap: () {
+                        showCupertinoModalPopup(
+                          context: context,
+                          builder: (context) {
+                            return CupertinoAlertDialog(
+                              content: Text(message),
+                              actions: [
+                                CupertinoDialogAction(
+                                  child: const Text('关闭'),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
                 ),
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        content: Text(message),
-                        actions: [
-                          TextButton(
-                            child: Text('关闭'),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
 }
 
 void main() {
-  runApp(MaterialApp(home: MotionPage()));
+  runApp(const CupertinoApp(home: MotionPage()));
 }
