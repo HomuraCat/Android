@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
+import 'package:best_flutter_ui_templates/fitness_app/login/login_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -90,8 +91,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
       var responseData = jsonDecode(response.body);
       if (responseData == 1) {
         _showDialog(context, '注册成功！', onDialogClose: () {
-          Navigator.pushNamed(context,
-              "/login"); // Redirect to login page after dialog is closed
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => LoginPage(title: "登录", status: true)),
+          ); // Redirect to login page after dialog is closed
         });
       } else if (responseData == 0) {
         _showDialog(context, '注册失败,该手机或邮箱已被占用！');

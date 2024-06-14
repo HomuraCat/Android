@@ -29,12 +29,18 @@ Future<void> registerUser(
       _showDialog(context, '用户不存在！');
     } else if (responseData == 0) {
       _showDialog(context, '用户或密码错误！');
-    } else{
-      SpStorage.instance.saveAccount(
-                        patientID: "0",
-                        name: "testing");
-      if (my_status) Navigator.push(context, MaterialPageRoute(builder: (context) => FitnessAppHomeScreen()));
-        else Navigator.push(context, MaterialPageRoute(builder: (context) => FitnessAppHomeScreenNurseSide()));
+    } else {
+      SpStorage.instance
+          .saveAccount(patientID: responseData.toString(), name: "测试人员");
+
+      if (my_status) {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => FitnessAppHomeScreen()));
+      } else
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => FitnessAppHomeScreenNurseSide()));
     }
   } else {
     print('Request failed with status: ${response.statusCode}.');
@@ -62,7 +68,8 @@ void _showDialog(BuildContext context, String message) {
 }
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key, required this.title, required this.status}) : super(key: key);
+  const LoginPage({Key? key, required this.title, required this.status})
+      : super(key: key);
   final String title;
   final bool status;
 
@@ -222,11 +229,11 @@ class _LoginPageState extends State<LoginPage> {
             borderRadius: BorderRadius.circular(8),
             onPressed: () {
               Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            RegistrationPage()), // Changed to RegisterPage to match import
-                  );
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        RegistrationPage()), // Changed to RegisterPage to match import
+              );
             },
           ),
         ),
@@ -265,17 +272,19 @@ class _LoginPageState extends State<LoginPage> {
             borderRadius: BorderRadius.circular(8),
             onPressed: () {
               // Assuming this code is within a Widget that has a BuildContext
-              SpStorage.instance.saveAccount(
-                        patientID: "114514",
-                        name: "测试人员");
-              if (my_status) Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => FitnessAppHomeScreen()),
-                            );
-                else Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => FitnessAppHomeScreenNurseSide()),
-                      );
+              SpStorage.instance.saveAccount(patientID: "114514", name: "测试人员");
+              if (my_status)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FitnessAppHomeScreen()),
+                );
+              else
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FitnessAppHomeScreenNurseSide()),
+                );
             },
           ),
         ),
