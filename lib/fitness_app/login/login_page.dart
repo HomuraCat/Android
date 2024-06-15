@@ -272,7 +272,8 @@ class _LoginPageState extends State<LoginPage> {
             borderRadius: BorderRadius.circular(8),
             onPressed: () {
               // Assuming this code is within a Widget that has a BuildContext
-              SpStorage.instance.saveAccount(patientID: "114514", name: "测试人员");
+              SpStorage.instance
+                  .saveAccount(patientID: "15500000000", name: "测试人员");
               if (my_status)
                 Navigator.push(
                   context,

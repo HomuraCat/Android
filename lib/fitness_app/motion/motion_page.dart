@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '../utils/Spsave_module.dart';
 
 class MotionPage extends StatefulWidget {
   const MotionPage({Key? key}) : super(key: key);
@@ -15,6 +16,7 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
     '看到了一部非常感人的电影，让我思考了很多人生的意义。',
     '“努力不一定成功，但放弃一定会失败。”这句话今天给了我很大的启发。',
   ];
+  late String patientID = "", name = "";
   AnimationController? animationController;
 
   @override
@@ -23,12 +25,20 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
     animationController = AnimationController(
         duration: const Duration(milliseconds: 800), vsync: this);
     animationController!.forward();
+    _InitConfig();
   }
 
   @override
   void dispose() {
     animationController?.dispose();
     super.dispose();
+  }
+
+  void _InitConfig() async {
+    Map<String, dynamic> account = await SpStorage.instance.readAccount();
+    patientID = account['patientID'];
+    name = account['name'];
+    setState(() {});
   }
 
   void _showPostDialog() {
@@ -90,65 +100,57 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
           itemBuilder: (context, index) {
             final int reversedIndex = _statusMessages.length - 1 - index;
             final message = _statusMessages[reversedIndex];
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(1, 0),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                    parent: animationController!,
-                    curve: Interval(
-                        (1 / (_statusMessages.length + 1)) * (index + 1), 1.0,
-                        curve: Curves.easeOut))),
-                child: CupertinoContextMenu(
-                  actions: [
-                    CupertinoContextMenuAction(
-                      child: const Text('删除'),
-                      onPressed: () {
-                        setState(() {
-                          _statusMessages.removeAt(reversedIndex);
-                          Navigator.pop(context);
-                        });
-                      },
+            return Dismissible(
+              key: Key(message),
+              direction: DismissDirection.endToStart,
+              onDismissed: (direction) {
+                setState(() {
+                  _statusMessages.removeAt(reversedIndex);
+                });
+              },
+              background: Container(
+                color: Colors.red,
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                alignment: Alignment.centerRight,
+                child: const Icon(Icons.delete, color: Colors.white),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: CupertinoColors.systemGrey6,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: Offset(0, 2),
+                        )
+                      ]),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    title: Text(
+                      message,
+                      style: const TextStyle(fontSize: 16),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ],
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: CupertinoColors.systemGrey6,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: Offset(0, 2),
-                          )
-                        ]),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(16),
-                      title: Text(
-                        message,
-                        style: const TextStyle(fontSize: 16),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      onTap: () {
-                        showCupertinoModalPopup(
-                          context: context,
-                          builder: (context) {
-                            return CupertinoAlertDialog(
-                              content: Text(message),
-                              actions: [
-                                CupertinoDialogAction(
-                                  child: const Text('关闭'),
-                                  onPressed: () => Navigator.of(context).pop(),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                    ),
+                    onTap: () {
+                      showCupertinoModalPopup(
+                        context: context,
+                        builder: (context) {
+                          return CupertinoAlertDialog(
+                            content: Text(message),
+                            actions: [
+                              CupertinoDialogAction(
+                                child: const Text('关闭'),
+                                onPressed: () => Navigator.of(context).pop(),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
               ),
