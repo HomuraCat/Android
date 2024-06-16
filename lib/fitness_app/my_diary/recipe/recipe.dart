@@ -20,16 +20,23 @@ class MyApp extends StatelessWidget {
 }
 
 class RecipeListPage extends StatefulWidget {
+  final String? selectedMealType;
+
+  RecipeListPage({this.selectedMealType});
+
   @override
   _RecipeListPageState createState() => _RecipeListPageState();
 }
 
 class _RecipeListPageState extends State<RecipeListPage> {
-  // 此处为食谱数据列表示例
   List<Map<String, dynamic>> recipes = [];
+  List<Map<String, dynamic>> filteredRecipes = [];
+  late String selectedMealType;
+
   @override
   void initState() {
     super.initState();
+    selectedMealType = widget.selectedMealType ?? '全部';
     fetchRecipes();
   }
 
@@ -40,10 +47,22 @@ class _RecipeListPageState extends State<RecipeListPage> {
       var jsonData = jsonDecode(response.body);
       setState(() {
         recipes = List<Map<String, dynamic>>.from(jsonData);
+        filterRecipes(selectedMealType);
       });
     } else {
       throw Exception('Failed to load recipes');
     }
+  }
+
+  void filterRecipes(String mealType) {
+    setState(() {
+      selectedMealType = mealType;
+      if (mealType == '全部') {
+        filteredRecipes = recipes;
+      } else {
+        filteredRecipes = recipes.where((recipe) => recipe['mealType'] == mealType).toList();
+      }
+    });
   }
 
   @override
@@ -52,83 +71,78 @@ class _RecipeListPageState extends State<RecipeListPage> {
       appBar: AppBar(
         title: Text('食谱列表'),
       ),
-      body: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.8,
-        ),
-        itemCount: recipes.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RecipeDetailPage(recipe: recipes[index]),
-                ),
-              );
-            },
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30)
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButton<String>(
+              value: selectedMealType,
+              icon: Icon(Icons.arrow_downward),
+              isExpanded: true,
+              onChanged: (String? newValue) {
+                filterRecipes(newValue!);
+              },
+              items: <String>['全部', '早餐', '午餐', '晚餐', '早餐加餐', '午餐加餐', '晚餐加餐']
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value, style: TextStyle(fontSize: 20)),
+                );
+              }).toList(),
+            ),
+          ),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.8,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(30)), // 设置所有角的圆角
-                    child: Image.asset(
-                      recipes[index]['image'],
-                      fit: BoxFit.cover, // 图片填充方式
-                    ),
-                  ),
-                ),
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      recipes[index]['name'],
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+              itemCount: filteredRecipes.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RecipeDetailPage(recipe: filteredRecipes[index]),
                       ),
-                      textAlign: TextAlign.center,
+                    );
+                  },
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(30)), // 设置所有角的圆角
+                            child: Image.asset(
+                              filteredRecipes[index]['image'],
+                              fit: BoxFit.cover, // 图片填充方式
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            filteredRecipes[index]['name'],
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                );
+              },
             ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class RecipeListItem extends StatelessWidget {
-  final Map<String, dynamic> recipe;
-  final ValueChanged<bool?> onCompletedChanged;
-
-  RecipeListItem({required this.recipe, required this.onCompletedChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Image.asset(recipe['image'], width: 50, height: 50),
-        title: Text(recipe['name']),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RecipeDetailPage(recipe: recipe),
-            ),
-          );
-        },
-        trailing: Checkbox(
-          value: recipe['completed'],
-          onChanged: onCompletedChanged,
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -229,7 +243,6 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                     ),
             ),
             SizedBox(height: 16),
-             
             //Padding(
             //  padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
             //  child: ElevatedButton(

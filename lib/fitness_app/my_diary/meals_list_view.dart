@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/recipe/recipe.dart';
 
 import '../../main.dart';
-
 class MealsListView extends StatefulWidget {
   final AnimationController? mainScreenAnimationController;
   final Animation<double>? mainScreenAnimation;
@@ -70,7 +69,7 @@ class _MealsListViewState extends State<MealsListView> with TickerProviderStateM
                     animation: animation,
                     animationController: animationController,
                     onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => RecipeListPage()), // Assuming you have a constructor accepting data
+                      MaterialPageRoute(builder: (context) => RecipeListPage(selectedMealType: data.titleTxt)),
                     ),
                   );
                 },
@@ -82,7 +81,6 @@ class _MealsListViewState extends State<MealsListView> with TickerProviderStateM
     );
   }
 }
-
 
 class MealsView extends StatelessWidget {
   final MealsListData mealsListData;
