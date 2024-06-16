@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'show_daily_report_page.dart';
+import 'patient_details_page.dart';
 
 class ContactGroup {
   bool expand = false;
@@ -16,13 +16,13 @@ class ContactFriend {
   ContactFriend(this.patientName, this.patientID);
 }
 
-class ReportStatisticPage extends StatefulWidget {
-  const ReportStatisticPage({Key? key}) : super(key: key);
+class PatientInfoPage extends StatefulWidget {
+  const PatientInfoPage({Key? key}) : super(key: key);
   @override
-  _ReportStatisticPageState createState() => _ReportStatisticPageState();
+  _PatientInfoPageState createState() => _PatientInfoPageState();
 }
 
-class _ReportStatisticPageState extends State<ReportStatisticPage> {
+class _PatientInfoPageState extends State<PatientInfoPage> {
   ScrollController _scrollController = ScrollController();
   List<ContactGroup> contactGroupList = <ContactGroup>[];
   Map<String, int> contactGroupMap = {};
@@ -91,7 +91,7 @@ class _ReportStatisticPageState extends State<ReportStatisticPage> {
       return GestureDetector(
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => ShowDailyReportPage(patientID: contactFriend.patientID)));
+                builder: (BuildContext context) => PatientDetailsPage(patientName: contactFriend.patientName, patientID: contactFriend.patientID)));
         },
         child: Container(
           padding: EdgeInsets.only(left: 16),
