@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'bottom_navigation_view/bottom_bar_view.dart';
 import 'fitness_app_theme.dart';
 import 'utils/common_tools.dart';
-import 'daily_report_statistic/daily_report_statistic_page.dart';
+import 'daily_report_statistic/patient_info_page.dart';
+
+import 'nurse_new_survey/new_question_page.dart';
+import 'nurse_new_survey/survey_list.dart';
 
 class FitnessAppHomeScreenNurseSide extends StatefulWidget {
   @override
@@ -78,14 +81,14 @@ class _FitnessAppHomeScreenNurseSideState extends State<FitnessAppHomeScreenNurs
         BottomBarView(
           tabIconsList: tabIconsList,
           changeIndex: (int index) {
-            if (index == 0 || index == 2) {
+            if (index == 0) {
               animationController?.reverse().then<dynamic>((data) {
                 if (!mounted) {
                   return;
                 }
                 setState(() {
                   tabBody =
-                      ChildPage(title: "第一三页面");
+                      ChildPage(title: "第一页面");
                 });
               });
             } else if (index == 1) {
@@ -95,7 +98,16 @@ class _FitnessAppHomeScreenNurseSideState extends State<FitnessAppHomeScreenNurs
                 }
                 setState(() {
                   tabBody =
-                      ReportStatisticPage();
+                      PatientInfoPage();
+                });
+              });
+            } else if (index == 2) {
+              animationController?.reverse().then<dynamic>((data) {
+                if (!mounted) {
+                  return;
+                }
+                setState(() {
+                  tabBody = SurveyListPage();
                 });
               });
             } else if (index == 3){
