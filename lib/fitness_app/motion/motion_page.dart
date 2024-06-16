@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../utils/Spsave_module.dart';
 
 class MotionPage extends StatefulWidget {
@@ -10,12 +12,8 @@ class MotionPage extends StatefulWidget {
 }
 
 class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
-  List<String> _statusMessages = [
-    '今天的天气真好，阳光明媚，适合外出。',
-    '在工作中遇到了一些挑战，但我相信我可以克服它们。',
-    '看到了一部非常感人的电影，让我思考了很多人生的意义。',
-    '“努力不一定成功，但放弃一定会失败。”这句话今天给了我很大的启发。',
-  ];
+  late List<Map<String, dynamic>> _statusMessages = [];
+
   late String patientID = "", name = "";
   AnimationController? animationController;
 
@@ -28,17 +26,97 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
     _InitConfig();
   }
 
-  @override
-  void dispose() {
-    animationController?.dispose();
-    super.dispose();
-  }
-
   void _InitConfig() async {
     Map<String, dynamic> account = await SpStorage.instance.readAccount();
     patientID = account['patientID'];
     name = account['name'];
-    setState(() {});
+
+    setState(() {
+      _fetchPosts();
+    });
+  }
+
+  Future<void> _fetchPosts() async {
+    var url = Uri.parse('http://10.0.2.2:5001/motion/fetch');
+    try {
+      var response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{'username': patientID}),
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> responseData = jsonDecode(response.body);
+        _statusMessages = responseData.map((post) {
+          return {
+            'content': post['content'],
+            'time': post['time'],
+            'post_id': post['post_id']
+          };
+        }).toList();
+        setState(() {});
+      } else {
+        print('Request failed with status: ${response.statusCode}.');
+        setState(() {
+          _statusMessages = [];
+        });
+      }
+    } catch (e) {
+      print('Error fetching posts: $e');
+      setState(() {
+        _statusMessages = [];
+      });
+    }
+  }
+
+  Future<void> _createPost(String content) async {
+    var url = Uri.parse('http://10.0.2.2:5001/motion/create');
+    try {
+      var response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'patientID': patientID, 'content': content}),
+      );
+
+      if (response.statusCode == 200) {
+        print('Post created successfully.');
+        _fetchPosts(); // Refresh the posts list to include the new post
+      } else {
+        print('Failed to create the post. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error creating post: $e');
+    }
+  }
+
+  Future<void> _deletePost(int postId) async {
+    var url = Uri.parse('http://10.0.2.2:5001/motion/delete');
+    try {
+      var response = await http.delete(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'post_id': postId}),
+      );
+      if (response.statusCode == 200) {
+        print('Post deleted successfully.');
+      } else {
+        print('Failed to delete the post. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error deleting post: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    animationController?.dispose();
+    super.dispose();
   }
 
   void _showPostDialog() {
@@ -66,10 +144,8 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
               isDefaultAction: true,
               onPressed: () {
                 if (_textFieldController.text.isNotEmpty) {
-                  setState(() {
-                    _statusMessages.add(_textFieldController.text);
-                    _textFieldController.clear();
-                  });
+                  _createPost(_textFieldController.text);
+                  _textFieldController.clear();
                   Navigator.of(context).pop();
                 }
               },
@@ -87,75 +163,96 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
         middle: const Text('动态'),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.add),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Icon(CupertinoIcons.add, color: CupertinoColors.activeBlue),
+              const SizedBox(width: 4),
+              Text('发布动态', style: TextStyle(color: CupertinoColors.activeBlue)),
+            ],
+          ),
           onPressed: _showPostDialog,
         ),
-        automaticallyImplyLeading:
-            false, // This line prevents auto-generating the back button
+        automaticallyImplyLeading: false,
       ),
       child: SafeArea(
-        child: ListView.builder(
-          padding: const EdgeInsets.all(8.0),
-          itemCount: _statusMessages.length,
-          itemBuilder: (context, index) {
-            final int reversedIndex = _statusMessages.length - 1 - index;
-            final message = _statusMessages[reversedIndex];
-            return Dismissible(
-              key: Key(message),
-              direction: DismissDirection.endToStart,
-              onDismissed: (direction) {
-                setState(() {
-                  _statusMessages.removeAt(reversedIndex);
-                });
-              },
-              background: Container(
-                color: Colors.red,
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                alignment: Alignment.centerRight,
-                child: const Icon(Icons.delete, color: Colors.white),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: CupertinoColors.systemGrey6,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: Offset(0, 2),
-                        )
-                      ]),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    title: Text(
-                      message,
-                      style: const TextStyle(fontSize: 16),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    onTap: () {
-                      showCupertinoModalPopup(
-                        context: context,
-                        builder: (context) {
-                          return CupertinoAlertDialog(
-                            content: Text(message),
-                            actions: [
-                              CupertinoDialogAction(
-                                child: const Text('关闭'),
-                                onPressed: () => Navigator.of(context).pop(),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics()),
+          slivers: [
+            CupertinoSliverRefreshControl(
+              onRefresh: _fetchPosts,
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final message = _statusMessages[index];
+                  return Dismissible(
+                    key: Key(message['post_id'].toString()),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (direction) {
+                      _deletePost(message['post_id']); // Call delete method
+                      setState(() {
+                        _statusMessages.removeAt(index);
+                      });
                     },
-                  ),
-                ),
+                    background: Container(
+                      color: Colors.red,
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      alignment: Alignment.centerRight,
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: CupertinoColors.systemGrey6,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: Offset(0, 2),
+                              )
+                            ]),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(16),
+                          title: Text(
+                            message['content'],
+                            style: const TextStyle(fontSize: 16),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            message['time'],
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          onTap: () {
+                            showCupertinoModalPopup(
+                              context: context,
+                              builder: (context) {
+                                return CupertinoAlertDialog(
+                                  content: Text(message['content']),
+                                  actions: [
+                                    CupertinoDialogAction(
+                                      child: const Text('关闭'),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                childCount: _statusMessages.length,
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
