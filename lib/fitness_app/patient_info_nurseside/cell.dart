@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'show_daily_report_page.dart';
 import '../utils/common_tools.dart';
+import 'patient_motion_page.dart';
 
 class MineCell extends StatelessWidget {
   final String? title;
@@ -21,6 +22,10 @@ class MineCell extends StatelessWidget {
           case "每日上报":
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (BuildContext context) => ShowDailyReportPage(patientID: this.patientID!,)));
+            break;
+          case "树洞":
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => PatientMotionPage(patientID: this.patientID!,)));
             break;
           default:
             Navigator.of(context).push(MaterialPageRoute(

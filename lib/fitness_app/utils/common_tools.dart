@@ -1,4 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+class NotificationHelper {
+  static final NotificationHelper _instance = NotificationHelper._internal();
+  factory NotificationHelper() => _instance;
+  NotificationHelper._internal();
+
+  final FlutterLocalNotificationsPlugin _notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  Future<void> initialize() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings();
+    
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+            android: initializationSettingsAndroid,
+            iOS: initializationSettingsIOS);
+    await _notificationsPlugin.initialize(initializationSettings);
+  }
+
+  Future<void> showNotification(
+      {required String title, required String body}) async {
+    AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails("0", "undefined",
+            channelDescription: title,
+            importance: Importance.max,
+            priority: Priority.high,
+            ticker: body);
+
+    const String darwinNotificationCategoryPlain = 'plainCategory';
+    const DarwinNotificationDetails iosNotificationDetails =
+        DarwinNotificationDetails(
+      categoryIdentifier: darwinNotificationCategoryPlain,
+    );
+    NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidNotificationDetails,iOS: iosNotificationDetails);
+
+    await _notificationsPlugin.show(
+      1,
+      title,
+      body,
+      platformChannelSpecifics,
+    );
+  }
+}
 
 class ChildPage extends StatelessWidget {
   final String title;

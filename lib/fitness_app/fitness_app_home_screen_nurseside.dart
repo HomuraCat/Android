@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'bottom_navigation_view/bottom_bar_view.dart';
 import 'fitness_app_theme.dart';
 import 'utils/common_tools.dart';
-import 'daily_report_statistic/patient_info_page.dart';
+import 'patient_info_nurseside/patient_info_page.dart';
 
 import 'nurse_new_survey/new_question_page.dart';
 import 'nurse_new_survey/survey_list.dart';

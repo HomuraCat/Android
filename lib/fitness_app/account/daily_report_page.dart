@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import '../utils/Spsave_module.dart';
+import '../utils/common_tools.dart';
 
 class DailyReportPage extends StatefulWidget {
   const DailyReportPage({Key? key}) : super(key: key);
@@ -26,7 +27,9 @@ class _DailyReportPageState extends State<DailyReportPage> {
   bool submitstate = false;
   int _selectedValue = 1;
   DateTime RefreshTime = DateTime(0, 1, 1, 0, 0);
+  DateTime MessageTime = DateTime(0, 1, 1, 20, 0);
   Timer? timer;
+  final NotificationHelper _notificationHelper = NotificationHelper();
 
   @override
   void initState() {
@@ -388,8 +391,17 @@ class _DailyReportPageState extends State<DailyReportPage> {
     bool flag = ((current_time.hour == RefreshTime.hour) &&
         (current_time.minute == RefreshTime.minute) &&
         (current_time.second == RefreshTime.second));
+    bool flag2 = ((current_time.hour == MessageTime.hour) &&
+        (current_time.minute == MessageTime.minute) &&
+        (current_time.second == MessageTime.second));
     if (flag) {
       setState(() => submitstate = false);
+    }
+    if (flag2){
+       _notificationHelper.showNotification(
+                title: '提示',
+                body: '请记得填写每日上报!',
+              );
     }
   }
 

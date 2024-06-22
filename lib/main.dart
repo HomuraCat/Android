@@ -3,11 +3,13 @@ import 'package:best_flutter_ui_templates/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'fitness_app/utils/common_tools.dart';
 
 import 'package:best_flutter_ui_templates/fitness_app/login/welcome_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  NotificationHelper notificationHelper = NotificationHelper();
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown
