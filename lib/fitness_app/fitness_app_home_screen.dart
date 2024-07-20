@@ -7,6 +7,7 @@ import 'my_diary/my_diary_screen.dart';
 import 'account/account_page.dart';
 import 'account/daily_report_page.dart';
 import 'motion/motion_page.dart';
+import 'chat/chat_page.dart';
 
 class FitnessAppHomeScreen extends StatefulWidget {
   @override
@@ -102,7 +103,7 @@ class _FitnessAppHomeScreenState extends State<FitnessAppHomeScreen>
                 }
                 setState(() {
                   tabBody =
-                      TrainingScreen(animationController: animationController);
+                      ChatPage();
                 });
               });
             } else if (index == 2) {
