@@ -421,7 +421,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
     );
     
     if (response.statusCode == 200) {
-      if (response.body != 0) setState(() => last_time = response.body);
+      if (response.body != '0') setState(() => last_time = response.body);
         else setState(() => last_time = "ERROR");
     }
       else setState(() => last_time = "ERROR");
@@ -460,7 +460,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
 
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
-      if (responseData == 1) {
+      if (responseData == '1') {
         setState(() => submitstate = true);
         _showDialog(context, '提交成功！', onDialogClose: () {
           Navigator.pop(context);
@@ -746,7 +746,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     );
     
     if (response.statusCode == 200) {
-      if (response.body != 0) setState(() => last_time = response.body);
+      if (response.body != '0') setState(() => last_time = response.body);
         else setState(() => last_time = "ERROR");
     }
       else setState(() => last_time = "ERROR");
@@ -768,8 +768,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     );
     
     if (response.statusCode == 200) {
-      print(response.body);
-      if (response.body != 0)
+      if (response.body != '0')
       {
         daily_info = response.body;
         List<String> temp_daily_info = daily_info.split('+-*/');

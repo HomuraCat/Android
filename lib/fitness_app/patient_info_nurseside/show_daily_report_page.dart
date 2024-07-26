@@ -252,7 +252,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     );
     
     if (response.statusCode == 200) {
-      if (response.body != 0) setState(() => last_time = response.body);
+      if (response.body != '0') setState(() => last_time = response.body);
         else setState(() => last_time = "ERROR");
     }
       else setState(() => last_time = "ERROR");
@@ -274,10 +274,10 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     );
     
     if (response.statusCode == 200) {
-      if (response.body != 0)
+      if (response.body != '0')
       {
         daily_info = response.body;
-        List<String> temp_daily_info = daily_info.split(' ');
+        List<String> temp_daily_info = daily_info.split('+-*/');
         _temperature = temp_daily_info[0];
         high_pressure = temp_daily_info[1];
         low_pressure = temp_daily_info[2];
