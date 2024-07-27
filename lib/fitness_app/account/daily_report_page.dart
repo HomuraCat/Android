@@ -391,17 +391,8 @@ class _DailyReportPageState extends State<DailyReportPage> {
     bool flag = ((current_time.hour == RefreshTime.hour) &&
         (current_time.minute == RefreshTime.minute) &&
         (current_time.second == RefreshTime.second));
-    bool flag2 = ((current_time.hour == MessageTime.hour) &&
-        (current_time.minute == MessageTime.minute) &&
-        (current_time.second == MessageTime.second));
     if (flag) {
       setState(() => submitstate = false);
-    }
-    if (flag2){
-       _notificationHelper.showNotification(
-                title: '提示',
-                body: '请记得填写每日上报!',
-              );
     }
   }
 

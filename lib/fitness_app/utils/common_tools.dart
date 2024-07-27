@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationHelper {
   static final NotificationHelper _instance = NotificationHelper._internal();
@@ -10,41 +13,73 @@ class NotificationHelper {
       FlutterLocalNotificationsPlugin();
 
   Future<void> initialize() async {
+    await _requestPermissions();
+
     const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
-    const DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings();
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     
     const InitializationSettings initializationSettings =
         InitializationSettings(
-            android: initializationSettingsAndroid,
-            iOS: initializationSettingsIOS);
+            android: initializationSettingsAndroid);
+    
     await _notificationsPlugin.initialize(initializationSettings);
+    tz.initializeTimeZones();
   }
 
-  Future<void> showNotification(
-      {required String title, required String body}) async {
-    AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails("0", "undefined",
-            channelDescription: title,
-            importance: Importance.max,
-            priority: Priority.high,
-            ticker: body);
+  Future<void> _requestPermissions() async {
+    final notification_status = await Permission.notification.status;
+    if (notification_status != PermissionStatus.granted) {
+      await Permission.notification.request();
+    }
+    final exactAlarmStatus = await Permission.scheduleExactAlarm.status;
+    if (exactAlarmStatus != PermissionStatus.granted) {
+      await Permission.scheduleExactAlarm.request();
+    }
+  }
 
-    const String darwinNotificationCategoryPlain = 'plainCategory';
-    const DarwinNotificationDetails iosNotificationDetails =
-        DarwinNotificationDetails(
-      categoryIdentifier: darwinNotificationCategoryPlain,
-    );
-    NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidNotificationDetails,iOS: iosNotificationDetails);
+  Future<void> scheduleNotification({
+    required int notificationId,
+    required String title,
+    required String body,
+    required int hour,
+    required int minute,
+  }) async {
+    const AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+          "daily_medical_channel",
+          "吃药通知",
+          channelDescription: "吃药通知频道",
+          importance: Importance.max,
+          priority: Priority.high,
+          ticker: '吃药通知'
+        );
 
-    await _notificationsPlugin.show(
-      1,
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidNotificationDetails);
+
+    final tz.TZDateTime scheduledTime = _nextInstance(hour, minute);
+
+    await _notificationsPlugin.zonedSchedule(
+      notificationId,
       title,
       body,
+      scheduledTime,
       platformChannelSpecifics,
+      androidAllowWhileIdle: true,
+      matchDateTimeComponents: DateTimeComponents.time,
+      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
     );
+  }
+
+  tz.TZDateTime _nextInstance(int hour, int minute) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
+
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    return scheduledDate;
   }
 }
 
