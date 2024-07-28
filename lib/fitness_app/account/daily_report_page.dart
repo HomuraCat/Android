@@ -29,7 +29,6 @@ class _DailyReportPageState extends State<DailyReportPage> {
   DateTime RefreshTime = DateTime(0, 1, 1, 0, 0);
   DateTime MessageTime = DateTime(0, 1, 1, 20, 0);
   Timer? timer;
-  final NotificationHelper _notificationHelper = NotificationHelper();
 
   @override
   void initState() {

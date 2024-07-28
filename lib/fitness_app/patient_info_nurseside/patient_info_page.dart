@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'patient_details_page.dart';
+import 'package:http/http.dart' as http;
 
 class ContactGroup {
   bool expand = false;
@@ -10,10 +11,10 @@ class ContactGroup {
 }
 
 class ContactFriend {
-  String patientName;
   String patientID;
+  String patientName;
 
-  ContactFriend(this.patientName, this.patientID);
+  ContactFriend(this.patientID, this.patientName);
 }
 
 class PatientInfoPage extends StatefulWidget {
@@ -26,26 +27,34 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
   ScrollController _scrollController = ScrollController();
   List<ContactGroup> contactGroupList = <ContactGroup>[];
   Map<String, int> contactGroupMap = {};
+  late String patientInfo = "";
 
   @override
   void initState() {
     super.initState();
-    String patientInfo = "张三_114514_未分组 李四_666666_未分组";
-    List<String> each_patient = patientInfo.split(' ');
-    each_patient.forEach((single_patient) {
-      List<String> single_patient_info = single_patient.split('_');
-      String temp_group_name = single_patient_info[2];
-      ContactGroup temp_Group;
-      ContactFriend temp_patient = ContactFriend(single_patient_info[0], single_patient_info[1]);
-      if (!contactGroupMap.containsKey(temp_group_name)){
-        temp_Group = ContactGroup(temp_group_name);
-        contactGroupList.add(temp_Group);
-        final new_key = <String, int>{temp_group_name: contactGroupList.length - 1};
-        contactGroupMap.addEntries(new_key.entries);
-      }
-        else temp_Group = contactGroupList[contactGroupMap[temp_group_name]!];
-      temp_Group.friendList.add(temp_patient);
-    });
+    _initConfig();
+  }
+
+  void _initConfig() async {
+    await GetPatientInfo(context);
+    if (patientInfo != "ERROR")
+    {
+      List<String> each_patient = patientInfo.split(' ');
+      each_patient.forEach((single_patient) {
+        List<String> single_patient_info = single_patient.split('_');
+        String temp_group_name = single_patient_info[2];
+        ContactGroup temp_Group;
+        ContactFriend temp_patient = ContactFriend(single_patient_info[0], single_patient_info[1]);
+        if (!contactGroupMap.containsKey(temp_group_name)){
+          temp_Group = ContactGroup(temp_group_name);
+          contactGroupList.add(temp_Group);
+          final new_key = <String, int>{temp_group_name: contactGroupList.length - 1};
+          contactGroupMap.addEntries(new_key.entries);
+        }
+          else temp_Group = contactGroupList[contactGroupMap[temp_group_name]!];
+        temp_Group.friendList.add(temp_patient);
+      });
+    }
   }
 
   @override
@@ -138,5 +147,33 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
       },
       itemCount: contactGroupList.length + 1,
     );
+  }
+
+  Future<void> GetPatientInfo(BuildContext context) async {
+    var url = Uri.parse('http://10.0.2.2:5001//patient/get_list');
+
+    var response = await http.get(url);
+    
+    if (response.statusCode == 200) {
+      if (response.body != '0') 
+      {
+        String res = "";
+        List<String> temp_res = response.body.split('"')[1].split("/*-+");
+        for (int i = 0; i < temp_res.length; i++)
+        {
+          if (i != 0) res = res + " ";
+          List<String> temp = temp_res[i].split("+-*/");
+          res = res + temp[0] + "_";
+          if (temp[1] == "") res = res + "未命名";
+            else res = res + temp[1];
+          res = res + "_";
+          if (temp[2] == "") res = res + "未分组";
+            else res = res + temp[2];
+        }
+        setState(() => patientInfo = res);
+      }
+        else setState(() => patientInfo = "ERROR");
+    }
+      else setState(() => patientInfo = "ERROR");
   }
 }
