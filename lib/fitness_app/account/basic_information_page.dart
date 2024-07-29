@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import '../utils/Spsave_module.dart';
 
 class BasicInforPage extends StatefulWidget {
   const BasicInforPage({Key? key}) : super(key: key);
@@ -13,9 +14,21 @@ class BasicInforPage extends StatefulWidget {
 
 class _BasicInforPageState extends State<BasicInforPage> {
   final GlobalKey _formKey = GlobalKey<FormState>();
-  late String name,
-      age;
+  late String patientID, name, age, user_name;
+  bool submitstate = false;
   int gender = 1;
+
+  void initState() {
+    super.initState();
+    _initConfig();
+  }
+
+  void _initConfig() async {
+    Map<String, dynamic> account = await SpStorage.instance.readAccount();
+    patientID = account['patientID'];
+    user_name = account['name'];
+    if (user_name != "未命名") setState(() => submitstate = true);
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -39,6 +52,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
             buildAgeField(),
             const SizedBox(height: 60),
             buildSubmitButton(context),
+            if (submitstate) buildSubmitText(),
             const SizedBox(height: 60),
           ],
         ),
@@ -48,6 +62,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
 
   Widget buildNameField() {
     return TextFormField(
+      enabled: !submitstate,
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
           border: OutlineInputBorder(),
@@ -97,7 +112,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
       Radio(
           value: 2,
           groupValue: gender,
-          onChanged: (value) {
+          onChanged: submitstate ? null : (value){
             setState(() {
               gender = value as int;
             });
@@ -107,6 +122,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
 
     Widget buildAgeField() {
     return TextFormField(
+      enabled: !submitstate,
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
           border: OutlineInputBorder(),
@@ -117,7 +133,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
           return '请正确输入年龄';
         }
       },
-      onSaved: (v) => name = v!,
+      onSaved: (v) => age = v!,
     );
   }
 
@@ -130,7 +146,9 @@ class _BasicInforPageState extends State<BasicInforPage> {
           backgroundColor: Colors.black,
           child: Text('提交',
               style: Theme.of(context).primaryTextTheme.headlineSmall),
-          onPressed: () {
+          onPressed: submitstate
+            ? null
+            : () {
                   if ((_formKey.currentState as FormState).validate()) {
                     (_formKey.currentState as FormState).save();
                     SendBasicInformation(context);
@@ -141,8 +159,17 @@ class _BasicInforPageState extends State<BasicInforPage> {
     );
   }
 
+  Widget buildSubmitText() {
+    return const Padding(
+        padding: EdgeInsets.only(left: 150),
+        child: Text(
+          '已提交',
+          style: TextStyle(fontSize: 17, color: Colors.red),
+        ));
+  }
+
   Future<void> SendBasicInformation(BuildContext context) async {
-    var url = Uri.parse('http://10.0.2.2:5001/questionnaire/send');
+    var url = Uri.parse('http://10.0.2.2:5001/patient/save');
 
     var response = await http.post(
       url,
@@ -150,8 +177,9 @@ class _BasicInforPageState extends State<BasicInforPage> {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
+        'patientID': patientID,
         'name': name,
-        'gender': (gender==1)?"男":"女",
+        'gender': gender.toString(),
         'age': age
       }),
     );
@@ -159,6 +187,8 @@ class _BasicInforPageState extends State<BasicInforPage> {
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       if (responseData == 1) {
+        setState(() => submitstate = true);
+        SpStorage.instance.saveAccount(patientID: patientID, name: name);
         _showDialog(context, '提交成功！', onDialogClose: () {
           Navigator.pop(context);
         });

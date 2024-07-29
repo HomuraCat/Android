@@ -23,15 +23,15 @@ Future<void> registerUser(
   );
 
   if (response.statusCode == 200) {
-    var responseData = jsonDecode(response.body);
+    var responseData = response.body;
 
-    if (responseData == 2) {
+    if (responseData == "2") {
       _showDialog(context, '用户不存在！');
-    } else if (responseData == 0) {
+    } else if (responseData == "0") {
       _showDialog(context, '用户或密码错误！');
     } else {
-      SpStorage.instance
-          .saveAccount(patientID: responseData.toString(), name: "测试人员");
+      List<String> user_data = responseData.toString().split("+-*/");
+      SpStorage.instance.saveAccount(patientID: user_data[0], name: user_data[1]);
 
       if (my_status) {
         Navigator.push(context,
