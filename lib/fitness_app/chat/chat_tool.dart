@@ -136,8 +136,11 @@ class Chat {
 }
 
 class ChatController extends ChangeNotifier {
-  List<Chat> chatList = Chat.generate();
+  ChatController({Key? key, required this.myid, required this.friendid});
+  final String myid, friendid;
 
+  List<Chat> chatList = Chat.generate();
+  
   late final ScrollController scrollController = ScrollController();
   late final TextEditingController textEditingController =
       TextEditingController();
@@ -155,16 +158,7 @@ class ChatController extends ChangeNotifier {
     ];
 
     // Send the message to the backend
-    final response = await sendMessageToBackend(userMessage);
-
-    // Update the chat with the response from the backend
-    chatList = [
-      ...chatList,
-      Chat(
-          message: response,
-          type: ChatMessageType.received,
-          time: DateTime.now()),
-    ];
+    final response = await sendMessageToBackend(myid, userMessage, friendid);
 
     // Scroll and reset input field
     scrollController.animateTo(
@@ -177,27 +171,18 @@ class ChatController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> sendMessageToBackend(String message) async {
+  Future<String> sendMessageToBackend(String user1, String message, String user2) async {
     // Replace with your backend URL
-    var url = Uri.parse('http://10.0.2.2:5001/message');
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2:5001/chat/send_message'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'sender_id': user1, 'message': message, 'recipient_id': user2}),
+    );
 
-    try {
-      var response = await http.post(
-        url,
-        body: json.encode({'message': message}),
-        headers: {'Content-Type': 'application/json'},
-      );
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body);
-        // Assuming the response contains a field 'reply'
-        return data['reply'];
-      } else {
-        // Handle error or return a default message
-        return "Error: could not connect to server.";
-      }
-    } catch (e) {
-      // Handle exception or return a default message
-      return "Error: server unreachable.";
+    if (response.statusCode == 200) {
+      return 'Message sent';
+    } else {
+      return 'Failed to send message';
     }
   }
 

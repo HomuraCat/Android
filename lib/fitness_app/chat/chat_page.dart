@@ -3,6 +3,8 @@ import "chat_tool.dart";
 import "package:flutter_svg/svg.dart";
 import "package:provider/provider.dart";
 import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/io.dart';
+import '../utils/Spsave_module.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -14,6 +16,8 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   late String patientInfo = "";
   List<ChatPartner> ChatPartners = <ChatPartner>[];
+  late IOWebSocketChannel _channel;
+  String patientID = "", name = "";
 
   @override
   void initState() {
@@ -22,16 +26,36 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _initConfig() async {
+    Map<String, dynamic> account = await SpStorage.instance.readAccount();
+    patientID = account['patientID'];
+    name = account['name'];
     await GetPatientInfo(context);
     if (patientInfo != "ERROR")
     {
       List<String> each_patient = patientInfo.split(' ');
       each_patient.forEach((single_patient) {
         List<String> single_patient_info = single_patient.split('_');
-        ChatPartner temp_partner = ChatPartner(friendname: single_patient_info[1], subinfo: single_patient_info[0]);
+        ChatPartner temp_partner = ChatPartner(myid: patientID, friendname: single_patient_info[1], subinfo: "一个平平无奇的病人", friendid: single_patient_info[0]);
         ChatPartners.add(temp_partner);
       });
     }
+    _connectToWebSocket();
+  }
+
+    void _connectToWebSocket() {
+    _channel = IOWebSocketChannel.connect(
+      'ws://10.0.2.2:5001/socket.io/?user_id=$patientID',
+    );
+    _channel.stream.listen((message) {
+      // 处理收到的新消息
+      print('Received: $message');
+    });
+  }
+
+  @override
+  void dispose() {
+    _channel.sink.close();
+    super.dispose();
   }
 
   @override
@@ -76,9 +100,9 @@ class _ChatPageState extends State<ChatPage> {
 }
 
 class ChatPartner extends StatelessWidget {
-  const ChatPartner({Key? key, required this.friendname, required this.subinfo})
+  const ChatPartner({Key? key, required this.myid, required this.friendname, required this.subinfo, required this.friendid})
       : super(key: key);
-  final String friendname, subinfo;
+  final String myid, friendname, subinfo, friendid;
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +110,7 @@ class ChatPartner extends StatelessWidget {
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (BuildContext context) => ChangeNotifierProvider(
-                create: (_) => ChatController(),
+                create: (_) => ChatController(myid: this.myid, friendid: this.friendid),
                 child:
                     ChatUI(friendname: friendname, avatar: "assets/images/aaa.png"))));
       },

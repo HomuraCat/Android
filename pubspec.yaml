@@ -43,6 +43,8 @@ dependencies:
   badges: ^3.1.1
   permission_handler: ^10.2.0
   timezone: ^0.9.4
+  web_socket_channel:
+  socket_io_client:
 
 dev_dependencies:
   flutter_test:
