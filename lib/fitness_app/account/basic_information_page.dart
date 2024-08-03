@@ -185,8 +185,8 @@ class _BasicInforPageState extends State<BasicInforPage> {
     );
 
     if (response.statusCode == 200) {
-      var responseData = jsonDecode(response.body);
-      if (responseData == 1) {
+      var responseData = response.body;
+      if (responseData == '1') {
         setState(() => submitstate = true);
         SpStorage.instance.saveAccount(patientID: patientID, name: name);
         _showDialog(context, '提交成功！', onDialogClose: () {
