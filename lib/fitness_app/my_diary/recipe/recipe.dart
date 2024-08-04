@@ -41,7 +41,7 @@ class _RecipeListPageState extends State<RecipeListPage> {
   }
 
   Future<void> fetchRecipes() async {
-    var url = Uri.parse('http://10.0.2.2:5001/recipes');
+    var url = Uri.parse('http://43.136.14.179:5001/recipes');
     var response = await http.get(url);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);

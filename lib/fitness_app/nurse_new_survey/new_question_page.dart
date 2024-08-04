@@ -37,7 +37,7 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
   }
 
   Future<void> submitQuestions() async {
-    var url = Uri.parse('http://10.0.2.2:5001/questions');
+    var url = Uri.parse('http://43.136.14.179:5001/questions');
     for (int i = 0; i < questions.length; i++) {
       var question = questions[i];
       var response = await http.post(

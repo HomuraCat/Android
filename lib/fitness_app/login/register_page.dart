@@ -36,7 +36,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String verificationCode = '';
   Future<void> sendVerificationCode(
       String phoneNumber, BuildContext context) async {
-    var url = Uri.parse('http://10.0.2.2:5001/phone_ver');
+    var url = Uri.parse('http://43.136.14.179:5001/phone_ver');
     // print(phoneNumber);
 
     var response = await http.post(
@@ -70,7 +70,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       String password,
       String confirmPassword,
       BuildContext context) async {
-    var url = Uri.parse('http://10.0.2.2:5001/register');
+    var url = Uri.parse('http://43.136.14.179:5001/register');
     // print(phoneNumber);
 
     var response = await http.post(

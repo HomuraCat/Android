@@ -37,7 +37,7 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
   }
 
   Future<void> _fetchPosts() async {
-    var url = Uri.parse('http://10.0.2.2:5001/motion/fetch');
+    var url = Uri.parse('http://43.136.14.179:5001/motion/fetch');
     try {
       var response = await http.post(
         url,
@@ -72,7 +72,7 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
   }
 
   Future<void> _createPost(String content) async {
-    var url = Uri.parse('http://10.0.2.2:5001/motion/create');
+    var url = Uri.parse('http://43.136.14.179:5001/motion/create');
     try {
       var response = await http.post(
         url,
@@ -94,7 +94,7 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
   }
 
   Future<void> _deletePost(int postId) async {
-    var url = Uri.parse('http://10.0.2.2:5001/motion/delete');
+    var url = Uri.parse('http://43.136.14.179:5001/motion/delete');
     try {
       var response = await http.delete(
         url,

@@ -174,7 +174,7 @@ class ChatController extends ChangeNotifier {
   Future<String> sendMessageToBackend(String user1, String message, String user2) async {
     // Replace with your backend URL
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:5001/chat/send_message'),
+      Uri.parse('http://43.136.14.179:5001/chat/send_message'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'sender_id': user1, 'message': message, 'recipient_id': user2}),
     );

@@ -62,7 +62,7 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
   }
 
   Future<void> fetchSurveys() async {
-    var url = Uri.parse('http://10.0.2.2:5001/surveys');
+    var url = Uri.parse('http://43.136.14.179:5001/surveys');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -93,7 +93,7 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
   }
 
   Future<void> fetchQuestions(int surveyId) async {
-    var url = Uri.parse('http://10.0.2.2:5001/surveys/$surveyId');
+    var url = Uri.parse('http://43.136.14.179:5001/surveys/$surveyId');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {

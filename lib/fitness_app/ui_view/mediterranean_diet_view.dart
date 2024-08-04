@@ -26,7 +26,7 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView> {
   }
 
   Future<void> fetchRecipes() async {
-    var url = Uri.parse('http://10.0.2.2:5001/learn_number');
+    var url = Uri.parse('http://43.136.14.179:5001/learn_number');
     var response = await http.get(url);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);

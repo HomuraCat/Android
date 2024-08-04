@@ -9,7 +9,7 @@ import 'package:best_flutter_ui_templates/fitness_app/login/register_page.dart';
 
 Future<void> registerUser(
     String email, String password, bool my_status, BuildContext context) async {
-  var url = Uri.parse('http://10.0.2.2:5001/login');
+  var url = Uri.parse('http://43.136.14.179:5001/login');
 
   var response = await http.post(
     url,

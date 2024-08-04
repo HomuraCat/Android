@@ -169,7 +169,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
   }
 
   Future<void> SendBasicInformation(BuildContext context) async {
-    var url = Uri.parse('http://10.0.2.2:5001/patient/save');
+    var url = Uri.parse('http://43.136.14.179:5001/patient/save');
 
     var response = await http.post(
       url,

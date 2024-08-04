@@ -16,7 +16,7 @@ class _NewSurveyPageState extends State<NewSurveyPage> {
   DateTime scheduledEndTime = DateTime.now().add(Duration(days: 1));
 
   Future<void> submitSurvey() async {
-    var url = Uri.parse('http://10.0.2.2:5001/surveys');
+    var url = Uri.parse('http://43.136.14.179:5001/surveys');
     var response = await http.post(
       url,
       headers: <String, String>{

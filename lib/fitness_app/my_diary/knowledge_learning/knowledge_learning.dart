@@ -29,7 +29,7 @@ class _LearnSectionState extends State<LearnSection> {
   }
 
   Future<void> fetchVideos() async {
-    var url = Uri.parse('http://10.0.2.2:5001/mylearn_videos');
+    var url = Uri.parse('http://43.136.14.179:5001/mylearn_videos');
     var response = await http.get(url);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body) as List;
@@ -177,7 +177,7 @@ void _checkVideo() {
 
 void _markVideoAsLearned() async {
   // Assuming 'id' is a property of your video that identifies it uniquely in the backend.
-  var url = Uri.parse('http://10.0.2.2:5001/update_learn_video_status/${widget.video['id']}');
+  var url = Uri.parse('http://43.136.14.179:5001/update_learn_video_status/${widget.video['id']}');
   var response = await http.post(
     url,
     headers: {'Content-Type': 'application/json'},

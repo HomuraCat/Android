@@ -399,7 +399,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
     if (CompareTime(RefreshTime, this_submit_time)) {
       this_submit_time = this_submit_time.add(const Duration(days: 1));
     }
-    var url = Uri.parse('http://10.0.2.2:5001/questionnaire/get_time');
+    var url = Uri.parse('http://43.136.14.179:5001/questionnaire/get_time');
 
     var response = await http.post(
       url,
@@ -421,7 +421,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
     if (CompareTime(RefreshTime, this_submit_time)) {
       this_submit_time = this_submit_time.add(const Duration(days: 1));
     }
-    var url = Uri.parse('http://10.0.2.2:5001/questionnaire/send');
+    var url = Uri.parse('http://43.136.14.179:5001/questionnaire/send');
 
     var response = await http.post(
       url,
@@ -724,7 +724,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     if (CompareTime(RefreshTime, this_submit_time)) {
       this_submit_time = this_submit_time.add(const Duration(days: 1));
     }
-    var url = Uri.parse('http://10.0.2.2:5001/questionnaire/get_time');
+    var url = Uri.parse('http://43.136.14.179:5001/questionnaire/get_time');
 
     var response = await http.post(
       url,
@@ -746,7 +746,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     if (CompareTime(RefreshTime, this_submit_time)) {
       this_submit_time = this_submit_time.add(const Duration(days: 1));
     }
-    var url = Uri.parse('http://10.0.2.2:5001/questionnaire/get_daily_info');
+    var url = Uri.parse('http://43.136.14.179:5001/questionnaire/get_daily_info');
 
     var response = await http.post(
       url,

@@ -150,7 +150,7 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
   }
 
   Future<void> GetPatientInfo(BuildContext context) async {
-    var url = Uri.parse('http://10.0.2.2:5001/patient/get_list');
+    var url = Uri.parse('http://43.136.14.179:5001/patient/get_list');
 
     var response = await http.get(url);
     

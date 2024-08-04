@@ -40,7 +40,7 @@ class _SurveyDetailPageState extends State<SurveyDetailPage> {
   }
 
   Future<void> fetchSurveyDetails() async {
-    var url = Uri.parse('http://10.0.2.2:5001/surveys/${widget.surveyId}');
+    var url = Uri.parse('http://43.136.14.179:5001/surveys/${widget.surveyId}');
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -56,7 +56,7 @@ class _SurveyDetailPageState extends State<SurveyDetailPage> {
   }
 
   Future<void> deleteSurvey() async {
-    var url = Uri.parse('http://10.0.2.2:5001/surveys/${widget.surveyId}');
+    var url = Uri.parse('http://43.136.14.179:5001/surveys/${widget.surveyId}');
     var response = await http.delete(url);
 
     if (response.statusCode == 200) {
