@@ -193,6 +193,9 @@ class _BasicInforPageState extends State<BasicInforPage> {
           Navigator.pop(context);
         });
       }
+        else _showDialog(context, '提交失败！', onDialogClose: () {
+          Navigator.pop(context);
+        });
     } else print('Request failed with status: ${response.statusCode}.');
   }
 
