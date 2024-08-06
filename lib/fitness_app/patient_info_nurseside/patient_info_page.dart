@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'patient_details_page.dart';
 import 'package:http/http.dart' as http;
+import '../../config.dart';
 
 class ContactGroup {
   bool expand = false;
@@ -150,7 +151,8 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
   }
 
   Future<void> GetPatientInfo(BuildContext context) async {
-    var url = Uri.parse('http://43.136.14.179:5001/patient/get_list');
+    final String apiUrl = Config.baseUrl + '/patient/get_list';
+    var url = Uri.parse(apiUrl);
 
     var response = await http.get(url);
     

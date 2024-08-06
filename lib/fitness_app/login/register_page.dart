@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:best_flutter_ui_templates/fitness_app/login/login_page.dart';
+import '../../config.dart';
 
 void main() {
   runApp(MyApp());
@@ -36,7 +37,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String verificationCode = '';
   Future<void> sendVerificationCode(
       String phoneNumber, BuildContext context) async {
-    var url = Uri.parse('http://43.136.14.179:5001/phone_ver');
+    final String apiUrl = Config.baseUrl + '/phone_ver';
+    var url = Uri.parse(apiUrl);
     // print(phoneNumber);
 
     var response = await http.post(
@@ -70,7 +72,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       String password,
       String confirmPassword,
       BuildContext context) async {
-    var url = Uri.parse('http://43.136.14.179:5001/register');
+    final String apiUrl = Config.baseUrl + '/register';
+    var url = Uri.parse(apiUrl);
     // print(phoneNumber);
 
     var response = await http.post(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'patient_detail_page.dart'; // Import the new page
+import '../../config.dart';
 
 class SurveyDetailPage extends StatefulWidget {
   final int surveyId;
@@ -40,7 +41,8 @@ class _SurveyDetailPageState extends State<SurveyDetailPage> {
   }
 
   Future<void> fetchSurveyDetails() async {
-    var url = Uri.parse('http://43.136.14.179:5001/surveys/${widget.surveyId}');
+    final String apiUrl = Config.baseUrl + '/surveys/${widget.surveyId}';
+    var url = Uri.parse(apiUrl);
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -56,7 +58,8 @@ class _SurveyDetailPageState extends State<SurveyDetailPage> {
   }
 
   Future<void> deleteSurvey() async {
-    var url = Uri.parse('http://43.136.14.179:5001/surveys/${widget.surveyId}');
+    final String apiUrl = Config.baseUrl + '/surveys/${widget.surveyId}';
+    var url = Uri.parse(apiUrl);
     var response = await http.delete(url);
 
     if (response.statusCode == 200) {

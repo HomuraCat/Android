@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../config.dart';
 class MediterranesnDietView extends StatefulWidget {
   final AnimationController? animationController;
   final Animation<double>? animation;
@@ -26,7 +27,8 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView> {
   }
 
   Future<void> fetchRecipes() async {
-    var url = Uri.parse('http://43.136.14.179:5001/learn_number');
+    final String apiUrl = Config.baseUrl + '/learn_number';
+    var url = Uri.parse(apiUrl);
     var response = await http.get(url);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);

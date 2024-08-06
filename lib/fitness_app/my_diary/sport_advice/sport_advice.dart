@@ -4,6 +4,7 @@ import 'package:chewie/chewie.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/knowledge_learning/weekly_test_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../../config.dart';
 class SportAdvicePage extends StatefulWidget {
   final Map<String, dynamic> video;
   SportAdvicePage({Key? key, required this.video}) : super(key: key);
@@ -26,7 +27,8 @@ class _SportSectionState extends State<SportSection> {
   }
 
   Future<void> fetchVideos() async {
-    var url = Uri.parse('http://43.136.14.179:5001/mysport_videos');
+    final String apiUrl = Config.baseUrl + '/mysport_videos';
+    var url = Uri.parse(apiUrl);
     var response = await http.get(url);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body) as List;
@@ -40,9 +42,11 @@ class _SportSectionState extends State<SportSection> {
           'image': data['image']
         }).toList();
       });
+      print(videos);
     } else {
       throw Exception('Failed to load videos');
     }
+
   }
 
   @override
@@ -231,7 +235,8 @@ void _checkVideo() {
 
 void _markVideoAsLearned() async {
   // Assuming 'id' is a property of your video that identifies it uniquely in the backend.
-  var url = Uri.parse('http://43.136.14.179:5001/update_sport_video_status/${widget.video['id']}');
+  final String apiUrl = Config.baseUrl + '/update_sport_video_status/${widget.video['id']}';
+  var url = Uri.parse(apiUrl);
   var response = await http.post(
     url,
     headers: {'Content-Type': 'application/json'},

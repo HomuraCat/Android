@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../utils/Spsave_module.dart';
-
+import '../../config.dart';
 class MotionPage extends StatefulWidget {
   const MotionPage({Key? key}) : super(key: key);
 
@@ -37,7 +37,8 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
   }
 
   Future<void> _fetchPosts() async {
-    var url = Uri.parse('http://43.136.14.179:5001/motion/fetch');
+    final String apiUrl = Config.baseUrl + '/motion/fetch';
+    var url = Uri.parse(apiUrl);
     try {
       var response = await http.post(
         url,
@@ -72,7 +73,8 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
   }
 
   Future<void> _createPost(String content) async {
-    var url = Uri.parse('http://43.136.14.179:5001/motion/create');
+    final String apiUrl = Config.baseUrl + '/motion/create';
+    var url = Uri.parse(apiUrl);
     try {
       var response = await http.post(
         url,
@@ -94,7 +96,8 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
   }
 
   Future<void> _deletePost(int postId) async {
-    var url = Uri.parse('http://43.136.14.179:5001/motion/delete');
+    final String apiUrl = Config.baseUrl + '/motion/delete';
+    var url = Uri.parse(apiUrl);
     try {
       var response = await http.delete(
         url,

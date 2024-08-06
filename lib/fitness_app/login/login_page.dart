@@ -5,11 +5,13 @@ import 'dart:convert';
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_home_screen.dart';
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_home_screen_nurseside.dart';
 import '../utils/Spsave_module.dart';
+import '../../config.dart';
 import 'package:best_flutter_ui_templates/fitness_app/login/register_page.dart';
 
 Future<void> registerUser(
     String email, String password, bool my_status, BuildContext context) async {
-  var url = Uri.parse('http://43.136.14.179:5001/login');
+  final String apiUrl = Config.baseUrl + '/login';
+  var url = Uri.parse(apiUrl);
 
   var response = await http.post(
     url,

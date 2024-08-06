@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../config.dart';
 
 class NewQuestionPage extends StatefulWidget {
   final int surveyId;
@@ -37,7 +38,8 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
   }
 
   Future<void> submitQuestions() async {
-    var url = Uri.parse('http://43.136.14.179:5001/questions');
+    final String apiUrl = Config.baseUrl + '/questions';
+    var url = Uri.parse(apiUrl);
     for (int i = 0; i < questions.length; i++) {
       var question = questions[i];
       var response = await http.post(

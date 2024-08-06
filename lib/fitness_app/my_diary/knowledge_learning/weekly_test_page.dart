@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import '../../../config.dart';
 
 class WeeklyTestPage extends StatefulWidget {
   const WeeklyTestPage({Key? key}) : super(key: key);
@@ -62,7 +63,8 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
   }
 
   Future<void> fetchSurveys() async {
-    var url = Uri.parse('http://43.136.14.179:5001/surveys');
+    final String apiUrl = Config.baseUrl + '/surveys';
+    var url = Uri.parse(apiUrl);
     var response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -93,7 +95,8 @@ class _WeeklyTestPageState extends State<WeeklyTestPage> {
   }
 
   Future<void> fetchQuestions(int surveyId) async {
-    var url = Uri.parse('http://43.136.14.179:5001/surveys/$surveyId');
+    final String apiUrl = Config.baseUrl + '/surveys/$surveyId';
+    var url = Uri.parse(apiUrl);
     var response = await http.get(url);
 
     if (response.statusCode == 200) {

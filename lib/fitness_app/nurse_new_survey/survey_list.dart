@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'new_survey_page.dart';
 import 'survey_detail_page.dart'; // Import the new detail page
+import '../../config.dart';
 
 class SurveyListPage extends StatefulWidget {
   @override
@@ -19,7 +20,8 @@ class _SurveyListPageState extends State<SurveyListPage> {
   }
 
   Future<void> fetchSurveys() async {
-    var url = Uri.parse('http://43.136.14.179:5001/surveys');
+    final String apiUrl = Config.baseUrl + '/surveys';
+    var url = Uri.parse(apiUrl);
     var response = await http.get(url);
 
     if (response.statusCode == 200) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'new_question_page.dart';
+import '../../config.dart';
 
 class NewSurveyPage extends StatefulWidget {
   @override
@@ -16,7 +17,9 @@ class _NewSurveyPageState extends State<NewSurveyPage> {
   DateTime scheduledEndTime = DateTime.now().add(Duration(days: 1));
 
   Future<void> submitSurvey() async {
-    var url = Uri.parse('http://43.136.14.179:5001/surveys');
+    final String apiUrl = Config.baseUrl + '/surveys';
+    var url = Uri.parse(apiUrl);
+
     var response = await http.post(
       url,
       headers: <String, String>{

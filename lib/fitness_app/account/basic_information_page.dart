@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import '../utils/Spsave_module.dart';
+import '../../config.dart';
 
 class BasicInforPage extends StatefulWidget {
   const BasicInforPage({Key? key}) : super(key: key);
@@ -169,7 +170,8 @@ class _BasicInforPageState extends State<BasicInforPage> {
   }
 
   Future<void> SendBasicInformation(BuildContext context) async {
-    var url = Uri.parse('http://43.136.14.179:5001/patient/save');
+    final String apiUrl = Config.baseUrl + '/patient/save';
+    var url = Uri.parse(apiUrl);
 
     var response = await http.post(
       url,

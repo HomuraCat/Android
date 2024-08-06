@@ -3,6 +3,7 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../../config.dart';
 
 void main() => runApp(MyApp());
 
@@ -41,7 +42,8 @@ class _RecipeListPageState extends State<RecipeListPage> {
   }
 
   Future<void> fetchRecipes() async {
-    var url = Uri.parse('http://43.136.14.179:5001/recipes');
+    final String apiUrl = Config.baseUrl + '/recipes';
+    var url = Uri.parse(apiUrl);
     var response = await http.get(url);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);

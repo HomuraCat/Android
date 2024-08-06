@@ -5,6 +5,7 @@ import "package:provider/provider.dart";
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/io.dart';
 import '../utils/Spsave_module.dart';
+import '../../config.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -71,7 +72,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> GetPatientInfo(BuildContext context) async {
-    var url = Uri.parse('http://43.136.14.179:5001/patient/get_list');
+    final String apiUrl = Config.baseUrl + '/patient/get_list';
+    var url = Uri.parse(apiUrl);
 
     var response = await http.get(url);
     

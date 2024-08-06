@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
+import '../../config.dart';
 
 class ShowDailyReportPage extends StatefulWidget {
   const ShowDailyReportPage({Key? key, required this.patientID}) : super(key: key);
@@ -241,7 +242,8 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     if (CompareTime(RefreshTime, this_submit_time)) {
       this_submit_time = this_submit_time.add(const Duration(days: 1));
     }
-    var url = Uri.parse('http://43.136.14.179:5001/questionnaire/get_time');
+    final String apiUrl = Config.baseUrl + '/questionnaire/get_time';
+    var url = Uri.parse(apiUrl);
 
     var response = await http.post(
       url,
@@ -263,7 +265,8 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     if (CompareTime(RefreshTime, this_submit_time)) {
       this_submit_time = this_submit_time.add(const Duration(days: 1));
     }
-    var url = Uri.parse('http://43.136.14.179:5001/questionnaire/get_daily_info');
+    final String apiUrl = Config.baseUrl + '/questionnaire/get_daily_info';
+    var url = Uri.parse(apiUrl);
 
     var response = await http.post(
       url,

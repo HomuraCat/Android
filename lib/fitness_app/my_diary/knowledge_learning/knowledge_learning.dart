@@ -4,6 +4,7 @@ import 'package:chewie/chewie.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/knowledge_learning/weekly_test_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../../config.dart';
 class KnowledgeLearningPage extends StatefulWidget {
   final Map<String, dynamic> video;
 
@@ -29,7 +30,8 @@ class _LearnSectionState extends State<LearnSection> {
   }
 
   Future<void> fetchVideos() async {
-    var url = Uri.parse('http://43.136.14.179:5001/mylearn_videos');
+    final String apiUrl = Config.baseUrl + '/mylearn_videos';
+    var url = Uri.parse(apiUrl);
     var response = await http.get(url);
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body) as List;
@@ -177,7 +179,8 @@ void _checkVideo() {
 
 void _markVideoAsLearned() async {
   // Assuming 'id' is a property of your video that identifies it uniquely in the backend.
-  var url = Uri.parse('http://43.136.14.179:5001/update_learn_video_status/${widget.video['id']}');
+  final String apiUrl = Config.baseUrl + 'update_learn_video_status/${widget.video['id']}';
+  var url = Uri.parse(apiUrl);
   var response = await http.post(
     url,
     headers: {'Content-Type': 'application/json'},
