@@ -2,9 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_chat_bubble/bubble_type.dart";
 import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_1.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../../config.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 abstract class Formatter {
   Formatter._();
@@ -137,8 +135,9 @@ class Chat {
 }
 
 class ChatController extends ChangeNotifier {
-  ChatController({Key? key, required this.myid, required this.friendid});
+  ChatController({Key? key, required this.myid, required this.friendid, required this.socket});
   final String myid, friendid;
+  final IO.Socket socket;
 
   List<Chat> chatList = Chat.generate();
   
@@ -159,7 +158,7 @@ class ChatController extends ChangeNotifier {
     ];
 
     // Send the message to the backend
-    final response = await sendMessageToBackend(myid, userMessage, friendid);
+    sendMessageToBackend(myid, userMessage, friendid);
 
     // Scroll and reset input field
     scrollController.animateTo(
@@ -172,20 +171,12 @@ class ChatController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> sendMessageToBackend(String user1, String message, String user2) async {
-    // Replace with your backend URL
-    final String apiUrl = Config.baseUrl + '/chat/send_message';
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'sender_id': user1, 'message': message, 'recipient_id': user2}),
-    );
-
-    if (response.statusCode == 200) {
-      return 'Message sent';
-    } else {
-      return 'Failed to send message';
-    }
+  void sendMessageToBackend(String user1, String message, String user2){
+    socket.emit('private_message', {
+        'sender': user1,
+        'receiver': user2, // 指定接收方
+        'message': message,
+      });
   }
 
   void onFieldChanged(String term) {

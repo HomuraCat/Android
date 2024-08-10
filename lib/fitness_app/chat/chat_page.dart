@@ -3,7 +3,7 @@ import "chat_tool.dart";
 import "package:flutter_svg/svg.dart";
 import "package:provider/provider.dart";
 import 'package:http/http.dart' as http;
-import 'package:web_socket_channel/io.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../utils/Spsave_module.dart';
 import '../../config.dart';
 
@@ -17,7 +17,7 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   late String patientInfo = "";
   List<ChatPartner> ChatPartners = <ChatPartner>[];
-  late IOWebSocketChannel _channel;
+  late IO.Socket socket;
   String patientID = "", name = "";
 
   @override
@@ -30,32 +30,46 @@ class _ChatPageState extends State<ChatPage> {
     Map<String, dynamic> account = await SpStorage.instance.readAccount();
     patientID = account['patientID'];
     name = account['name'];
+    connectToServer();
     await GetPatientInfo(context);
     if (patientInfo != "ERROR")
     {
       List<String> each_patient = patientInfo.split(' ');
       each_patient.forEach((single_patient) {
         List<String> single_patient_info = single_patient.split('_');
-        ChatPartner temp_partner = ChatPartner(myid: patientID, friendname: single_patient_info[1], subinfo: "一个平平无奇的病人", friendid: single_patient_info[0]);
-        ChatPartners.add(temp_partner);
+        ChatPartner temp_partner = ChatPartner(myid: patientID, friendname: single_patient_info[1], subinfo: "一个平平无奇的病人", friendid: single_patient_info[0], socket: socket);
+        setState(() {
+          ChatPartners.add(temp_partner);
+        }); 
       });
     }
-    _connectToWebSocket();
   }
 
-    void _connectToWebSocket() {
-    _channel = IOWebSocketChannel.connect(
-      'ws://10.0.2.2:5001/socket.io/?user_id=$patientID',
-    );
-    _channel.stream.listen((message) {
-      // 处理收到的新消息
-      print('Received: $message');
+  void connectToServer() {
+    socket = IO.io('http://10.0.2.2:5001', IO.OptionBuilder()
+        .setTransports(['websocket'])
+        .disableAutoConnect()
+        .setQuery({'username': patientID})  // 传递用户ID或用户名
+        .build());
+
+    socket.on('message', (data) {
+      print('receive from ${data['sender']}: ${data['message']}');
     });
+
+    socket.onConnect((_) {
+      print('Connected');
+    });
+
+    socket.onDisconnect((_) {
+      print('Disconnected');
+    });
+
+    socket.connect();
   }
 
   @override
   void dispose() {
-    _channel.sink.close();
+    socket.disconnect();
     super.dispose();
   }
 
@@ -102,9 +116,10 @@ class _ChatPageState extends State<ChatPage> {
 }
 
 class ChatPartner extends StatelessWidget {
-  const ChatPartner({Key? key, required this.myid, required this.friendname, required this.subinfo, required this.friendid})
+  const ChatPartner({Key? key, required this.myid, required this.friendname, required this.subinfo, required this.friendid, required this.socket})
       : super(key: key);
   final String myid, friendname, subinfo, friendid;
+  final IO.Socket socket;
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +127,7 @@ class ChatPartner extends StatelessWidget {
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (BuildContext context) => ChangeNotifierProvider(
-                create: (_) => ChatController(myid: this.myid, friendid: this.friendid),
+                create: (_) => ChatController(myid: this.myid, friendid: this.friendid, socket: socket),
                 child:
                     ChatUI(friendname: friendname, avatar: "assets/images/aaa.png"))));
       },
