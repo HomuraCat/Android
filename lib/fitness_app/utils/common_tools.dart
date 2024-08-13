@@ -71,6 +71,32 @@ class NotificationHelper {
     );
   }
 
+  Future<void> showChatMessageNotification({
+    required int notificationId,
+    required String title,
+    required String message,
+  }) async {
+    const AndroidNotificationDetails androidNotificationDetails =
+        AndroidNotificationDetails(
+          "chat_message_channel",
+          "聊天消息通知",
+          channelDescription: "聊天消息通知频道",
+          importance: Importance.max,
+          priority: Priority.high,
+          ticker: '聊天消息'
+        );
+
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidNotificationDetails);
+
+    await _notificationsPlugin.show(
+      notificationId,
+      title,
+      message,
+      platformChannelSpecifics,
+    );
+  }
+
   tz.TZDateTime _nextInstance(int hour, int minute) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);

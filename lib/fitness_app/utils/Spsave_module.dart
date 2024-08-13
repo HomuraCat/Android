@@ -30,6 +30,13 @@ class SpStorage {
     return json.decode(content);
   }
 
+  Future<Map<String, dynamic>> readChat({required String sendID, required String receiveID}) async {
+    await initSpWhenNull();
+    String content = _sp!.getString('Chat-${sendID}-${receiveID}') ?? "{}";
+    return json.decode(content);
+  }
+  //required String message, String type, DateTime time
+
   Future<bool> saveWeeklyTestConfig(
       {required bool submitstate,
       int? submityear,

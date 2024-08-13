@@ -5,6 +5,7 @@ import "package:provider/provider.dart";
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../utils/Spsave_module.dart';
+import '../utils/common_tools.dart';
 import '../../config.dart';
 
 class ChatPage extends StatefulWidget {
@@ -19,6 +20,7 @@ class _ChatPageState extends State<ChatPage> {
   List<ChatPartner> ChatPartners = <ChatPartner>[];
   late IO.Socket socket;
   String patientID = "", name = "";
+  NotificationHelper notificationHelper = NotificationHelper();
 
   @override
   void initState() {
@@ -46,22 +48,31 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void connectToServer() {
-    socket = IO.io('http://10.0.2.2:5001', IO.OptionBuilder()
-        .setTransports(['websocket'])
-        .disableAutoConnect()
-        .setQuery({'username': patientID})  // 传递用户ID或用户名
-        .build());
+    String url = 'http://10.0.2.2:5001?username=$patientID';
+    socket = IO.io(url, <String, dynamic>{
+      'transports': ['websocket'],
+      'forceNew': true,
+      'reconnection': false,  // 禁止自动重连
+    });
 
     socket.on('message', (data) {
-      print('receive from ${data['sender']}: ${data['message']}');
+      notificationHelper.showChatMessageNotification(notificationId: 0, title: data['sender'], message: data['message']);
     });
 
     socket.onConnect((_) {
-      print('Connected');
+      print('Connected!');
     });
 
     socket.onDisconnect((_) {
-      print('Disconnected');
+      print('Disconnected!');
+    });
+
+    socket.onConnectError((error) {
+      print('Connect Error: $error');
+    });
+
+    socket.onError((error) {
+      print('Error: $error');
     });
 
     socket.connect();
@@ -70,6 +81,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     socket.disconnect();
+    socket.destroy();
     super.dispose();
   }
 

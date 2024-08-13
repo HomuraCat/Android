@@ -3,6 +3,7 @@ import "package:flutter_chat_bubble/bubble_type.dart";
 import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_1.dart';
 import 'package:intl/intl.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import '../utils/Spsave_module.dart';
 
 abstract class Formatter {
   Formatter._();
@@ -28,7 +29,8 @@ class Chat {
   factory Chat.sent({required message}) =>
       Chat(message: message, type: ChatMessageType.sent, time: DateTime.now());
 
-  static List<Chat> generate() {
+  static Future<List<Chat>> generate({required String sendID, required String receiveID}) async {
+    Map<String, dynamic> chat_history = await SpStorage.instance.readChat(sendID: sendID, receiveID: receiveID);
     return [
       Chat(
         message: "Hello!",
@@ -135,16 +137,20 @@ class Chat {
 }
 
 class ChatController extends ChangeNotifier {
-  ChatController({Key? key, required this.myid, required this.friendid, required this.socket});
+  ChatController({Key? key, required this.myid, required this.friendid, required this.socket}) {_initializeChatList();}
   final String myid, friendid;
   final IO.Socket socket;
 
-  List<Chat> chatList = Chat.generate();
+  List<Chat> chatList = [];
   
   late final ScrollController scrollController = ScrollController();
   late final TextEditingController textEditingController =
       TextEditingController();
   late final FocusNode focusNode = FocusNode();
+
+  void _initializeChatList() async {
+    chatList = await Chat.generate(sendID: myid, receiveID: friendid);
+  }
 
   Future<void> onFieldSubmitted() async {
     if (!isTextFieldEnable) return;
