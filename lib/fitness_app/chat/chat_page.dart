@@ -8,6 +8,25 @@ import '../utils/Spsave_module.dart';
 import '../utils/common_tools.dart';
 import '../../config.dart';
 
+class ChatManager extends ChangeNotifier{
+  final List<ChatPartner> partners = [];
+
+  void addPartner(ChatPartner chat_partner) {
+    partners.add(chat_partner);
+  }
+
+  void AddChat(String friendid, String message) {
+    final ChatController this_one = partners.firstWhere((p) => p.friendid == friendid).chatController;
+    this_one.addMessage(message);
+  }
+
+  void deconstruction() {
+    ChatPartner temp;
+    for (temp in partners)
+      temp.chatController.dispose();
+  }
+}
+
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
 
@@ -21,10 +40,12 @@ class _ChatPageState extends State<ChatPage> {
   late IO.Socket socket;
   String patientID = "", name = "";
   NotificationHelper notificationHelper = NotificationHelper();
+  late ChatManager chat_manager;
 
   @override
   void initState() {
     super.initState();
+    chat_manager = ChatManager();
     _initConfig();
   }
 
@@ -40,11 +61,11 @@ class _ChatPageState extends State<ChatPage> {
       each_patient.forEach((single_patient) {
         List<String> single_patient_info = single_patient.split('_');
         ChatPartner temp_partner = ChatPartner(myid: patientID, friendname: single_patient_info[1], subinfo: "一个平平无奇的病人", friendid: single_patient_info[0], socket: socket);
-        setState(() {
-          ChatPartners.add(temp_partner);
-        }); 
+        chat_manager.addPartner(temp_partner);
       });
+      setState(() {});
     }
+    socket.connect();
   }
 
   void connectToServer() {
@@ -52,11 +73,12 @@ class _ChatPageState extends State<ChatPage> {
     socket = IO.io(url, <String, dynamic>{
       'transports': ['websocket'],
       'forceNew': true,
-      'reconnection': false,  // 禁止自动重连
+      'reconnection': false,
     });
 
     socket.on('message', (data) {
       notificationHelper.showChatMessageNotification(notificationId: 0, title: data['sender'], message: data['message']);
+      chat_manager.AddChat(data['sender'], data['message']);
     });
 
     socket.onConnect((_) {
@@ -74,12 +96,11 @@ class _ChatPageState extends State<ChatPage> {
     socket.onError((error) {
       print('Error: $error');
     });
-
-    socket.connect();
   }
 
   @override
   void dispose() {
+    chat_manager.deconstruction();
     socket.disconnect();
     socket.destroy();
     super.dispose();
@@ -87,14 +108,26 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ChangeNotifierProvider(
+      create: (_) => chat_manager,
+      child: Scaffold(
         appBar: AppBar(
           title: const Text(
             '聊天',
             style: TextStyle(color: Colors.black),
           ),
         ),
-        body: ListView(scrollDirection: Axis.vertical, children: ChatPartners));
+        body: Consumer<ChatManager>(
+          builder: (context, chatManager, child) {
+          return ListView.builder(
+            itemCount: chatManager.partners.length,
+            itemBuilder: (context, index) {
+              return chatManager.partners[index];
+            },
+          );},
+        ),
+      ),
+    );
   }
 
   Future<void> GetPatientInfo(BuildContext context) async {
@@ -128,20 +161,20 @@ class _ChatPageState extends State<ChatPage> {
 }
 
 class ChatPartner extends StatelessWidget {
-  const ChatPartner({Key? key, required this.myid, required this.friendname, required this.subinfo, required this.friendid, required this.socket})
-      : super(key: key);
+  ChatPartner({Key? key, required this.myid, required this.friendname, required this.subinfo, required this.friendid, required this.socket})
+      : super(key: key) {chatController = ChatController(myid: myid, friendid: friendid, socket: socket);}
   final String myid, friendname, subinfo, friendid;
   final IO.Socket socket;
+  late final ChatController chatController;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) => ChangeNotifierProvider(
-                create: (_) => ChatController(myid: this.myid, friendid: this.friendid, socket: socket),
-                child:
-                    ChatUI(friendname: friendname, avatar: "assets/images/aaa.png"))));
+            builder: (BuildContext context) => ChangeNotifierProvider.value(
+                value: chatController,
+                child: ChatUI(friendname: friendname, avatar: "assets/images/aaa.png"))));
       },
       leading: CircleAvatar(
         backgroundImage: AssetImage("assets/images/aaa.png"),

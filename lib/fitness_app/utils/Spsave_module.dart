@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../chat/chat_tool.dart';
 
 class SpStorage {
   SpStorage._();
@@ -24,16 +25,24 @@ class SpStorage {
     return json.decode(content);
   }
 
-    Future<Map<String, dynamic>> readAccount() async {
+  Future<Map<String, dynamic>> readAccount() async {
     await initSpWhenNull();
     String content = _sp!.getString('Account-config') ?? "{}";
     return json.decode(content);
   }
 
-  Future<Map<String, dynamic>> readChat({required String sendID, required String receiveID}) async {
+  Future<List<Chat>> readChat({required String sendID, required String receiveID}) async {
     await initSpWhenNull();
-    String content = _sp!.getString('Chat-${sendID}-${receiveID}') ?? "{}";
-    return json.decode(content);
+    String content = _sp!.getString('Chat-${sendID}-${receiveID}') ?? "[]";
+    
+    // Convert the JSON string to a List<dynamic>
+    List<dynamic> chatListJson = json.decode(content);
+
+    // Convert the List<dynamic> to a List<Chat>
+    return chatListJson.map((jsonItem) => Chat(
+      message: jsonItem['message'],
+      type: ChatMessageType.values.firstWhere((e) => e.toString() == jsonItem['type']),
+      time: DateTime.parse(jsonItem['time']))).toList();
   }
   //required String message, String type, DateTime time
 
@@ -61,5 +70,23 @@ class SpStorage {
       'name': name
     });
     return _sp!.setString('Account-config', content);
+  }
+
+  Future<bool> saveChat(
+      {required String sendID,
+      required String receiveID,
+      required List<Chat> chatList}) async {
+    await initSpWhenNull();
+
+    // Convert the List<Chat> to a List<Map<String, dynamic>>
+    List<Map<String, dynamic>> chatListToSave = chatList.map((chat) => {
+      'message': chat.message,
+      'type': chat.type.toString(),
+      'time': chat.time.toIso8601String(),
+    }).toList();
+
+    // Convert the List<Map<String, dynamic>> to a JSON string
+    String content = json.encode(chatListToSave);
+    return _sp!.setString('Chat-${sendID}-${receiveID}', content);
   }
 }
