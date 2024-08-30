@@ -76,6 +76,14 @@ class ChatController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> startRecording() async {
+    print("no");
+  }
+
+    Future<void> stopRecordingAndSend() async {
+    print("yes");
+  }
+
   Future<void> onFieldSubmitted() async {
     if (!isTextFieldEnable) return;
 

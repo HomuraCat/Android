@@ -45,6 +45,8 @@ dependencies:
   timezone: ^0.9.4
   web_socket_channel: ^2.0.0
   socket_io_client: ^2.0.0
+  audio_recorder: ^1.0.0
+  audioplayers: ^0.20.1
 
 dev_dependencies:
   flutter_test:

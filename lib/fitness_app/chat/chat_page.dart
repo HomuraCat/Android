@@ -69,7 +69,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void connectToServer() {
-    String url = 'http://10.0.2.2:5001?username=$patientID';
+    String url = 'http://10.0.0.2:5001?username=$patientID';
     socket = IO.io(url, <String, dynamic>{
       'transports': ['websocket'],
       'forceNew': true,
@@ -197,17 +197,23 @@ class ChatPartner extends StatelessWidget {
   }
 }
 
-class ChatUI extends StatelessWidget {
-  const ChatUI({Key? key, required this.friendname, required this.avatar})
-      : super(key: key);
+class ChatUI extends StatefulWidget {
+  const ChatUI({Key? key, required this.friendname, required this.avatar}) : super(key: key);
   final String friendname, avatar;
+
+  @override
+  State<ChatUI> createState() => _ChatUI();
+}
+
+class _ChatUI extends State<ChatUI> {
+  bool isVoiceInput = false, isSpeaking = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text(friendname),
+        title: Text(widget.friendname),
         backgroundColor: const Color(0xFF007AFF),
       ),
       body: Column(
@@ -235,7 +241,7 @@ class ChatUI extends StatelessWidget {
                           context.read<ChatController>().scrollController,
                       itemCount: chatList.length,
                       itemBuilder: (context, index) {
-                        return Bubble(chat: chatList[index], avatar: avatar);
+                        return Bubble(chat: chatList[index], avatar: widget.avatar);
                       },
                     );
                   },
@@ -243,15 +249,61 @@ class ChatUI extends StatelessWidget {
               ),
             ),
           ),
-          const _BottomInputField(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: Color(0xFFE5E5EA),
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(isVoiceInput ? Icons.keyboard : Icons.mic),
+                  onPressed: () {
+                    setState(() {
+                      isVoiceInput = !isVoiceInput;
+                    });
+                  },
+                ),
+                isVoiceInput
+                    ? buildVoiceInputButton()
+                    : Expanded(child: buildTextInputField()),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
-}
 
-class _BottomInputField extends StatelessWidget {
-  const _BottomInputField({Key? key}) : super(key: key);
+  Widget buildVoiceInputButton() {
+    return Expanded(
+      child: GestureDetector(
+        onLongPressStart: (_) => {setState(() {isSpeaking = true;}), context.read<ChatController>().startRecording()},
+        onLongPressEnd: (_) => {setState(() {isSpeaking = false;}), context.read<ChatController>().stopRecordingAndSend()},
+        child: Container(
+          padding: EdgeInsets.all(10),
+          margin: EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: isSpeaking ?Colors.white :Colors.blue,
+            borderRadius: BorderRadius.circular(50),
+          ),
+          child: Center(
+            child: Text(
+              isSpeaking ?'松开发送' :'按下说话',
+              style: TextStyle(color: isSpeaking ?Colors.black :Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+class buildTextInputField extends StatelessWidget {
+  const buildTextInputField({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
