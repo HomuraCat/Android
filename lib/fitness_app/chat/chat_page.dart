@@ -15,9 +15,9 @@ class ChatManager extends ChangeNotifier{
     partners.add(chat_partner);
   }
 
-  void AddChat(String friendid, String message) {
+  void AddChat(String friendid, String message, String message_type) {
     final ChatController this_one = partners.firstWhere((p) => p.friendid == friendid).chatController;
-    this_one.addMessage(message);
+    this_one.addMessage(message, message_type);
   }
 
   void deconstruction() {
@@ -78,7 +78,7 @@ class _ChatPageState extends State<ChatPage> {
 
     socket.on('message', (data) {
       notificationHelper.showChatMessageNotification(notificationId: 0, title: data['sender'], message: data['message']);
-      chat_manager.AddChat(data['sender'], data['message']);
+      chat_manager.AddChat(data['sender'], data['message'], data['message_type']);
     });
 
     socket.onConnect((_) {

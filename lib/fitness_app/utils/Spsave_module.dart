@@ -41,7 +41,8 @@ class SpStorage {
     // Convert the List<dynamic> to a List<Chat>
     return chatListJson.map((jsonItem) => Chat(
       message: jsonItem['message'],
-      type: ChatMessageType.values.firstWhere((e) => e.toString() == jsonItem['type']),
+      send_type: ChatMessageType.values.firstWhere((e) => e.toString() == jsonItem['send_type']),
+      message_type: ChatMessageType.values.firstWhere((e) => e.toString() == jsonItem['message_type']),
       time: DateTime.parse(jsonItem['time']))).toList();
   }
   //required String message, String type, DateTime time
@@ -81,7 +82,8 @@ class SpStorage {
     // Convert the List<Chat> to a List<Map<String, dynamic>>
     List<Map<String, dynamic>> chatListToSave = chatList.map((chat) => {
       'message': chat.message,
-      'type': chat.type.toString(),
+      'send_type': chat.send_type.toString(),
+      'message_type': chat.message_type.toString(),
       'time': chat.time.toIso8601String(),
     }).toList();
 
