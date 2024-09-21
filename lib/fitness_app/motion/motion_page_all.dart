@@ -39,7 +39,7 @@ class _MotionPageAllState extends State<MotionPageAll>
   }
 
   Future<void> _fetchPosts() async {
-    final String apiUrl = Config.baseUrl + '/motion/fetch';
+    final String apiUrl = Config.baseUrl + '/motion/fetchall';
     var url = Uri.parse(apiUrl);
     try {
       var response = await http.post(
@@ -56,7 +56,8 @@ class _MotionPageAllState extends State<MotionPageAll>
           return {
             'content': post['content'],
             'time': post['time'],
-            'post_id': post['post_id']
+            'post_id': post['post_id'],
+            'user_id': post['patient_id'], // Include user_id
           };
         }).toList();
         setState(() {});
@@ -75,7 +76,7 @@ class _MotionPageAllState extends State<MotionPageAll>
   }
 
   Future<void> _createPost(String content) async {
-    final String apiUrl = Config.baseUrl + '/motion/create';
+    final String apiUrl = Config.baseUrl + '/motion/create_all';
     var url = Uri.parse(apiUrl);
     try {
       var response = await http.post(
@@ -98,7 +99,7 @@ class _MotionPageAllState extends State<MotionPageAll>
   }
 
   Future<void> _deletePost(int postId) async {
-    final String apiUrl = Config.baseUrl + '/motion/delete';
+    final String apiUrl = Config.baseUrl + '/motion/delete_all';
     var url = Uri.parse(apiUrl);
     try {
       var response = await http.delete(
@@ -192,67 +193,94 @@ class _MotionPageAllState extends State<MotionPageAll>
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final message = _statusMessages[index];
-                  return Dismissible(
-                    key: Key(message['post_id'].toString()),
-                    direction: DismissDirection.endToStart,
-                    onDismissed: (direction) {
-                      _deletePost(message['post_id']); // Call delete method
-                      setState(() {
-                        _statusMessages.removeAt(index);
-                      });
-                    },
-                    background: Container(
-                      color: Colors.red,
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      alignment: Alignment.centerRight,
-                      child: const Icon(Icons.delete, color: Colors.white),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: CupertinoColors.systemGrey6,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: Offset(0, 2),
-                              )
-                            ]),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(16),
-                          title: Text(
-                            message['content'],
-                            style: const TextStyle(fontSize: 16),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
+                  bool isOwnPost = message['user_id'] == patientID;
+
+                  Widget postWidget = Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: CupertinoColors.systemGrey6,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: Offset(0, 2),
+                            )
+                          ]),
+                      child: InkWell(
+                        onTap: () {
+                          showCupertinoModalPopup(
+                            context: context,
+                            builder: (context) {
+                              return CupertinoAlertDialog(
+                                content: Text(message['content']),
+                                actions: [
+                                  CupertinoDialogAction(
+                                    child: const Text('关闭'),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Top row with user id and time
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '用户ID: ${message['user_id']}',
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    message['time'],
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                message['content'],
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ],
                           ),
-                          subtitle: Text(
-                            message['time'],
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                          onTap: () {
-                            showCupertinoModalPopup(
-                              context: context,
-                              builder: (context) {
-                                return CupertinoAlertDialog(
-                                  content: Text(message['content']),
-                                  actions: [
-                                    CupertinoDialogAction(
-                                      child: const Text('关闭'),
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
                         ),
                       ),
                     ),
                   );
+
+                  if (isOwnPost) {
+                    return Dismissible(
+                      key: Key(message['post_id'].toString()),
+                      direction: DismissDirection.endToStart,
+                      onDismissed: (direction) {
+                        _deletePost(message['post_id']); // Call delete method
+                        setState(() {
+                          _statusMessages.removeAt(index);
+                        });
+                      },
+                      background: Container(
+                        color: Colors.red,
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        alignment: Alignment.centerRight,
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      child: postWidget,
+                    );
+                  } else {
+                    return postWidget;
+                  }
                 },
                 childCount: _statusMessages.length,
               ),
