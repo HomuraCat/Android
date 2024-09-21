@@ -8,6 +8,7 @@ import 'account/account_page.dart';
 import 'account/daily_report_page.dart';
 import 'motion/motion_page.dart';
 import 'chat/chat_page.dart';
+import 'motion/motion_page_all.dart';
 
 class FitnessAppHomeScreen extends StatefulWidget {
   @override
@@ -102,8 +103,7 @@ class _FitnessAppHomeScreenState extends State<FitnessAppHomeScreen>
                   return;
                 }
                 setState(() {
-                  tabBody =
-                      ChatPage();
+                  tabBody = ChatPage();
                 });
               });
             } else if (index == 2) {
@@ -112,7 +112,7 @@ class _FitnessAppHomeScreenState extends State<FitnessAppHomeScreen>
                   return;
                 }
                 setState(() {
-                  tabBody = MotionPage();
+                  tabBody = MotionPageAll();
                 });
               });
             } else if (index == 3) {

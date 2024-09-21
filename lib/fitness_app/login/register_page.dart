@@ -220,25 +220,25 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    sendVerificationCode(phoneNumber, context);
-                  },
-                  child: Text('获取验证码'), // Get verification code
-                ),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: '请输入验证码', // Please enter verification code
-                  ),
-                  onChanged: (value) => verificationCode = value,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '验证码不能为空'; // Verification code cannot be empty
-                    }
-                    return null;
-                  },
-                ),
+                // SizedBox(height: 16.0),
+                // ElevatedButton(
+                //   onPressed: () {
+                //     sendVerificationCode(phoneNumber, context);
+                //   },
+                //   child: Text('获取验证码'), // Get verification code
+                // ),
+                // TextFormField(
+                //   decoration: InputDecoration(
+                //     labelText: '请输入验证码', // Please enter verification code
+                //   ),
+                //   onChanged: (value) => verificationCode = value,
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty) {
+                //       return '验证码不能为空'; // Verification code cannot be empty
+                //     }
+                //     return null;
+                //   },
+                // ),
                 // Email TextFormField
                 TextFormField(
                   decoration: InputDecoration(

@@ -5,14 +5,15 @@ import 'package:http/http.dart' as http;
 import '../utils/Spsave_module.dart';
 import '../../config.dart';
 
-class MotionPage extends StatefulWidget {
-  const MotionPage({Key? key}) : super(key: key);
+class MotionPageAll extends StatefulWidget {
+  const MotionPageAll({Key? key}) : super(key: key);
 
   @override
-  State<MotionPage> createState() => _MotionPageState();
+  State<MotionPageAll> createState() => _MotionPageAllState();
 }
 
-class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
+class _MotionPageAllState extends State<MotionPageAll>
+    with TickerProviderStateMixin {
   late List<Map<String, dynamic>> _statusMessages = [];
 
   late String patientID = "", name = "";
@@ -129,7 +130,7 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: const Text('发布树洞'),
+          title: const Text('发布动态'),
           content: CupertinoTextField(
             controller: _textFieldController,
             autofocus: true,
@@ -164,7 +165,7 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: const Text('树洞'),
+        middle: const Text('动态'),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
           child: Row(
@@ -172,7 +173,7 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
             children: <Widget>[
               const Icon(CupertinoIcons.add, color: CupertinoColors.activeBlue),
               const SizedBox(width: 4),
-              Text('发布树洞', style: TextStyle(color: CupertinoColors.activeBlue)),
+              Text('发布动态', style: TextStyle(color: CupertinoColors.activeBlue)),
             ],
           ),
           onPressed: _showPostDialog,
@@ -264,5 +265,5 @@ class _MotionPageState extends State<MotionPage> with TickerProviderStateMixin {
 }
 
 void main() {
-  runApp(const CupertinoApp(home: MotionPage()));
+  runApp(const CupertinoApp(home: MotionPageAll()));
 }
