@@ -2,19 +2,19 @@ import 'package:best_flutter_ui_templates/fitness_app/models/tabIcon_data.dart';
 import 'package:flutter/material.dart';
 import 'bottom_navigation_view/bottom_bar_view.dart';
 import 'fitness_app_theme.dart';
-import 'utils/common_tools.dart';
 import 'patient_info_nurseside/patient_info_page.dart';
-
-import 'nurse_new_survey/new_question_page.dart';
 import 'nurse_new_survey/survey_list.dart';
+import 'utils/common_tools.dart';
+import 'nurse_upload/upload.dart'; // 导入上传页面
 
 class FitnessAppHomeScreenNurseSide extends StatefulWidget {
   @override
-  _FitnessAppHomeScreenNurseSideState createState() => _FitnessAppHomeScreenNurseSideState();
+  _FitnessAppHomeScreenNurseSideState createState() =>
+      _FitnessAppHomeScreenNurseSideState();
 }
 
-class _FitnessAppHomeScreenNurseSideState extends State<FitnessAppHomeScreenNurseSide>
-    with TickerProviderStateMixin {
+class _FitnessAppHomeScreenNurseSideState
+    extends State<FitnessAppHomeScreenNurseSide> with TickerProviderStateMixin {
   AnimationController? animationController;
 
   List<TabIconData> tabIconsList = TabIconData.tabIconsList;
@@ -32,7 +32,10 @@ class _FitnessAppHomeScreenNurseSideState extends State<FitnessAppHomeScreenNurs
 
     animationController = AnimationController(
         duration: const Duration(milliseconds: 600), vsync: this);
-    tabBody = ChildPage(title: "初始页面");
+
+    // 将第一页面替换为 UploadPage
+    tabBody = UploadPage();
+
     super.initState();
   }
 
@@ -87,8 +90,8 @@ class _FitnessAppHomeScreenNurseSideState extends State<FitnessAppHomeScreenNurs
                   return;
                 }
                 setState(() {
-                  tabBody =
-                      ChildPage(title: "第一页面");
+                  // 将第一页面替换为 UploadPage
+                  tabBody = UploadPage();
                 });
               });
             } else if (index == 1) {
@@ -97,8 +100,7 @@ class _FitnessAppHomeScreenNurseSideState extends State<FitnessAppHomeScreenNurs
                   return;
                 }
                 setState(() {
-                  tabBody =
-                      PatientInfoPage();
+                  tabBody = PatientInfoPage();
                 });
               });
             } else if (index == 2) {
@@ -110,14 +112,13 @@ class _FitnessAppHomeScreenNurseSideState extends State<FitnessAppHomeScreenNurs
                   tabBody = SurveyListPage();
                 });
               });
-            } else if (index == 3){
+            } else if (index == 3) {
               animationController?.reverse().then<dynamic>((data) {
                 if (!mounted) {
                   return;
                 }
                 setState(() {
-                  tabBody =
-                      ChildPage(title: "第四页面");
+                  tabBody = ChildPage(title: "第四页面");
                 });
               });
             }

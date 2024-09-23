@@ -79,15 +79,15 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
         },
       ),
     );
-    listViews.add(
-      MediterranesnDietView(
-        animation: Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-            parent: widget.animationController!,
-            curve:
-                Interval((1 / count) * 1, 1.0, curve: Curves.fastOutSlowIn))),
-        animationController: widget.animationController!,
-      ),
-    );
+    //listViews.add(
+    //  MediterranesnDietView(
+    //    animation: Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+    //        parent: widget.animationController!,
+    //        curve:
+    //            Interval((1 / count) * 1, 1.0, curve: Curves.fastOutSlowIn))),
+    //    animationController: widget.animationController!,
+    //  ),
+    //);
     listViews.add(
       TitleView(
         titleTxt: '食谱推荐',
