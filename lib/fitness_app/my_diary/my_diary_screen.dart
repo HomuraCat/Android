@@ -4,7 +4,8 @@ import 'package:best_flutter_ui_templates/fitness_app/ui_view/title_view.dart';
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_theme.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/meals_list_view.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/knowledge_learning/knowledge_learning.dart';
-import 'package:best_flutter_ui_templates/fitness_app/my_diary/sport_advice/sport_advice.dart';
+import 'package:best_flutter_ui_templates/fitness_app/my_diary/sport_advice/sport_advice_page.dart';
+import 'package:best_flutter_ui_templates/fitness_app/my_diary/sport_advice/sport_section.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/recipe/recipe.dart';
 import 'package:flutter/material.dart';
 import 'knowledge_learning/learn_section.dart';
@@ -134,7 +135,6 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
             curve:
                 Interval((1 / count) * 4, 1.0, curve: Curves.fastOutSlowIn))),
         animationController: widget.animationController!,
-        // TODO
         onTap: () {
           Navigator.push(
             context,
