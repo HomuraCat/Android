@@ -49,16 +49,19 @@ class _RecipeListPageState extends State<RecipeListPage> {
       if (mealType == '全部') {
         filteredRecipes = recipes;
       } else {
-        filteredRecipes = recipes
-            .where((recipe) => recipe['mealType'] == mealType)
-            .toList();
+        filteredRecipes =
+            recipes.where((recipe) => recipe['mealType'] == mealType).toList();
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    
+    // Determine the width of each grid item
+    double gridItemWidth = MediaQuery.of(context).size.width / 2;
+    // Adjust the height based on your preference
+    double gridItemHeight = gridItemWidth + 60; // Add extra space for the text
+
     return Scaffold(
       appBar: AppBar(
         title: Text('食谱列表'),
@@ -94,21 +97,15 @@ class _RecipeListPageState extends State<RecipeListPage> {
             child: recipes.isEmpty
                 ? Center(child: CircularProgressIndicator())
                 : GridView.builder(
-                    gridDelegate:
-                        SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.8,
-                    ),
                     itemCount: filteredRecipes.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: gridItemWidth / gridItemHeight,
+                    ),
                     itemBuilder: (context, index) {
-                      // 打印图片路径
-                      print('Image path: ${filteredRecipes[index]['image']}');
-
                       // 构建完整的图片 URL
-                      String imageUrl = Config.baseUrl + '/' + filteredRecipes[index]['image'];
-
-                      // 可选地，打印完整的图片 URL
-                      print('Full image URL: $imageUrl');
+                      String imageUrl =
+                          Config.baseUrl + '/' + filteredRecipes[index]['image'];
 
                       return GestureDetector(
                         onTap: () {
@@ -125,21 +122,19 @@ class _RecipeListPageState extends State<RecipeListPage> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.stretch,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: <Widget>[
                               Expanded(
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(15)),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(15)),
                                   child: CachedNetworkImage(
                                     imageUrl: imageUrl,
                                     fit: BoxFit.cover,
                                     placeholder: (context, url) =>
                                         CircularProgressIndicator(),
-                                    errorWidget:
-                                        (context, url, error) =>
-                                            Icon(Icons.error),
+                                    errorWidget: (context, url, error) =>
+                                        Icon(Icons.error),
                                   ),
                                 ),
                               ),
@@ -184,8 +179,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.recipe['video'] != null &&
-        widget.recipe['video'] != '') {
+    if (widget.recipe['video'] != null && widget.recipe['video'] != '') {
       _initializeVideoPlayer();
     }
   }
@@ -236,7 +230,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     List<String> ingredients = [];
     if (widget.recipe['ingredients'] is String) {
       // 如果 ingredients 是字符串，用逗号分隔
-      ingredients = widget.recipe['ingredients'].split(',').map((e) => e.trim()).toList();
+      ingredients =
+          widget.recipe['ingredients'].split(',').map((e) => e.trim()).toList();
     } else if (widget.recipe['ingredients'] is List) {
       ingredients = List<String>.from(widget.recipe['ingredients']);
     }
@@ -247,8 +242,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     // 构建图片 URL
     String imageUrl = Config.baseUrl + '/' + widget.recipe['image'];
 
-    // 打印图片 URL
-    print('Recipe Detail Image URL: $imageUrl');
+    // Get the screen width
+    double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       appBar: AppBar(
@@ -260,8 +255,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           children: [
             Image.network(
               imageUrl,
-              width: double.infinity,
-              height: 200,
+              width: screenWidth,
               fit: BoxFit.cover,
             ),
             Divider(),
@@ -284,8 +278,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 '所需材料:',
-                style: TextStyle(
-                    fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
             Padding(
@@ -300,8 +293,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 '制作过程:',
-                style: TextStyle(
-                    fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
             Padding(
@@ -313,17 +305,15 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
             ),
             SizedBox(height: 16),
             Padding(
-              padding:
-                  EdgeInsets.only(left: 16, right: 16, bottom: 16),
+              padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
               child: ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor:
-                      MaterialStateProperty.resolveWith<Color>(
-                          (states) {
+                      MaterialStateProperty.resolveWith<Color>((states) {
                     return isCompleted ? Colors.green : Colors.blue;
                   }),
-                  minimumSize: MaterialStateProperty.all<Size>(
-                      Size(double.infinity, 50)),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(Size(double.infinity, 50)),
                 ),
                 onPressed: () {
                   setState(() {

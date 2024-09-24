@@ -1,6 +1,5 @@
 import 'package:best_flutter_ui_templates/fitness_app/ui_view/body_measurement.dart';
 import 'package:best_flutter_ui_templates/fitness_app/ui_view/glass_view.dart';
-import 'package:best_flutter_ui_templates/fitness_app/ui_view/mediterranean_diet_view.dart';
 import 'package:best_flutter_ui_templates/fitness_app/ui_view/title_view.dart';
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_theme.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/meals_list_view.dart';
@@ -8,6 +7,8 @@ import 'package:best_flutter_ui_templates/fitness_app/my_diary/knowledge_learnin
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/sport_advice/sport_advice.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/recipe/recipe.dart';
 import 'package:flutter/material.dart';
+import 'knowledge_learning/learn_section.dart';
+import 'knowledge_learning/knowledge_learning.dart';
 
 
 class MyDiaryScreen extends StatefulWidget {
@@ -66,10 +67,13 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
       TitleView(
         titleTxt: '知识学习',
         subTxt: '详情',
-        animation: Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+        animation: Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
             parent: widget.animationController!,
             curve:
-                Interval((1 / count) * 0, 1.0, curve: Curves.fastOutSlowIn))),
+                Interval((1 / count) * 0, 1.0, curve: Curves.fastOutSlowIn),
+          ),
+        ),
         animationController: widget.animationController!,
         onTap: () {
           Navigator.push(
@@ -79,15 +83,19 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
         },
       ),
     );
-    //listViews.add(
-    //  MediterranesnDietView(
-    //    animation: Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-    //        parent: widget.animationController!,
-    //        curve:
-    //            Interval((1 / count) * 1, 1.0, curve: Curves.fastOutSlowIn))),
-    //    animationController: widget.animationController!,
-    //  ),
-    //);
+
+    listViews.add(
+      LearnTopicsPreview(
+        animation: Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: widget.animationController!,
+            curve: Interval((1 / count) * 1, 1.0,
+                curve: Curves.fastOutSlowIn),
+          ),
+        ),
+        animationController: widget.animationController!,
+      ),
+    );
     listViews.add(
       TitleView(
         titleTxt: '食谱推荐',

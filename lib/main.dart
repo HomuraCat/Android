@@ -11,13 +11,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   NotificationHelper notificationHelper = NotificationHelper();
   await notificationHelper.initialize();
-  /*await notificationHelper.scheduleNotification(
-    notificationId: 1,
-    title: '测试',
-    body: '这是一条用于测试的通知',
-    hour: 10,
-    minute: 16,
-  );*/
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown
