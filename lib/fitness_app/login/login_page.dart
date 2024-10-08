@@ -33,7 +33,8 @@ Future<void> registerUser(
       _showDialog(context, '用户或密码错误！');
     } else {
       List<String> user_data = responseData.toString().split("+-*/");
-      SpStorage.instance.saveAccount(patientID: user_data[0], name: user_data[1]);
+      SpStorage.instance
+          .saveAccount(patientID: user_data[0], name: user_data[1]);
 
       if (my_status) {
         Navigator.push(context,
@@ -204,7 +205,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Align buildForgetPasswordText() {
+  buildForgetPasswordText() {
     return Align(
       alignment: Alignment.centerRight,
       child: CupertinoButton(
@@ -213,7 +214,7 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(fontSize: 14, color: CupertinoColors.systemBlue),
         ),
         onPressed: () {
-          // Implement forgot password functionality
+          _showForgotPasswordDialog(context); // 触发弹窗
         },
       ),
     );
@@ -293,5 +294,94 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ],
     );
+  }
+}
+
+void _showForgotPasswordDialog(BuildContext context) {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController idController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  showCupertinoDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return CupertinoAlertDialog(
+        title: Text("忘记密码"),
+        content: Column(
+          children: <Widget>[
+            CupertinoTextField(
+              controller: nameController,
+              placeholder: "请输入姓名",
+            ),
+            SizedBox(height: 10),
+            CupertinoTextField(
+              controller: phoneController,
+              placeholder: "请输入手机号",
+              keyboardType: TextInputType.phone,
+            ),
+            SizedBox(height: 10),
+            CupertinoTextField(
+              controller: idController,
+              placeholder: "请输入身份证号",
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 10),
+            CupertinoTextField(
+                controller: passwordController, placeholder: "请输入新密码")
+          ],
+        ),
+        actions: <Widget>[
+          CupertinoDialogAction(
+            child: Text("取消"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          CupertinoDialogAction(
+            child: Text("确认"),
+            onPressed: () {
+              String name = nameController.text;
+              String phone = phoneController.text;
+              String idNumber = idController.text;
+              String newPassword = passwordController.text;
+
+              if (name.isEmpty || phone.isEmpty || idNumber.isEmpty) {
+                _showDialog(context, "请填写所有字段！");
+              } else {
+                // Call the password reset function with provided details
+                resetPassword(name, phone, idNumber, newPassword, context);
+              }
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> resetPassword(String name, String phone, String idNumber,
+    String newPasword, BuildContext context) async {
+  // 假设这是你调用重置密码的API
+  final String apiUrl = Config.baseUrl + '/resetPassword';
+  var url = Uri.parse(apiUrl);
+
+  var response = await http.post(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'name': name,
+      'phone': phone,
+      'idNumber': idNumber,
+      'new_password': newPasword
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    _showDialog(context, '密码重置成功，请检查短信！');
+  } else {
+    _showDialog(context, '密码重置失败，请稍后重试！');
   }
 }
