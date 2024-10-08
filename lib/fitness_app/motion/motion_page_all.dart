@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../utils/Spsave_module.dart';
 import '../../config.dart';
+import '../motion/motion_page.dart';
 
 class MotionPageAll extends StatefulWidget {
   const MotionPageAll({Key? key}) : super(key: key);
@@ -18,6 +19,7 @@ class _MotionPageAllState extends State<MotionPageAll>
 
   late String patientID = "", name = "";
   AnimationController? animationController;
+  String _currentPage = 'all'; // Variable to track the current page
 
   @override
   void initState() {
@@ -57,7 +59,7 @@ class _MotionPageAllState extends State<MotionPageAll>
             'content': post['content'],
             'time': post['time'],
             'post_id': post['post_id'],
-            'user_id': post['patient_id'], // Include user_id
+            'user_id': post['patient_id'],
           };
         }).toList();
         setState(() {});
@@ -162,10 +164,138 @@ class _MotionPageAllState extends State<MotionPageAll>
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
+  // Method to build MotionPageAll content
+  Widget _buildMotionPageAll() {
+    return CustomScrollView(
+      physics:
+          const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      slivers: [
+        CupertinoSliverRefreshControl(
+          onRefresh: _fetchPosts,
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final message = _statusMessages[index];
+              bool isOwnPost = message['user_id'] == patientID;
+
+              Widget postWidget = Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Material(
+                  // Wrapping with Material widget
+                  color: Colors.transparent,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: CupertinoColors.systemGrey6,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: Offset(0, 2),
+                          )
+                        ]),
+                    child: InkWell(
+                      onTap: () {
+                        showCupertinoModalPopup(
+                          context: context,
+                          builder: (context) {
+                            return CupertinoAlertDialog(
+                              content: Text(message['content']),
+                              actions: [
+                                CupertinoDialogAction(
+                                  child: const Text('关闭'),
+                                  onPressed: () => Navigator.of(context).pop(),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Top row with user id and time
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '用户ID: ${message['user_id']}',
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  message['time'],
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              message['content'],
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+
+              if (isOwnPost) {
+                return Dismissible(
+                  key: Key(message['post_id'].toString()),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (direction) {
+                    _deletePost(message['post_id']); // Call delete method
+                    setState(() {
+                      _statusMessages.removeAt(index);
+                    });
+                  },
+                  background: Container(
+                    color: Colors.red,
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    alignment: Alignment.centerRight,
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  child: postWidget,
+                );
+              } else {
+                return postWidget;
+              }
+            },
+            childCount: _statusMessages.length,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Method to build the navigation bar
+  ObstructingPreferredSizeWidget _buildNavigationBar() {
+    if (_currentPage == 'all') {
+      return CupertinoNavigationBar(
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Icon(CupertinoIcons.arrow_left,
+                  color: CupertinoColors.activeBlue),
+              const SizedBox(width: 4),
+              Text('切换树洞', style: TextStyle(color: CupertinoColors.activeBlue)),
+            ],
+          ),
+          onPressed: () {
+            setState(() {
+              _currentPage = 'motion'; // switch to 'motion' page
+            });
+          },
+        ),
         middle: const Text('动态'),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -180,113 +310,33 @@ class _MotionPageAllState extends State<MotionPageAll>
           onPressed: _showPostDialog,
         ),
         automaticallyImplyLeading: false,
-      ),
-      child: SafeArea(
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics()),
-          slivers: [
-            CupertinoSliverRefreshControl(
-              onRefresh: _fetchPosts,
-            ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final message = _statusMessages[index];
-                  bool isOwnPost = message['user_id'] == patientID;
-
-                  Widget postWidget = Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: CupertinoColors.systemGrey6,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: Offset(0, 2),
-                            )
-                          ]),
-                      child: InkWell(
-                        onTap: () {
-                          showCupertinoModalPopup(
-                            context: context,
-                            builder: (context) {
-                              return CupertinoAlertDialog(
-                                content: Text(message['content']),
-                                actions: [
-                                  CupertinoDialogAction(
-                                    child: const Text('关闭'),
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Top row with user id and time
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '用户ID: ${message['user_id']}',
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    message['time'],
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                message['content'],
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-
-                  if (isOwnPost) {
-                    return Dismissible(
-                      key: Key(message['post_id'].toString()),
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (direction) {
-                        _deletePost(message['post_id']); // Call delete method
-                        setState(() {
-                          _statusMessages.removeAt(index);
-                        });
-                      },
-                      background: Container(
-                        color: Colors.red,
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        alignment: Alignment.centerRight,
-                        child: const Icon(Icons.delete, color: Colors.white),
-                      ),
-                      child: postWidget,
-                    );
-                  } else {
-                    return postWidget;
-                  }
-                },
-                childCount: _statusMessages.length,
-              ),
-            ),
-          ],
+      );
+    } else {
+      // For 'motion' page, only display the switch button
+      return CupertinoNavigationBar(
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child:
+              Text('切换动态', style: TextStyle(color: CupertinoColors.activeBlue)),
+          onPressed: () {
+            setState(() {
+              _currentPage = 'all'; // switch back to 'all' page
+            });
+          },
         ),
+        border: null, // Remove the bottom border
+        backgroundColor: Colors.transparent, // Make the background transparent
+        automaticallyImplyLeading: false,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      navigationBar: _buildNavigationBar(),
+      child: SafeArea(
+        child: _currentPage == 'all' ? _buildMotionPageAll() : MotionPage(),
       ),
     );
   }
