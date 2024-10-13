@@ -13,7 +13,7 @@ class BasicInforPage extends StatefulWidget {
   State<BasicInforPage> createState() => _BasicInforPageState();
 }
 
-class _BasicInforPageState extends State<BasicInforPage> {
+class _BasicInforPageState extends State<BasicInforPage>{
   final GlobalKey _formKey = GlobalKey<FormState>();
   late String patientID, name, age, user_name, height, weight, Co_morbidities;
   bool submitstate = false;
@@ -22,6 +22,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
   String _smoke = '有', _drink = '有', _marry = '已婚', _CA = '非小细胞CA', _ill_type = '首次确诊', _duration = '≤3个月';
   String _treatment = '化疗', _surgery = '无', _metastasis = '未转移', _education = '小学及以下', _work = '管理';
   String _residency = '独居', _income = '<3000元', _insurance = '自费', _MVratio = '素食为主', _oil = '偏多', _salt = '偏咸';
+  final List<TextEditingController> controllers = List.generate(5, (index) => TextEditingController());
 
   void initState() {
     super.initState();
@@ -32,7 +33,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
     Map<String, dynamic> account = await SpStorage.instance.readAccount();
     patientID = account['patientID'];
     user_name = account['name'];
-    //if (user_name != "未命名") setState(() => submitstate = true);
+    if (user_name != "未命名") setState(() => submitstate = true);
   }
   
   @override
@@ -50,17 +51,17 @@ class _BasicInforPageState extends State<BasicInforPage> {
           children: [
             buildIndividualInforTitle(),
             const SizedBox(height: 10),
-            buildNameField(),
+            buildNameField(0),
             const SizedBox(height: 10),
             buildGenderField(),
             const SizedBox(height: 10),
-            buildAgeField(),
+            buildAgeField(1),
             const SizedBox(height: 10),
-            buildHeightField(),
+            buildHeightField(2),
             const SizedBox(height: 10),
-            buildWeightField(),
+            buildWeightField(3),
             const SizedBox(height: 10),
-            buildCoMorbiditiesField(),
+            buildCoMorbiditiesField(4),
             const SizedBox(height: 10),
             buildSmokeField(),
             const SizedBox(height: 10),
@@ -107,8 +108,9 @@ class _BasicInforPageState extends State<BasicInforPage> {
     );
   }
 
-  Widget buildNameField() {
+  Widget buildNameField(int index) {
     return TextFormField(
+      controller: controllers[index],
       enabled: !submitstate,
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
@@ -119,7 +121,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
           return '请输入姓名';
         }
       },
-      onSaved: (v) => name = v!,
+      onSaved: (v) => age = v!,
     );
   }
 
@@ -167,8 +169,9 @@ class _BasicInforPageState extends State<BasicInforPage> {
     ]);
   }
 
-  Widget buildAgeField() {
+  Widget buildAgeField(int index) {
     return TextFormField(
+      controller: controllers[index],
       enabled: !submitstate,
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
@@ -184,8 +187,9 @@ class _BasicInforPageState extends State<BasicInforPage> {
     );
   }
 
-  Widget buildHeightField() {
+  Widget buildHeightField(int index) {
     return TextFormField(
+      controller: controllers[index],
       enabled: !submitstate,
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
@@ -201,8 +205,9 @@ class _BasicInforPageState extends State<BasicInforPage> {
     );
   }
 
-  Widget buildWeightField() {
+  Widget buildWeightField(int index) {
     return TextFormField(
+      controller: controllers[index],
       enabled: !submitstate,
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
@@ -218,8 +223,9 @@ class _BasicInforPageState extends State<BasicInforPage> {
     );
   }
 
-  Widget buildCoMorbiditiesField() {
+  Widget buildCoMorbiditiesField(int index) {
     return TextFormField(
+      controller: controllers[index],
       enabled: !submitstate,
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
@@ -492,7 +498,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
       Row(children: [
         const SizedBox(width: 65),
         Radio(
-            value: 2,
+            value: 3,
             groupValue: ill_type,
             onChanged: submitstate ? null : (value){
               setState(() {
@@ -566,7 +572,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
       Row(children: [
         const SizedBox(width: 65),
         Radio(
-            value: 2,
+            value: 3,
             groupValue: duration,
             onChanged: submitstate ? null : (value){
               setState(() {
@@ -640,7 +646,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
       Row(children: [
         const SizedBox(width: 100),
         Radio(
-            value: 2,
+            value: 3,
             groupValue: treatment,
             onChanged: submitstate ? null : (value){
               setState(() {
@@ -1535,6 +1541,11 @@ class _BasicInforPageState extends State<BasicInforPage> {
   Future<void> SendBasicInformation(BuildContext context) async {
     final String apiUrl = Config.baseUrl + '/patient/save';
     var url = Uri.parse(apiUrl);
+    if (controllers[0].text.isNotEmpty) name = controllers[0].text;
+    if (controllers[1].text.isNotEmpty) age = controllers[1].text;
+    if (controllers[2].text.isNotEmpty) height = controllers[2].text;
+    if (controllers[3].text.isNotEmpty) weight = controllers[3].text;
+    if (controllers[4].text.isNotEmpty) Co_morbidities = controllers[4].text;
 
     var response = await http.post(
       url,
@@ -1548,7 +1559,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
         'age': age,
         'height': height,
         'weight': weight, 
-        'Co-morbidities': Co_morbidities,
+        'Co_morbidities': Co_morbidities,
         'smoke': _smoke,
         'drink': _drink,
         'marry': _marry,

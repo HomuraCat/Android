@@ -23,6 +23,8 @@ class _DailyReportPageState extends State<DailyReportPage> {
       last_time,
       patientID = "",
       name = "";
+  String _selectedUnit = '粒';
+  final List<String> _units = ['粒', '毫升'];
   double _pain = 1.0, _tiredness = 1.0, _sleep = 1.0;
   bool submitstate = false;
   int _selectedValue = 1;
@@ -334,18 +336,38 @@ class _DailyReportPageState extends State<DailyReportPage> {
   }
 
   Widget buildMedicationDosageField() {
-    return TextFormField(
-      enabled: !submitstate,
-      decoration: const InputDecoration(
-          contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-          border: OutlineInputBorder(),
-          labelText: '用药剂量'),
-      validator: (v) {
-        if (v!.isEmpty) {
-          return '请输入用药剂量';
-        }
-      },
-      onSaved: (v) => medication_dosage = v!,
+    return Row(
+      children:[
+        Expanded(
+          child: TextFormField(
+            enabled: !submitstate,
+            decoration: const InputDecoration(
+                contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                border: OutlineInputBorder(),
+                labelText: '用药剂量'),
+            validator: (v) {
+              if (v!.isEmpty) {
+                return '请输入用药剂量';
+              }
+            },
+            onSaved: (v) => medication_dosage = v!,
+          ),
+        ),
+        SizedBox(width: 10),
+        DropdownButton<String>(
+          value: _selectedUnit,
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedUnit = newValue!;
+            });
+          },
+          items: _units.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList()
+      )]
     );
   }
 
