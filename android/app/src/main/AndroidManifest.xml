@@ -10,6 +10,12 @@
             <data android:scheme="http" />
         </intent>
     </queries>
+        <application
+        android:label="best_flutter_ui_templates"
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
+        <!-- 其他配置 -->
+    </application>
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
          In most cases you can leave this as-is, but you if you want to provide
