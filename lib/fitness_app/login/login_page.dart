@@ -378,14 +378,14 @@ Future<void> resetPassword(String name, String phone, String idNumber,
     }),
   );
 
-  if (response.statusCode == 200) {
+  if (response.body == '200') {
     // First, close the 忘记密码 dialog
     Navigator.of(context).pop();
 
     // Then show the success message
-    _showDialog(context, '密码重置成功!');
+    _showDialog(context, '密码重置成功！');
   } else {
     // If it fails, we can directly show the failure message
-    _showDialog(context, '密码重置失败，请稍后重试！');
+    _showDialog(context, '密码重置失败，请检查输入是否正确！');
   }
 }
