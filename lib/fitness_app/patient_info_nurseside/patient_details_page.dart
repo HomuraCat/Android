@@ -89,6 +89,8 @@ class _PatientDetailsState extends State<PatientDetailsPage> {
                 MineCell(
                   imageName: 'assets/images/southeast.jpeg',
                   title: '基本信息',
+                  patientID: widget.patientID,
+                  patientName: widget.patientName,
                 ),
                 const SizedBox(
                   height: 10,

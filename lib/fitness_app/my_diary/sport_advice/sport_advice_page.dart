@@ -7,6 +7,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../config.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:dio/dio.dart';
+import 'dart:io';
 
 class SportAdvicePage extends StatefulWidget {
   final Map<String, dynamic> video;
@@ -19,10 +22,12 @@ class SportAdvicePage extends StatefulWidget {
 class _SportAdvicePageState extends State<SportAdvicePage> {
   late VideoPlayerController _videoPlayerController;
   ChewieController? _chewieController;
-  bool isPracticeVideo = false; 
+  bool isPracticeVideo = false;
   String buttonText = '跟练';
   double topBarOpacity = 0.0;
   String info = "温馨提示：感觉不适请立即停止运动。";
+  ScrollController scrollController = ScrollController();
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -31,24 +36,53 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
     scrollController.addListener(_scrollListener);
   }
 
-  ScrollController scrollController = ScrollController();
-
   Future<void> _initializeVideoPlayer() async {
-    String videoSource = isPracticeVideo ? widget.video['source_2'] : widget.video['source_1'];
+    String videoSource =
+        isPracticeVideo ? widget.video['source_2'] : widget.video['source_1'];
     String fullVideoUrl = Config.baseUrl.endsWith('/')
         ? Config.baseUrl + videoSource
         : Config.baseUrl + '/' + videoSource;
-    print("Initializing video from URL: $fullVideoUrl"); // Debug statement
 
-    Uri videoUri = Uri.parse(fullVideoUrl);
-    print("!!!!!!!!!!!!!!!!");
-    print(videoUri);
-    _videoPlayerController = VideoPlayerController.networkUrl(videoUri)
+    // 获取本地存储路径
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String videoFileName = videoSource.split('/').last; // 从 URL 中提取文件名
+    String localVideoPath = '${appDocDir.path}/$videoFileName';
+
+    File videoFile = File(localVideoPath);
+
+    if (!videoFile.existsSync()) {
+      // 如果本地不存在，则下载
+      try {
+        print('开始下载视频...');
+        Dio dio = Dio();
+        await dio.download(fullVideoUrl, localVideoPath);
+        print('视频下载完成，保存在 $localVideoPath');
+      } catch (e) {
+        print('视频下载失败：$e');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('视频下载失败：$e')),
+        );
+        return;
+      }
+    } else {
+      print('本地视频已存在：$localVideoPath');
+    }
+
+    // 使用本地视频路径初始化视频播放器
+    _videoPlayerController = VideoPlayerController.file(
+      videoFile,
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+    )
       ..addListener(() {
         if (_videoPlayerController.value.hasError) {
-          print("Video Player Error: ${_videoPlayerController.value.errorDescription}");
+          print(
+              "Video Player Error: ${_videoPlayerController.value.errorDescription}");
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("视频播放错误: ${_videoPlayerController.value.errorDescription}")),
+            SnackBar(
+                content: Text(
+                    "视频播放错误: ${_videoPlayerController.value.errorDescription}")),
           );
         }
       });
@@ -60,6 +94,7 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
       _videoPlayerController.addListener(_checkVideo);
     } catch (e) {
       print("Error initializing video: $e");
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("视频初始化失败: $e")),
       );
@@ -68,7 +103,8 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
 
   void _checkVideo() {
     final bool isPlaying = _videoPlayerController.value.isPlaying;
-    final bool isVideoEnded = _videoPlayerController.value.position >= _videoPlayerController.value.duration;
+    final bool isVideoEnded = _videoPlayerController.value.position >=
+        _videoPlayerController.value.duration;
     if (!isPlaying && isVideoEnded && isPracticeVideo) {
       // 如果视频播放结束，标记为已完成
       _markVideoAsLearned();
@@ -76,16 +112,18 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
   }
 
   void _markVideoAsLearned() async {
-    final String apiUrl = Config.baseUrl + '/update_sport_video_status/${widget.video['id']}';
+    final String apiUrl = Config.baseUrl +
+        '/update_sport_video_status/${widget.video['id']}';
     var url = Uri.parse(apiUrl);
     try {
       var response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'completed': 1}) // Use integer instead of string
+        body: jsonEncode({'completed': 1}),
       );
 
       if (response.statusCode == 200) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("视频标记为已完成！")),
         );
@@ -93,12 +131,14 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
         Navigator.pop(context, true);
       } else {
         print("Failed to update video status: ${response.body}");
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("更新视频状态失败。")),
         );
       }
     } catch (e) {
       print("Error updating video status: $e");
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("更新视频状态失败: $e")),
       );
@@ -140,11 +180,17 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
 
   Future<void> _toggleVideo() async {
     setState(() {
-      isPracticeVideo = !isPracticeVideo;
-      buttonText = isPracticeVideo ? '教学' : '跟练';
+      isLoading = true;
     });
+    await _videoPlayerController.pause();
     await _videoPlayerController.dispose();
+    _chewieController?.dispose();
+    isPracticeVideo = !isPracticeVideo;
+    buttonText = isPracticeVideo ? '教学' : '跟练';
     await _initializeVideoPlayer();
+    setState(() {
+      isLoading = false;
+    });
   }
 
   void _scrollListener() {
@@ -171,10 +217,19 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
 
   @override
   Widget build(BuildContext context) {
+    // 构建图片 URL
     String imageUrl = Config.baseUrl.endsWith('/')
         ? Config.baseUrl + widget.video['image']
-        : Config.baseUrl + '/' + widget.video['image']; // 构建图片URL
-    print("Displaying image from URL: $imageUrl"); // Debug statement
+        : Config.baseUrl + '/' + widget.video['image'];
+
+    if (isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.video['title']),
+        ),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -184,19 +239,24 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
         controller: scrollController,
         child: Column(
           children: [
-            // 封面图片和视频播放器
-            _chewieController != null &&
-                    _chewieController!.videoPlayerController.value.isInitialized
-                ? Chewie(
-                    controller: _chewieController!,
-                  )
-                : Container(
-                    height: 200,
-                    child: CachedNetworkImage(
+            // 使用 AspectRatio 包裹视频播放器或封面图片
+            AspectRatio(
+              aspectRatio: _chewieController != null &&
+                      _chewieController!.videoPlayerController.value.isInitialized
+                  ? _chewieController!.videoPlayerController.value.aspectRatio
+                  : 16 / 9, // 默认宽高比
+              child: _chewieController != null &&
+                      _chewieController!.videoPlayerController.value.isInitialized
+                  ? Chewie(
+                      key: UniqueKey(), // 确保每次切换时重新构建
+                      controller: _chewieController!,
+                    )
+                  : CachedNetworkImage(
                       imageUrl: imageUrl,
                       fit: BoxFit.cover,
                       width: double.infinity,
-                      placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                      placeholder: (context, url) =>
+                          Center(child: CircularProgressIndicator()),
                       errorWidget: (context, url, error) => Container(
                         color: Colors.grey[200],
                         child: Icon(
@@ -206,20 +266,25 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
                         ),
                       ),
                     ),
-                  ),
+            ),
             Padding(
               padding: EdgeInsets.all(16),
               child: ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                  backgroundColor:
+                      MaterialStateProperty.resolveWith<Color>(
                     (Set<MaterialState> states) {
                       if (states.contains(MaterialState.pressed))
-                        return buttonText == "跟练" ? Colors.green[800]! : Colors.blue[800]!;
+                        return buttonText == "跟练"
+                            ? Colors.green[800]!
+                            : Colors.blue[800]!;
                       return buttonText == "教学" ? Colors.green : Colors.blue;
                     },
                   ),
-                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                  minimumSize: MaterialStateProperty.all<Size>(Size(double.infinity, 50)),
+                  foregroundColor:
+                      MaterialStateProperty.all<Color>(Colors.white),
+                  minimumSize: MaterialStateProperty.all<Size>(
+                      Size(double.infinity, 50)),
                 ),
                 onPressed: () {
                   _toggleVideo();

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart'; // 新增：用于获取文件的 MIME 类型
 import '../../config.dart'; // 根据您的项目结构调整路径
 
 class UploadExerciseSuggestionPage extends StatefulWidget {
@@ -66,28 +68,56 @@ class _UploadExerciseSuggestionPageState
     }
 
     final String uploadUrl = Config.baseUrl + '/upload_exercise_suggestion';
-    var request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
+    var uri = Uri.parse(uploadUrl);
+    var request = http.MultipartRequest('POST', uri);
     request.fields['title'] = _titleController.text; // 添加标题字段
     request.fields['info'] = _descriptionController.text;
 
-    // 添加图片文件
-    request.files.add(
-      await http.MultipartFile.fromPath('image', _imageFile!.path),
-    );
+    // 打印请求详细信息，便于调试
+    print('正在上传到 $uploadUrl');
+    print('标题: ${_titleController.text}');
+    print('描述: ${_descriptionController.text}');
+    print('图片文件路径: ${_imageFile!.path}');
+    print('教程视频文件路径: ${_tutorialVideo!.path}');
+    print('跟练视频文件路径: ${_followAlongVideo!.path}');
 
-    // 添加视频文件
-    request.files.add(
-      await http.MultipartFile.fromPath('source_1', _tutorialVideo!.path),
-    );
+    // 添加图片文件，指定 MIME 类型
     request.files.add(
       await http.MultipartFile.fromPath(
-          'source_2', _followAlongVideo!.path),
+        'image',
+        _imageFile!.path,
+        contentType:
+            MediaType('image', lookupMimeType(_imageFile!.path)!.split('/')[1]),
+      ),
+    );
+
+    // 添加教程视频文件，指定 MIME 类型
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'source_1',
+        _tutorialVideo!.path,
+        contentType: MediaType(
+            'video', lookupMimeType(_tutorialVideo!.path)!.split('/')[1]),
+      ),
+    );
+
+    // 添加跟练视频文件，指定 MIME 类型
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'source_2',
+        _followAlongVideo!.path,
+        contentType: MediaType(
+            'video', lookupMimeType(_followAlongVideo!.path)!.split('/')[1]),
+      ),
     );
 
     try {
       var response = await request.send();
 
       if (!mounted) return; // 确保部件仍然挂载
+
+      // 读取响应内容
+      final responseBody = await response.stream.bytesToString();
 
       if (response.statusCode == 200) {
         _scaffoldMessengerKey.currentState?.showSnackBar(
@@ -103,14 +133,16 @@ class _UploadExerciseSuggestionPageState
         });
       } else {
         _scaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(content: Text("运动建议上传失败。")),
+          SnackBar(content: Text("运动建议上传失败: $responseBody")),
         );
+        print('上传失败，状态码 ${response.statusCode}: $responseBody');
       }
     } catch (e) {
       if (!mounted) return;
       _scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(content: Text("上传过程中发生错误: $e")),
       );
+      print("上传过程中发生错误: $e");
     }
   }
 
