@@ -361,8 +361,7 @@ void _showForgotPasswordDialog(BuildContext context) {
 }
 
 Future<void> resetPassword(String name, String phone, String idNumber,
-    String newPasword, BuildContext context) async {
-  // 假设这是你调用重置密码的API
+    String newPassword, BuildContext context) async {
   final String apiUrl = Config.baseUrl + '/resetPassword';
   var url = Uri.parse(apiUrl);
 
@@ -375,13 +374,18 @@ Future<void> resetPassword(String name, String phone, String idNumber,
       'name': name,
       'phone': phone,
       'idNumber': idNumber,
-      'new_password': newPasword
+      'new_password': newPassword
     }),
   );
 
   if (response.statusCode == 200) {
-    _showDialog(context, '密码重置成功，请检查短信！');
+    // First, close the 忘记密码 dialog
+    Navigator.of(context).pop();
+
+    // Then show the success message
+    _showDialog(context, '密码重置成功!');
   } else {
+    // If it fails, we can directly show the failure message
     _showDialog(context, '密码重置失败，请稍后重试！');
   }
 }
