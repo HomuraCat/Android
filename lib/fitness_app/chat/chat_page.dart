@@ -4,6 +4,7 @@ import "package:flutter_svg/svg.dart";
 import "package:provider/provider.dart";
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:permission_handler/permission_handler.dart';
 import '../utils/Spsave_module.dart';
 import '../utils/common_tools.dart';
 import '../../config.dart';
@@ -47,6 +48,7 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
     chat_manager = ChatManager();
     _initConfig();
+    _requestPermissions();
   }
 
   void _initConfig() async {
@@ -66,6 +68,17 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {});
     }
     socket.connect();
+  }
+
+  Future<void> _requestPermissions() async {
+    final microphone_status = await Permission.microphone.status;
+    if (microphone_status != PermissionStatus.granted) {
+      await Permission.microphone.request();
+    }
+    final storageStatus = await Permission.storage.status;
+    if (storageStatus != PermissionStatus.granted) {
+      await Permission.storage.request();
+    }
   }
 
   void connectToServer() {

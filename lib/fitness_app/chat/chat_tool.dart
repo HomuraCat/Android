@@ -4,11 +4,11 @@ import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_1.dart';
 import 'package:intl/intl.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:record/record.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import '../utils/Spsave_module.dart';
+import 'package:just_audio/just_audio.dart';
 
 abstract class Formatter {
   Formatter._();
@@ -99,17 +99,16 @@ class ChatController extends ChangeNotifier {
 
   Future<void> startRecording() async {
     final directory = await Directory.systemTemp.createTemp();
-    final String? _filePath = '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.mp4';
+    final String? _filePath = '${directory.path}/voice_${DateTime.now().millisecondsSinceEpoch}.wav';
     await _audioRecorder.start(
-      path: _filePath,  // 指定音频保存路径
-      encoder: AudioEncoder.wav,       // 音频编码器
-      bitRate: 128000,                 // 比特率
-      samplingRate: 44100,             // 采样率
+      path: _filePath,
+      encoder: AudioEncoder.wav,
     );
   }
 
   Future<void> stopRecordingAndSend() async {
     final path = await _audioRecorder.stop();
+    print(path);
     if (path != null) 
     {
       File audioFile = File(path);
@@ -195,18 +194,19 @@ class Bubble extends StatelessWidget {
 
     // 将字节数据写入临时文件
     final directory = await Directory.systemTemp.createTemp();
-    String tempPath = '${directory.path}/temp_voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    String tempPath = '${directory.path}/temp_voice_${DateTime.now().millisecondsSinceEpoch}.wav';
     File tempFile = File(tempPath);
     await tempFile.writeAsBytes(audioBytes);
 
     // 播放音频
-    final player = AudioPlayer();
-    await player.play(tempFile.path, isLocal: true);
+    final _player = AudioPlayer();
+    await _player.setFilePath(tempFile.path);
+    await _player.play();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (chat.message_type == "word")
+    if (chat.message_type == ChatMessageType.word)
       return Row(
         mainAxisAlignment: alignmentOnType,
         crossAxisAlignment: CrossAxisAlignment.start,
