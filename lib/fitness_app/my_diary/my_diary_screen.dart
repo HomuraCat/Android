@@ -10,7 +10,7 @@ import 'package:best_flutter_ui_templates/fitness_app/my_diary/recipe/recipe.dar
 import 'package:flutter/material.dart';
 import 'knowledge_learning/learn_section.dart';
 import 'knowledge_learning/knowledge_learning.dart';
-
+import 'package:intl/intl.dart';
 
 class MyDiaryScreen extends StatefulWidget {
   const MyDiaryScreen({Key? key, this.animationController}) : super(key: key);
@@ -27,6 +27,10 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
   List<Widget> listViews = <Widget>[];
   final ScrollController scrollController = ScrollController();
   double topBarOpacity = 0.0;
+
+  String getCurrentDate() {
+    return DateFormat('MM月dd日').format(DateTime.now()); // 例如，“20月10日”
+  }
 
   @override
   void initState() {
@@ -62,17 +66,81 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
   }
 
   void addAllListData() {
-    const int count = 9;
+    const int count = 6; // Updated count based on new order and sections
 
+    // 1. Add "运动建议" (Sport Advice) section first
     listViews.add(
       TitleView(
-        titleTxt: '知识学习',
-        subTxt: '详情',
+        titleTxt: '运动建议',
+        subTxt: '全部内容', // Changed from '详情' to '全部内容'
         animation: Tween<double>(begin: 0.0, end: 1.0).animate(
           CurvedAnimation(
             parent: widget.animationController!,
-            curve:
-                Interval((1 / count) * 0, 1.0, curve: Curves.fastOutSlowIn),
+            curve: Interval((1 / count) * 0, 1.0,
+                curve: Curves.fastOutSlowIn),
+          ),
+        ),
+        animationController: widget.animationController!,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SportSection()),
+          );
+        },
+      ),
+    );
+
+    listViews.add(
+      BodyMeasurementView(
+        animation: Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: widget.animationController!,
+            curve: Interval((1 / count) * 1, 1.0,
+                curve: Curves.fastOutSlowIn),
+          ),
+        ),
+        animationController: widget.animationController!,
+      ),
+    );
+
+    // 2. Add "食谱推荐" (Recipe) section next
+    listViews.add(
+      TitleView(
+        titleTxt: '食谱推荐',
+        subTxt: '全部食谱',
+        animation: Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: widget.animationController!,
+            curve: Interval((1 / count) * 2, 1.0,
+                curve: Curves.fastOutSlowIn),
+          ),
+        ),
+        animationController: widget.animationController!,
+        // Removed onTap as per requirement
+      ),
+    );
+
+    listViews.add(
+      MealsListView(
+        mainScreenAnimation: Tween<double>(begin: 0.0, end: 1.0).animate(
+            CurvedAnimation(
+                parent: widget.animationController!,
+                curve: Interval((1 / count) * 3, 1.0,
+                    curve: Curves.fastOutSlowIn))),
+        mainScreenAnimationController: widget.animationController,
+      ),
+    );
+
+    // 3. Add "知识学习" (Knowledge Learning) section last
+    listViews.add(
+      TitleView(
+        titleTxt: '知识学习',
+        subTxt: '全部内容', // Changed from '详情' to '全部内容'
+        animation: Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: widget.animationController!,
+            curve: Interval((1 / count) * 4, 1.0,
+                curve: Curves.fastOutSlowIn),
           ),
         ),
         animationController: widget.animationController!,
@@ -90,66 +158,10 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
         animation: Tween<double>(begin: 0.0, end: 1.0).animate(
           CurvedAnimation(
             parent: widget.animationController!,
-            curve: Interval((1 / count) * 1, 1.0,
+            curve: Interval((1 / count) * 5, 1.0,
                 curve: Curves.fastOutSlowIn),
           ),
         ),
-        animationController: widget.animationController!,
-      ),
-    );
-    listViews.add(
-      TitleView(
-        titleTxt: '食谱推荐',
-        subTxt: '详情',
-        animation: Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-            parent: widget.animationController!,
-            curve:
-                Interval((1 / count) * 2, 1.0, curve: Curves.fastOutSlowIn))),
-        animationController: widget.animationController!,
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => RecipeListPage()),
-          );
-        },
-      ),
-    );
-
-    listViews.add(
-      MealsListView(
-        mainScreenAnimation: Tween<double>(begin: 0.0, end: 1.0).animate(
-            CurvedAnimation(
-                parent: widget.animationController!,
-                curve: Interval((1 / count) * 3, 1.0,
-                    curve: Curves.fastOutSlowIn))),
-        mainScreenAnimationController: widget.animationController,
-      ),
-    );
-
-    listViews.add(
-      TitleView(
-        titleTxt: '运动建议',
-        subTxt: '详情',
-        animation: Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-            parent: widget.animationController!,
-            curve:
-                Interval((1 / count) * 4, 1.0, curve: Curves.fastOutSlowIn))),
-        animationController: widget.animationController!,
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SportSection()),
-          );
-        },
-      ),
-    );
-
-    listViews.add(
-      BodyMeasurementView(
-        animation: Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-            parent: widget.animationController!,
-            curve:
-                Interval((1 / count) * 5, 1.0, curve: Curves.fastOutSlowIn))),
         animationController: widget.animationController!,
       ),
     );
@@ -261,22 +273,6 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: 38,
-                              width: 38,
-                              child: InkWell(
-                                highlightColor: Colors.transparent,
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(32.0)),
-                                onTap: () {},
-                                child: Center(
-                                  child: Icon(
-                                    Icons.keyboard_arrow_left,
-                                    color: FitnessAppTheme.grey,
-                                  ),
-                                ),
-                              ),
-                            ),
                             Padding(
                               padding: const EdgeInsets.only(
                                 left: 8,
@@ -293,7 +289,7 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
                                     ),
                                   ),
                                   Text(
-                                    '15 May',
+                                    getCurrentDate(), // 动态日期显示
                                     textAlign: TextAlign.left,
                                     style: TextStyle(
                                       fontFamily: FitnessAppTheme.fontName,
@@ -304,22 +300,6 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
                                     ),
                                   ),
                                 ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 38,
-                              width: 38,
-                              child: InkWell(
-                                highlightColor: Colors.transparent,
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(32.0)),
-                                onTap: () {},
-                                child: Center(
-                                  child: Icon(
-                                    Icons.keyboard_arrow_right,
-                                    color: FitnessAppTheme.grey,
-                                  ),
-                                ),
                               ),
                             ),
                           ],
