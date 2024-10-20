@@ -234,11 +234,11 @@ class MealsView extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      top: 0,
+                      top: 8,
                       left: 8,
                       child: SizedBox(
-                        width: 80,
-                        height: 80,
+                        width: 70,
+                        height: 70,
                         child: Image.asset(mealsListData.imagePath),
                       ),
                     )

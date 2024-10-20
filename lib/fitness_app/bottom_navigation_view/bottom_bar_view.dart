@@ -4,9 +4,6 @@ import 'package:best_flutter_ui_templates/fitness_app/models/tabIcon_data.dart';
 import 'package:best_flutter_ui_templates/main.dart';
 import 'package:flutter/material.dart';
 
-import '../../main.dart';
-import '../models/tabIcon_data.dart';
-
 class BottomBarView extends StatefulWidget {
   const BottomBarView(
       {Key? key, this.tabIconsList, this.changeIndex, this.addClick})
@@ -15,6 +12,7 @@ class BottomBarView extends StatefulWidget {
   final Function(int index)? changeIndex;
   final Function()? addClick;
   final List<TabIconData>? tabIconsList;
+
   @override
   _BottomBarViewState createState() => _BottomBarViewState();
 }
@@ -38,6 +36,7 @@ class _BottomBarViewState extends State<BottomBarView>
     return Stack(
       alignment: AlignmentDirectional.bottomCenter,
       children: <Widget>[
+        // Existing Bottom Bar
         AnimatedBuilder(
           animation: animationController!,
           builder: (BuildContext context, Widget? child) {
@@ -47,38 +46,42 @@ class _BottomBarViewState extends State<BottomBarView>
                 color: FitnessAppTheme.white,
                 elevation: 16.0,
                 clipper: TabClipper(
-                    radius: Tween<double>(begin: 0.0, end: 1.0)
-                            .animate(CurvedAnimation(
-                                parent: animationController!,
-                                curve: Curves.fastOutSlowIn))
-                            .value *
-                        38.0),
+                    radius: 15),
                 child: Column(
                   children: <Widget>[
                     SizedBox(
-                      height: 62,
+                      height: 80,
                       child: Padding(
                         padding:
                             const EdgeInsets.only(left: 8, right: 8, top: 4),
                         child: Row(
                           children: <Widget>[
                             Expanded(
-                              child: TabIcons(
+                              child: 
+                              Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: TabIcons(
                                   tabIconData: widget.tabIconsList?[0],
                                   removeAllSelect: () {
                                     setRemoveAllSelection(
                                         widget.tabIconsList?[0]);
                                     widget.changeIndex!(0);
                                   }),
+                              )
                             ),
                             Expanded(
-                              child: TabIcons(
+                              child: 
+                              Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: TabIcons(
                                   tabIconData: widget.tabIconsList?[1],
                                   removeAllSelect: () {
                                     setRemoveAllSelection(
                                         widget.tabIconsList?[1]);
                                     widget.changeIndex!(1);
                                   }),
+                                )
+
                             ),
                             SizedBox(
                               width: Tween<double>(begin: 0.0, end: 1.0)
@@ -86,25 +89,33 @@ class _BottomBarViewState extends State<BottomBarView>
                                           parent: animationController!,
                                           curve: Curves.fastOutSlowIn))
                                       .value *
-                                  64.0,
+                                  100.0,
                             ),
                             Expanded(
-                              child: TabIcons(
+                              child: 
+                              Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: TabIcons(
                                   tabIconData: widget.tabIconsList?[2],
                                   removeAllSelect: () {
                                     setRemoveAllSelection(
                                         widget.tabIconsList?[2]);
                                     widget.changeIndex!(2);
                                   }),
+                              )
                             ),
                             Expanded(
-                              child: TabIcons(
+                              child: 
+                              Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: TabIcons(
                                   tabIconData: widget.tabIconsList?[3],
                                   removeAllSelect: () {
                                     setRemoveAllSelection(
                                         widget.tabIconsList?[3]);
                                     widget.changeIndex!(3);
                                   }),
+                              )
                             ),
                           ],
                         ),
@@ -119,60 +130,53 @@ class _BottomBarViewState extends State<BottomBarView>
             );
           },
         ),
-        Padding(
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-          child: SizedBox(
-            width: 38 * 2.0,
-            height: 38 + 62.0,
+        // Floating Button Positioned Correctly
+        Positioned(
+          top: 2, // Adjust as needed to position the button above the bottom bar
+          child: ScaleTransition(
+            alignment: Alignment.center,
+            scale: Tween<double>(begin: 0.0, end: 1.0).animate(
+              CurvedAnimation(
+                parent: animationController!,
+                curve: Curves.fastOutSlowIn,
+              ),
+            ),
             child: Container(
-              alignment: Alignment.topCenter,
-              color: Colors.transparent,
-              child: SizedBox(
-                width: 38 * 2.0,
-                height: 38 * 2.0,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ScaleTransition(
-                    alignment: Alignment.center,
-                    scale: Tween<double>(begin: 0.0, end: 1.0).animate(
-                        CurvedAnimation(
-                            parent: animationController!,
-                            curve: Curves.fastOutSlowIn)),
-                    child: Container(
-                      // alignment: Alignment.center,s
-                      decoration: BoxDecoration(
-                        color: FitnessAppTheme.nearlyDarkBlue,
-                        gradient: LinearGradient(
-                            colors: [
-                              FitnessAppTheme.nearlyDarkBlue,
-                              HexColor('#6A88E5'),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight),
-                        shape: BoxShape.circle,
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(
-                              color: FitnessAppTheme.nearlyDarkBlue
-                                  .withOpacity(0.4),
-                              offset: const Offset(8.0, 16.0),
-                              blurRadius: 16.0),
-                        ],
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          splashColor: Colors.white.withOpacity(0.1),
-                          highlightColor: Colors.transparent,
-                          focusColor: Colors.transparent,
-                          onTap: widget.addClick,
-                          child: Icon(
-                            Icons.add,
-                            color: FitnessAppTheme.white,
-                            size: 32,
-                          ),
-                        ),
-                      ),
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    FitnessAppTheme.nearlyDarkBlue,
+                    HexColor('#6A88E5'),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                shape: BoxShape.circle,
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    color:
+                        FitnessAppTheme.nearlyDarkBlue.withOpacity(0.4),
+                    offset: const Offset(16.0, 16.0),
+                    blurRadius: 32.0,
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  splashColor: Colors.white.withOpacity(0.1),
+                  highlightColor: Colors.transparent,
+                  focusColor: Colors.transparent,
+                  onTap: widget.addClick,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Image.asset(
+                      'assets/fitness_app/tab_5.jpg',
+                      width: 30,
+                      height: 30,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),
@@ -330,36 +334,37 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
 }
 
 class TabClipper extends CustomClipper<Path> {
-  TabClipper({this.radius = 38.0});
+  TabClipper({this.radius = 40.0, this.horizontalReduction = 0.6});
 
-  final double radius;
+  final double radius; // 控制凹槽的高度
+  final double horizontalReduction; // 控制凹槽在水平方向上的缩减比例
 
   @override
   Path getClip(Size size) {
     final Path path = Path();
 
-    final double v = radius * 2;
-    path.lineTo(0, 0);
-    path.arcTo(Rect.fromLTWH(0, 0, radius, radius), degreeToRadians(180),
-        degreeToRadians(90), false);
-    path.arcTo(
-        Rect.fromLTWH(
-            ((size.width / 2) - v / 2) - radius + v * 0.04, 0, radius, radius),
-        degreeToRadians(270),
-        degreeToRadians(70),
-        false);
+    final double centerWidth = size.width / 2;
+    final double notchRadius = radius;
+    final double notchHeight = notchRadius * 1.5; // 保持凹槽的高度不变
 
-    path.arcTo(Rect.fromLTWH((size.width / 2) - v / 2, -v / 2, v, v),
-        degreeToRadians(160), degreeToRadians(-140), false);
+    // 计算凹槽左右两边的水平缩减
+    final double notchWidth = notchRadius * 2 * horizontalReduction;
+
+    // 开始绘制路径
+    path.lineTo(centerWidth - notchWidth - 20, 0);
+
+    // 右侧凹槽弧线
+    double startAngle = -math.pi / 6; // -180度
+    double sweepAngle = 10 * math.pi / 6; // 270度
 
     path.arcTo(
-        Rect.fromLTWH((size.width - ((size.width / 2) - v / 2)) - v * 0.04, 0,
-            radius, radius),
-        degreeToRadians(200),
-        degreeToRadians(70),
-        false);
-    path.arcTo(Rect.fromLTWH(size.width - radius, 0, radius, radius),
-        degreeToRadians(270), degreeToRadians(90), false);
+      Rect.fromCircle(center: Offset(centerWidth - 50, 50), radius: 50),
+      startAngle,
+      sweepAngle,
+      false,
+    );
+
+    // 继续绘制路径至右侧
     path.lineTo(size.width, 0);
     path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
@@ -370,9 +375,5 @@ class TabClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(TabClipper oldClipper) => true;
-
-  double degreeToRadians(double degree) {
-    final double redian = (math.pi / 180) * degree;
-    return redian;
-  }
 }
+
