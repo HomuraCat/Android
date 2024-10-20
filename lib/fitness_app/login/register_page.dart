@@ -35,6 +35,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String password = '';
   String confirmPassword = '';
   String verificationCode = '';
+
   Future<void> sendVerificationCode(
       String phoneNumber, BuildContext context) async {
     final String apiUrl = Config.baseUrl + '/phone_ver';
@@ -65,8 +66,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
+  // Updated registerUser function
   Future<void> registerUser(
-      String username,
+      String email,
       String phoneNumber,
       String verificationCode,
       String password,
@@ -97,7 +99,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => LoginPage(title: "登录", status: true)),
+                builder: (context) =>
+                    LoginPage(title: "登录", status: true)),
           ); // Redirect to login page after dialog is closed
         });
       } else if (responseData == 0) {
@@ -220,35 +223,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     return null;
                   },
                 ),
-                // SizedBox(height: 16.0),
-                // ElevatedButton(
-                //   onPressed: () {
-                //     sendVerificationCode(phoneNumber, context);
-                //   },
-                //   child: Text('获取验证码'), // Get verification code
-                // ),
-                // TextFormField(
-                //   decoration: InputDecoration(
-                //     labelText: '请输入验证码', // Please enter verification code
-                //   ),
-                //   onChanged: (value) => verificationCode = value,
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return '验证码不能为空'; // Verification code cannot be empty
-                //     }
-                //     return null;
-                //   },
-                // ),
-                // Email TextFormField
+                SizedBox(height: 16.0),
                 TextFormField(
                   decoration: InputDecoration(
-                    labelText: '邮箱', // Email
+                    labelText: '邮箱（可选）', // Email (optional)
                   ),
                   keyboardType: TextInputType.emailAddress,
                   onChanged: (value) => email = value,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return null; // Email cannot be empty
+                      return null;
                     }
                     // Simple email validation regex
                     String pattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
@@ -298,12 +282,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 ),
                 SizedBox(height: 24.0),
 
-                SizedBox(height: 24.0),
+                // Register Button
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      registerUser(email, phoneNumber, verificationCode,
-                          password, confirmPassword, context);
+                      registerUser(
+                          email,
+                          phoneNumber,
+                          verificationCode,
+                          password,
+                          confirmPassword,
+                          context);
                     }
                   },
                   child: Text('注册'), // Register
@@ -314,9 +303,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     text: TextSpan(
                       style: Theme.of(context).textTheme.bodyText2,
                       children: [
-                        TextSpan(
-                            text:
-                                '注册即代表同意 '), // Registering signifies agreement to
+                        TextSpan(text: '注册即代表同意 '), // Registering signifies agreement to
                         TextSpan(
                           text: '用户协议 ',
                           style: TextStyle(color: Colors.blue),
