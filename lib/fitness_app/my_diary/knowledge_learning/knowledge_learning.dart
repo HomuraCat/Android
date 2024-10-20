@@ -1,5 +1,3 @@
-// lib/fitness_app/my_diary/knowledge_learning/knowledge_learning.dart
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -76,59 +74,47 @@ class _LearnTopicsPreviewState extends State<LearnTopicsPreview> {
           child: Transform(
             transform: Matrix4.translationValues(
                 0.0, 30 * (1.0 - widget.animation.value), 0.0),
-            child: Container(
-              decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFFB3E5FC), // 浅蓝色
-                        Color(0xFF81D4FA), // 中蓝色
-                        Color(0xFF29B6F6), // 深蓝色
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(8.0),
-                  bottomLeft: Radius.circular(8.0),
-                  bottomRight: Radius.circular(8.0),
-                  topRight: Radius.circular(68.0),
-                ),
-                boxShadow: <BoxShadow>[
-                  BoxShadow(
-                    color: Color.fromARGB(255, 95, 109, 118).withOpacity(0.2),
-                    offset: Offset(1.1, 1.1),
-                    blurRadius: 10.0,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  left: 24, right: 24, top: 16, bottom: 18),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: FitnessAppTheme.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(8.0),
+                    bottomLeft: Radius.circular(8.0),
+                    bottomRight: Radius.circular(8.0),
+                    topRight: Radius.circular(8.0),
                   ),
-                ],
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "主题预览",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: FitnessAppTheme.darkerText,
-                      ),
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color:
+                          Color.fromARGB(255, 95, 109, 118).withOpacity(0.2),
+                      offset: Offset(1.1, 1.1),
+                      blurRadius: 10.0,
                     ),
-                    SizedBox(height: 10),
-                    if (isLoading)
-                      Center(child: CircularProgressIndicator())
-                    else if (errorMessage != null)
-                      Center(child: Text(errorMessage!))
-                    else if (topicPreviews.isEmpty)
-                      Center(child: Text('暂无主题可供预览'))
-                    else
-                      Column(
-                        children: topicPreviews
-                            .map((video) => buildVideoPreview(video))
-                            .toList(),
-                      ),
                   ],
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isLoading)
+                        Center(child: CircularProgressIndicator())
+                      else if (errorMessage != null)
+                        Center(child: Text(errorMessage!))
+                      else if (topicPreviews.isEmpty)
+                        Center(child: Text(''))
+                      else
+                        Column(
+                          children: topicPreviews
+                              .map((video) => buildVideoPreview(video))
+                              .toList(),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -147,8 +133,6 @@ class _LearnTopicsPreviewState extends State<LearnTopicsPreview> {
         borderRadius: BorderRadius.circular(12.0),
       ),
       child: ListTile(
-        // 移除 leading 属性（图片缩略图）
-        // 移除 trailing 属性（视频播放图标）
         title: Text(
           video.title,
           style: TextStyle(
@@ -163,7 +147,8 @@ class _LearnTopicsPreviewState extends State<LearnTopicsPreview> {
         ),
         onTap: () async {
           String urlString = video.source;
-          if (!urlString.startsWith('http://') && !urlString.startsWith('https://')) {
+          if (!urlString.startsWith('http://') &&
+              !urlString.startsWith('https://')) {
             urlString = 'https://' + urlString;
           }
           final Uri url = Uri.parse(urlString);

@@ -1,7 +1,13 @@
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_theme.dart';
 import 'package:flutter/material.dart';
+import '../utils/Spsave_module.dart';
+import '../../config.dart';
+import 'package:http/http.dart' as http;
 
-class BodyMeasurementView extends StatelessWidget {
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+class BodyMeasurementView extends StatefulWidget {
   final AnimationController? animationController;
   final Animation<double>? animation;
 
@@ -9,20 +15,68 @@ class BodyMeasurementView extends StatelessWidget {
       : super(key: key);
 
   @override
+  _BodyMeasurementViewState createState() => _BodyMeasurementViewState();
+}
+
+class _BodyMeasurementViewState extends State<BodyMeasurementView> {
+  double user_height = 0.0;
+  double user_weight = 0.0;
+  double user_BMI = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    // Fetch patientID from storage
+    Map<String, dynamic> account = await SpStorage.instance.readAccount();
+    String patientID = account['patientID'];
+
+    final String apiUrl = Config.baseUrl + '/patient/get_info_json';
+    var url = Uri.parse(apiUrl);
+
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'patientID': patientID,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+
+      setState(() {
+        if (data['height'] != null) {
+          user_height = double.parse(data['height'].toString());
+        }
+        if (data['weight'] != null) {
+          user_weight = double.parse(data['weight'].toString());
+        }
+        if (user_height > 0 && user_weight > 0) {
+          user_BMI = user_weight * 10000 / (user_height * user_height);
+          user_BMI = double.parse(user_BMI.toStringAsFixed(1));
+        }
+      });
+    } else {
+      print('Failed to fetch patient info: ${response.statusCode}');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: animationController!,
+      animation: widget.animationController!,
       builder: (BuildContext context, Widget? child) {
-        double user_height = 180;
-        double user_weight = 70.5;
-        double user_body_fat = 20;
-        double user_BMI = user_weight * 10000 / user_height / user_height;
-        user_BMI = double.parse(user_BMI.toStringAsFixed(1));
         return FadeTransition(
-          opacity: animation!,
-          child: new Transform(
-            transform: new Matrix4.translationValues(
-                0.0, 30 * (1.0 - animation!.value), 0.0),
+          opacity: widget.animation!,
+          child: Transform(
+            transform: Matrix4.translationValues(
+                0.0, 30 * (1.0 - widget.animation!.value), 0.0),
             child: Padding(
               padding: const EdgeInsets.only(
                   left: 24, right: 24, top: 16, bottom: 18),
@@ -33,7 +87,7 @@ class BodyMeasurementView extends StatelessWidget {
                       topLeft: Radius.circular(8.0),
                       bottomLeft: Radius.circular(8.0),
                       bottomRight: Radius.circular(8.0),
-                      topRight: Radius.circular(68.0)),
+                      topRight: Radius.circular(8.0)),
                   boxShadow: <BoxShadow>[
                     BoxShadow(
                         color: FitnessAppTheme.grey.withOpacity(0.2),
@@ -54,7 +108,7 @@ class BodyMeasurementView extends StatelessWidget {
                             padding: const EdgeInsets.only(
                                 left: 4, bottom: 8, top: 16),
                             child: Text(
-                              '质量',
+                              '体重',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontFamily: FitnessAppTheme.fontName,
@@ -76,7 +130,7 @@ class BodyMeasurementView extends StatelessWidget {
                                     padding: const EdgeInsets.only(
                                         left: 4, bottom: 3),
                                     child: Text(
-                                      user_weight.toString(),
+                                      user_weight > 0 ? user_weight.toString() : '0.0',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontFamily: FitnessAppTheme.fontName,
@@ -130,7 +184,7 @@ class BodyMeasurementView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  user_height.toString() + "厘米",
+                                  user_height > 0 ? '${user_height.toString()} 厘米' : '0.0 厘米',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontFamily: FitnessAppTheme.fontName,
@@ -167,7 +221,7 @@ class BodyMeasurementView extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     Text(
-                                      user_BMI.toString() +' BMI',
+                                      user_BMI > 0 ? '${user_BMI.toString()} BMI' : '0.0 BMI',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontFamily: FitnessAppTheme.fontName,
@@ -180,7 +234,7 @@ class BodyMeasurementView extends StatelessWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(top: 6),
                                       child: Text(
-                                        '超重',
+                                        user_BMI > 0 ? getBMIStatus(user_BMI) : '',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontFamily: FitnessAppTheme.fontName,
@@ -207,5 +261,17 @@ class BodyMeasurementView extends StatelessWidget {
         );
       },
     );
+  }
+
+  String getBMIStatus(double bmi) {
+    if (bmi < 18.5) {
+      return '偏瘦';
+    } else if (bmi >= 18.5 && bmi < 24) {
+      return '正常';
+    } else if (bmi >= 24 && bmi < 28) {
+      return '超重';
+    } else {
+      return '肥胖';
+    }
   }
 }
