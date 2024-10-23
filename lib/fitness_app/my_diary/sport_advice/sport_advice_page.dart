@@ -55,6 +55,8 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
       try {
         print('开始下载视频...');
         Dio dio = Dio();
+        print("完整视频链接: $fullVideoUrl");
+        print("local视频链接: $localVideoPath");
         await dio.download(fullVideoUrl, localVideoPath);
         print('视频下载完成，保存在 $localVideoPath');
       } catch (e) {

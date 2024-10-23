@@ -116,7 +116,12 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
           ),
         ),
         animationController: widget.animationController!,
-        // Removed onTap as per requirement
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => RecipeListPage()),
+          );
+        },
       ),
     );
 
