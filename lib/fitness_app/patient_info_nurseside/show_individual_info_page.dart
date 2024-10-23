@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import '../../config.dart';
 
 class ShowIndividualInfoPage extends StatefulWidget {
@@ -97,6 +98,8 @@ class _ShowIndividualInfoPageState extends State<ShowIndividualInfoPage> {
             buildOilField(),
             const SizedBox(height: 10),
             buildSaltField(),
+            const SizedBox(height: 30),
+            buildDeleteButton(context),
             const SizedBox(height: 60),
           ],
         ),
@@ -330,6 +333,21 @@ class _ShowIndividualInfoPageState extends State<ShowIndividualInfoPage> {
         ));
   }
 
+  Widget buildDeleteButton(BuildContext context) {
+    return Align(
+      child: SizedBox(
+        height: 40,
+        width: 250,
+        child: FloatingActionButton(
+          backgroundColor: Colors.red,
+          child: Text('删除病人个人信息',
+              style: Theme.of(context).primaryTextTheme.headlineSmall),
+          onPressed: () {DeleteIndividualInfo(context);},
+        ),
+      ),
+    );
+  }
+
   Future<void> GetPatientInfo(BuildContext context) async {
     final String apiUrl = Config.baseUrl + '/patient/get_info';
     var url = Uri.parse(apiUrl);
@@ -374,5 +392,54 @@ class _ShowIndividualInfoPageState extends State<ShowIndividualInfoPage> {
         else setState(() => individual_info = "ERROR");
     }
       else print('Request failed with status: ${response.statusCode}.');;
+  }
+
+  Future<void> DeleteIndividualInfo(BuildContext context) async {
+    final String apiUrl = Config.baseUrl + '/patient/delete_info';
+    var url = Uri.parse(apiUrl);
+
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'patientID': widget.patientID,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      var responseData = jsonDecode(response.body);
+      if (responseData == 1) {
+        setState(() => submitstate = true);
+        _showDialog(context, '删除成功！', onDialogClose: () {
+          Navigator.pop(context);
+        });
+      }
+    } else print('Request failed with status: ${response.statusCode}.');
+  }
+
+    void _showDialog(BuildContext context, String message,
+      {VoidCallback? onDialogClose}) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text("Message"),
+          content: Text(message),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                if (onDialogClose != null) {
+                  onDialogClose(); // Call the callback if it's provided
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
