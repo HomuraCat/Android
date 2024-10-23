@@ -10,7 +10,8 @@ import 'package:best_flutter_ui_templates/fitness_app/login/register_page.dart';
 
 Future<void> registerUser(
     String email, String password, bool my_status, BuildContext context) async {
-  final String apiUrl = Config.baseUrl + '/login';
+  // 根据 my_status 选择不同的 API 路由
+  final String apiUrl = my_status ? Config.baseUrl + '/login' : Config.baseUrl + '/nurse_login';
   var url = Uri.parse(apiUrl);
 
   var response = await http.post(
@@ -39,16 +40,19 @@ Future<void> registerUser(
       if (my_status) {
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => FitnessAppHomeScreen()));
-      } else
+      } else {
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => FitnessAppHomeScreenNurseSide()));
+      }
     }
   } else {
     print('Request failed with status: ${response.statusCode}.');
+    _showDialog(context, '网络请求失败，请稍后重试！'); // 可选：向用户显示网络错误
   }
 }
+
 
 void _showDialog(BuildContext context, String message) {
   showCupertinoDialog(
@@ -101,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
             buildEmailTextField(),
             const SizedBox(height: 30),
             buildPasswordTextField(),
-            buildForgetPasswordText(),
+            if (widget.status) buildForgetPasswordText(),
             const SizedBox(height: 70),
             if (widget.status) buildRegisterButton(),
             if (widget.status) const SizedBox(height: 20),
