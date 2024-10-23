@@ -251,21 +251,47 @@ class Bubble extends StatelessWidget {
     else
       return GestureDetector(
         onTap: () => playVoiceMessage(chat.message),
-        child: Container(
-          padding: EdgeInsets.all(10),
-          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          decoration: BoxDecoration(
-            color: Colors.green[200],
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.play_arrow),
-              SizedBox(width: 10),
-              Text('语音消息'),
-            ],
-          ),
-        ),
+        child: Row(
+        mainAxisAlignment: alignmentOnType,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+            if (chat.send_type == ChatMessageType.received)
+              CircleAvatar(
+                backgroundImage: AssetImage(avatar),
+            ),
+            Container(
+              margin: margin ?? EdgeInsets.zero,
+              child: PhysicalShape(
+                clipper: clipperOnType,
+                elevation: 2,
+                color: bgColorOnType,
+                shadowColor: Colors.grey.shade200,
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  margin: EdgeInsets.symmetric(horizontal: 10),
+                  child: Column( 
+                    crossAxisAlignment: crossAlignmentOnType,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.play_arrow),
+                          SizedBox(width: 10),
+                          Text('语音消息', style: TextStyle(color: textColorOnType, fontSize: 12)),
+                        ]),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      Text(
+                        Formatter.formatDateTime(chat.time),
+                        style: TextStyle(color: textColorOnType, fontSize: 12),
+                      )
+                    ]
+                  ),
+                ),
+              ),
+            ),
+          ]
+        )
       );
   }
 

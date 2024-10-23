@@ -82,7 +82,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void connectToServer() {
-    String url = 'http://10.0.0.2:5001?username=$patientID';
+    String url = 'http://43.136.52.103:5001?username=$patientID';
     socket = IO.io(url, <String, dynamic>{
       'transports': ['websocket'],
       'forceNew': true,
@@ -90,7 +90,7 @@ class _ChatPageState extends State<ChatPage> {
     });
 
     socket.on('message', (data) {
-      notificationHelper.showChatMessageNotification(notificationId: 0, title: data['sender'], message: data['message']);
+      notificationHelper.showChatMessageNotification(notificationId: 0, title: data['sender'], message: (data['message_type'] == 'word')?data['message']:'语音消息');
       chat_manager.AddChat(data['sender'], data['message'], data['message_type']);
     });
 
