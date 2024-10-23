@@ -473,9 +473,11 @@ class _DailyReportPageState extends State<DailyReportPage> {
       }),
     );
 
+    print(response.statusCode);
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
-      if (responseData == '1') {
+      print(responseData);
+      if (responseData == 1) {
         setState(() => submitstate = true);
         _showDialog(context, '提交成功！', onDialogClose: () {
           Navigator.pop(context);
