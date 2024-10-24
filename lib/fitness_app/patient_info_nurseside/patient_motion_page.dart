@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../config.dart';
 
 class PatientMotionPage extends StatefulWidget {
   final String patientID;
@@ -24,7 +25,8 @@ class _PatientMotionPageState extends State<PatientMotionPage> {
   }
 
   Future<void> _fetchPosts() async {
-    var url = Uri.parse('http://10.0.2.2:5001/motion/fetch');
+    final String apiUrl = Config.baseUrl + '/motion/fetch';
+    var url = Uri.parse(apiUrl);
     try {
       var response = await http.post(
         url,
