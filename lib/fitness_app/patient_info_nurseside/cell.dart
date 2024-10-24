@@ -28,6 +28,10 @@ class MineCell extends StatelessWidget {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (BuildContext context) => PatientMotionPage(patientID: this.patientID!,)));
             break;
+          case "动态":
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => PatientMotionPageAll(patientID: this.patientID!,)));
+            break;
           case "基本信息":
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (BuildContext context) => ShowIndividualInfoPage(patientID: this.patientID!, patientName: this.patientName!)));
