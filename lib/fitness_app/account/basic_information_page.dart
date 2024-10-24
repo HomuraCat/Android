@@ -15,14 +15,14 @@ class BasicInforPage extends StatefulWidget {
 
 class _BasicInforPageState extends State<BasicInforPage>{
   final GlobalKey _formKey = GlobalKey<FormState>();
-  late String patientID, name, age, user_name, height, weight, Co_morbidities;
+  late String patientID, name, age, user_name, height, weight, Co_morbidities, IDNumber;
   bool submitstate = false;
   int gender = 1, smoke = 1, drink = 1, marry = 1, CA = 1, ill_type = 1, duration = 1, treatment = 1, surgery = 1;
   int metastasis = 1, education = 1, work = 1, residency = 1, income = 1, insurance = 1, MVratio = 1, oil = 1, salt = 1;
   String _smoke = '有', _drink = '有', _marry = '已婚', _CA = '非小细胞CA', _ill_type = '首次确诊', _duration = '≤3个月';
   String _treatment = '化疗', _surgery = '无', _metastasis = '未转移', _education = '小学及以下', _work = '管理';
   String _residency = '独居', _income = '<3000元', _insurance = '自费', _MVratio = '素食为主', _oil = '偏多', _salt = '偏咸';
-  final List<TextEditingController> controllers = List.generate(5, (index) => TextEditingController());
+  final List<TextEditingController> controllers = List.generate(6, (index) => TextEditingController());
 
   void initState() {
     super.initState();
@@ -61,7 +61,9 @@ class _BasicInforPageState extends State<BasicInforPage>{
             const SizedBox(height: 10),
             buildWeightField(3),
             const SizedBox(height: 10),
-            buildCoMorbiditiesField(4),
+            buildIDNumberField(4),
+            const SizedBox(height: 10),
+            buildCoMorbiditiesField(5),
             const SizedBox(height: 10),
             buildSmokeField(),
             const SizedBox(height: 10),
@@ -220,6 +222,24 @@ class _BasicInforPageState extends State<BasicInforPage>{
         }
       },
       onSaved: (v) => weight = v!,
+    );
+  }
+
+  Widget buildIDNumberField(int index){
+    return TextFormField(
+      controller: controllers[index],
+      enabled: !submitstate,
+      decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+          border: OutlineInputBorder(),
+          labelText: '身份证号'),
+      validator: (v) {
+        var ageReg = RegExp(r"^[0-9]+");
+        if (!ageReg.hasMatch(v!)) {
+          return '请正确输入身份证号';
+        }
+      },
+      onSaved: (v) => Co_morbidities = v!,
     );
   }
 
@@ -1545,7 +1565,8 @@ class _BasicInforPageState extends State<BasicInforPage>{
     if (controllers[1].text.isNotEmpty) age = controllers[1].text;
     if (controllers[2].text.isNotEmpty) height = controllers[2].text;
     if (controllers[3].text.isNotEmpty) weight = controllers[3].text;
-    if (controllers[4].text.isNotEmpty) Co_morbidities = controllers[4].text;
+    if (controllers[4].text.isNotEmpty) IDNumber = controllers[4].text;
+    if (controllers[5].text.isNotEmpty) Co_morbidities = controllers[5].text;
 
     var response = await http.post(
       url,
@@ -1558,7 +1579,8 @@ class _BasicInforPageState extends State<BasicInforPage>{
         'gender': gender.toString(),
         'age': age,
         'height': height,
-        'weight': weight, 
+        'weight': weight,
+        'IDNumber': IDNumber,
         'Co_morbidities': Co_morbidities,
         'smoke': _smoke,
         'drink': _drink,

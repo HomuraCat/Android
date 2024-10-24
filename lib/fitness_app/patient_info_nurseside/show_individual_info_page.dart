@@ -19,7 +19,7 @@ class _ShowIndividualInfoPageState extends State<ShowIndividualInfoPage> {
   bool submitstate = false;
   late String individual_info;
   int gender = -1;
-  String age = '', height = '', weight = '', Co_morbidities = '';
+  String age = '', height = '', weight = '', Co_morbidities = '', IDNumber = '';
   String _smoke = '', _drink = '', _marry = '', _CA = '', _ill_type = '', _duration = '';
   String _treatment = '', _surgery = '', _metastasis = '', _education = '', _work = '';
   String _residency = '', _income = '', _insurance = '', _MVratio = '', _oil = '', _salt = '';
@@ -61,7 +61,9 @@ class _ShowIndividualInfoPageState extends State<ShowIndividualInfoPage> {
             const SizedBox(height: 10),
             buildWeightField(),
             const SizedBox(height: 10),
-            buildCoMorbiditiesField(4),
+            buildIDNumberField(),
+            const SizedBox(height: 10),
+            buildCoMorbiditiesField(),
             const SizedBox(height: 10),
             buildSmokeField(),
             const SizedBox(height: 10),
@@ -162,7 +164,16 @@ class _ShowIndividualInfoPageState extends State<ShowIndividualInfoPage> {
         ));
   }
 
-  Widget buildCoMorbiditiesField(int index) {
+  Widget buildIDNumberField() {
+    return Padding(
+        padding: EdgeInsets.only(left: 5),
+        child: Text(
+          (Co_morbidities.isEmpty)?'身份证号: 加载中...':'身份证号: $IDNumber',
+          style: TextStyle(fontSize: 20),
+        ));
+  }
+
+  Widget buildCoMorbiditiesField() {
     return Padding(
         padding: EdgeInsets.only(left: 5),
         child: Text(
@@ -369,24 +380,25 @@ class _ShowIndividualInfoPageState extends State<ShowIndividualInfoPage> {
         gender = int.parse(temp_individual_info[1]);
         height = temp_individual_info[2];
         weight = temp_individual_info[3];
-        Co_morbidities = temp_individual_info[4];
-        _smoke = temp_individual_info[5];
-        _drink = temp_individual_info[6];
-        _marry = temp_individual_info[7];
-        _CA = temp_individual_info[8];
-        _ill_type = temp_individual_info[9]; 
-        _duration = temp_individual_info[10];
-        _treatment = temp_individual_info[11];
-        _surgery = temp_individual_info[12];
-        _metastasis = temp_individual_info[13];
-        _education = temp_individual_info[14];
-        _work = temp_individual_info[15];
-        _residency = temp_individual_info[16];
-        _income = temp_individual_info[17];
-        _insurance = temp_individual_info[18];
-        _MVratio = temp_individual_info[19];
-        _oil = temp_individual_info[20];
-        _salt = temp_individual_info[21];
+        IDNumber = temp_individual_info[4];
+        Co_morbidities = temp_individual_info[5];
+        _smoke = temp_individual_info[6];
+        _drink = temp_individual_info[7];
+        _marry = temp_individual_info[8];
+        _CA = temp_individual_info[9];
+        _ill_type = temp_individual_info[10]; 
+        _duration = temp_individual_info[11];
+        _treatment = temp_individual_info[12];
+        _surgery = temp_individual_info[13];
+        _metastasis = temp_individual_info[14];
+        _education = temp_individual_info[15];
+        _work = temp_individual_info[16];
+        _residency = temp_individual_info[17];
+        _income = temp_individual_info[18];
+        _insurance = temp_individual_info[19];
+        _MVratio = temp_individual_info[20];
+        _oil = temp_individual_info[21];
+        _salt = temp_individual_info[22];
         setState((() => {}));
       }
         else setState(() => individual_info = "ERROR");
