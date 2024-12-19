@@ -23,6 +23,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
       last_time,
       patientID = "",
       name = "";
+  String weight = "?";
   String _selectedUnit = '粒';
   final List<String> _units = ['粒', '毫升'];
   double _pain = 1.0, _tiredness = 1.0, _sleep = 1.0;
@@ -108,6 +109,8 @@ class _DailyReportPageState extends State<DailyReportPage> {
             buildSystolicBloodPressureField(),
             const SizedBox(height: 10),
             buildDiastolicBloodPressureField(),
+            const SizedBox(height: 10),
+            buildWeightField(),
             const SizedBox(height: 10),
             buildMedicationSituationTitle(),
             buildMedicationUseField(),
@@ -272,6 +275,17 @@ class _DailyReportPageState extends State<DailyReportPage> {
         }
       },
       onSaved: (v) => low_pressure = v!,
+    );
+  }
+
+  Widget buildWeightField() {
+    return TextFormField(
+      enabled: !submitstate,
+      decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+          border: OutlineInputBorder(),
+          labelText: '体重 kg（选填）'),
+      onSaved: (v) => weight = v!,
     );
   }
 
@@ -460,6 +474,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
         'temperature': _temperature,
         'high_pressure': high_pressure,
         'low_pressure': low_pressure,
+        'weight': weight,
         'medication_type': medication_type,
         'medication_dosage': medication_dosage,
         'pain': _pain.toString(), 
