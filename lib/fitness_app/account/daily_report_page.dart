@@ -24,7 +24,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
       patientID = "",
       name = "";
   String _selectedUnit = '粒';
-  final List<String> _units = ['粒', '毫升'];
+  final List<String> _units = ['毫克', '克', '微克', '升', '毫升', '单位', '包', '片', '粒', '瓶', '管', '喷', '滴', '贴'];
   double _pain = 1.0, _tiredness = 1.0, _sleep = 1.0;
   bool submitstate = false;
   int _selectedValue = 1;
@@ -247,7 +247,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
           border: OutlineInputBorder(),
-          labelText: '收缩压 mmHg'),
+          labelText: '收缩压（高压） mmHg'),
       validator: (v) {
         var temperatureReg = RegExp(r"^[0-9]+");
         if (!temperatureReg.hasMatch(v!)) {
@@ -264,7 +264,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
           border: OutlineInputBorder(),
-          labelText: '舒张压 mmHg'),
+          labelText: '舒张压（低压） mmHg'),
       validator: (v) {
         var temperatureReg = RegExp(r"^[0-9]+");
         if (!temperatureReg.hasMatch(v!)) {

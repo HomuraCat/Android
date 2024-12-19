@@ -14,48 +14,72 @@ class NewQuestionPage extends StatefulWidget {
 
 class _NewQuestionPageState extends State<NewQuestionPage> {
   final _formKey = GlobalKey<FormState>();
-  List<Map<String, String>> questions = [];
-  List<int> correctChoices = [];
+
+  /// 问题列表，每个问题数据示例：
+  /// {
+  ///   'questionType': 'multiple_choice' 或 'fill_in_the_blank',
+  ///   'question': '',
+  ///   'choices': ['选项1', '选项2', ...] (multiple_choice使用),
+  ///   'answer': '' (fill_in_the_blank使用，如果不需要正确答案，此字段可忽略)
+  /// }
+  List<Map<String, dynamic>> questions = [];
 
   void addQuestion() {
     setState(() {
       questions.add({
+        'questionType': 'multiple_choice',
         'question': '',
-        'choice1': '',
-        'choice2': '',
-        'choice3': '',
-        'choice4': ''
+        'choices': [''],
+        'answer': ''
       });
-      correctChoices.add(1); // 默认正确选项为1
     });
   }
 
   void removeQuestion(int index) {
     setState(() {
       questions.removeAt(index);
-      correctChoices.removeAt(index);
+    });
+  }
+
+  void addChoice(int questionIndex) {
+    setState(() {
+      questions[questionIndex]['choices'].add('');
+    });
+  }
+
+  void removeChoice(int questionIndex, int choiceIndex) {
+    setState(() {
+      questions[questionIndex]['choices'].removeAt(choiceIndex);
     });
   }
 
   Future<void> submitQuestions() async {
     final String apiUrl = Config.baseUrl + '/questions';
     var url = Uri.parse(apiUrl);
+
     for (int i = 0; i < questions.length; i++) {
       var question = questions[i];
+
+      Map<String, dynamic> requestBody = {
+        'survey_id': widget.surveyId,
+        'question': question['question'],
+        'question_type': question['questionType']
+      };
+
+      if (question['questionType'] == 'multiple_choice') {
+        requestBody['choices'] = question['choices'];
+        // 无需正确选项字段
+      } else if (question['questionType'] == 'fill_in_the_blank') {
+        // 如果也不需要正确答案，请移除此行
+        //requestBody['answer'] = question['answer'];
+      }
+
       var response = await http.post(
         url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode({
-          'survey_id': widget.surveyId,
-          'question': question['question'],
-          'choice1': question['choice1'],
-          'choice2': question['choice2'],
-          'choice3': question['choice3'],
-          'choice4': question['choice4'],
-          'correct_choice': correctChoices[i],
-        }),
+        body: jsonEncode(requestBody),
       );
 
       if (response.statusCode != 201) {
@@ -66,6 +90,73 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Questions submitted successfully')));
     Navigator.pop(context);
+  }
+
+  Widget buildMultipleChoiceSection(int index) {
+    var question = questions[index];
+    List<String> choices = List<String>.from(question['choices']);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...choices.asMap().entries.map((entry) {
+          int choiceIndex = entry.key;
+          String choiceText = entry.value;
+
+          return Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: '选项 ${choiceIndex + 1}',
+                    labelStyle:
+                        TextStyle(color: Color.fromARGB(255, 19, 194, 194)),
+                  ),
+                  initialValue: choiceText,
+                  onChanged: (value) {
+                    setState(() {
+                      questions[index]['choices'][choiceIndex] = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '请输入选项 ${choiceIndex + 1}';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: choices.length > 1
+                    ? () => removeChoice(index, choiceIndex)
+                    : null,
+              ),
+            ],
+          );
+        }).toList(),
+        ElevatedButton(
+          onPressed: () => addChoice(index),
+          child: Text('添加选项'),
+        ),
+      ],
+    );
+  }
+
+  Widget buildFillInTheBlankSection(int index) {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: '填空答案（如果不需要可移除此项）',
+        labelStyle: TextStyle(color: Color.fromARGB(255, 19, 194, 194)),
+      ),
+      initialValue: questions[index]['answer'],
+      onChanged: (value) {
+        setState(() {
+          questions[index]['answer'] = value;
+        });
+      },
+
+    );
   }
 
   @override
@@ -105,13 +196,15 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
                   children: [
                     ...questions.asMap().entries.map((entry) {
                       int index = entry.key;
-                      Map<String, String> question = entry.value;
+                      var question = entry.value;
 
                       return Column(
                         key: ValueKey(index),
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 '问题 ${index + 1}',
@@ -128,14 +221,43 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
                               ),
                             ],
                           ),
+                          DropdownButtonFormField<String>(
+                            value: question['questionType'],
+                            items: [
+                              DropdownMenuItem(
+                                  value: 'multiple_choice', child: Text('多选题')),
+                              DropdownMenuItem(
+                                  value: 'fill_in_the_blank', child: Text('填空题')),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                questions[index]['questionType'] = value!;
+                                // 切换题型后重置相应的数据
+                                if (value == 'multiple_choice') {
+                                  questions[index]['choices'] = [''];
+                                  questions[index]['answer'] = '';
+                                } else {
+                                  questions[index]['choices'] = [];
+                                  questions[index]['answer'] = '';
+                                }
+                              });
+                            },
+                            decoration: InputDecoration(
+                              labelText: '题型',
+                              labelStyle:
+                                  TextStyle(color: Color.fromARGB(255, 0, 71, 79)),
+                            ),
+                          ),
                           TextFormField(
                             decoration: InputDecoration(
                               labelText: '题干 ${index + 1}',
-                              labelStyle: TextStyle(color: Color.fromARGB(255, 0, 71, 79)),
+                              labelStyle: TextStyle(
+                                  color: Color.fromARGB(255, 0, 71, 79)),
                             ),
+                            initialValue: question['question'],
                             onChanged: (value) {
                               setState(() {
-                                question['question'] = value;
+                                questions[index]['question'] = value;
                               });
                             },
                             validator: (value) {
@@ -145,96 +267,15 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
                               return null;
                             },
                           ),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: '选项 1',
-                              labelStyle: TextStyle(color: Color.fromARGB(255, 19, 194, 194)),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                question['choice1'] = value;
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return '请输入选项 1';
-                              }
-                              return null;
-                            },
-                          ),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: '选项 2',
-                              labelStyle: TextStyle(color: Color.fromARGB(255, 19, 194, 194)),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                question['choice2'] = value;
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return '请输入选项 2';
-                              }
-                              return null;
-                            },
-                          ),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: '选项 3',
-                              labelStyle: TextStyle(color: Color.fromARGB(255, 19, 194, 194)),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                question['choice3'] = value;
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return '请输入选项 3';
-                              }
-                              return null;
-                            },
-                          ),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: '选项 4',
-                              labelStyle: TextStyle(color: Color.fromARGB(255, 19, 194, 194)),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                question['choice4'] = value;
-                              });
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return '请输入选项 4';
-                              }
-                              return null;
-                            },
-                          ),
-                          DropdownButtonFormField<int>(
-                            value: correctChoices[index],
-                            items: [
-                              DropdownMenuItem(value: 1, child: Text('选项 1')),
-                              DropdownMenuItem(value: 2, child: Text('选项 2')),
-                              DropdownMenuItem(value: 3, child: Text('选项 3')),
-                              DropdownMenuItem(value: 4, child: Text('选项 4')),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                correctChoices[index] = value!;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              labelText: '正确选项',
-                              labelStyle: TextStyle(color: Color.fromARGB(255, 19, 194, 194)),
-                            ),
-                          ),
+                          if (question['questionType'] == 'multiple_choice')
+                            buildMultipleChoiceSection(index),
+                          //if (question['questionType'] == 'fill_in_the_blank')
+                          //  buildFillInTheBlankSection(index),
+                          SizedBox(height: 20),
                         ],
                       );
                     }).toList(),
-                    SizedBox(height: 100), // 保证最后的按钮不会被遮挡
+                    SizedBox(height: 100),
                   ],
                 ),
               ),

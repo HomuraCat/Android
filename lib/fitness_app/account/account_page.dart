@@ -142,6 +142,12 @@ class _AccountPageState extends State<AccountPage> {
                 const MineCell(
                   imageName: 'assets/images/southeast.jpeg',
                   title: '设置',
+                ),const SizedBox(
+                  height: 10,
+                ),
+                const MineCell(
+                  imageName: 'assets/images/southeast.jpeg',
+                  title: '问卷',
                 ),
               ])
             ],

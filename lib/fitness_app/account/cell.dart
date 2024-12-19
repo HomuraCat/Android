@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/common_tools.dart';
 import 'daily_report_page.dart';
 import 'basic_information_page.dart';
-
+import '../questionnaire/questionnaire_page.dart';
 class MineCell extends StatelessWidget {
   final String? title;
   final String? subTitle;
@@ -24,6 +24,10 @@ class MineCell extends StatelessWidget {
           case "基本信息":
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (BuildContext context) => BasicInforPage()));
+            break;
+          case "问卷":
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => QuestionnairePage()));
             break;
           default:
             Navigator.of(context).push(MaterialPageRoute(
