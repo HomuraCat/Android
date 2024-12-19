@@ -7,6 +7,8 @@ import '../../config.dart'; // Ensure Config.baseUrl is correctly set
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'dart:typed_data';
 
 class PatientDetailPage extends StatefulWidget {
   final List patientDetails;
@@ -140,78 +142,60 @@ class _PatientDetailPageState extends State<PatientDetailPage> {
     });
   }
 
-  Future<void> _exportAllAnswers() async {
-    if (kIsWeb) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('导出功能不支持Web平台')),
-      );
-      return;
-    }
+Future<void> _exportAllAnswers() async {
+  if (kIsWeb) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('导出功能不支持Web平台')),
+    );
+    return;
+  }
 
-    final String exportUrl =
-        Config.baseUrl + '/surveys/${widget.surveyId}/export_answers';
-    var url = Uri.parse(exportUrl);
-    var response = await http.get(url);
+  final String exportUrl =
+      Config.baseUrl + '/surveys/${widget.surveyId}/export_answers';
+  var url = Uri.parse(exportUrl);
+  var response = await http.get(url);
 
-    if (response.statusCode == 200) {
-      String csvData = response.body;
+  if (response.statusCode == 200) {
+    String csvData = response.body;
 
-      // Filter only answered patients
-      List<String> answeredPatientsCSV = csvData.split('\n').where((line) {
-        if (line.trim().isEmpty) return false; // Exclude empty lines
-        var patientId = line.split(',')[0];
-        return originalPatientDetails.any(
-            (patient) => patient['patient_id'].toString() == patientId);
-      }).toList();
+    // 从之前的逻辑中获取你实际需要导出的回答数据，如果需要过滤请自行过滤
+    // 假设此处csvData就是最终需要导出的CSV字符串
+    Uint8List csvBytes = Uint8List.fromList(utf8.encode(csvData));
+    
+    // 使用 flutter_file_dialog 展示保存对话框
+    // 用户可以选择保存位置（在Android上会打开SAF对话框，在iOS上会使用系统分享菜单）
+    final params = SaveFileDialogParams(
+      fileName: 'survey_${widget.surveyId}_answers_${DateTime.now().millisecondsSinceEpoch}.csv',
+      data: csvBytes, 
+      // 你也可以使用sourceFilePath的方式，如果你已经把数据存到了本地文件中 
+      // 这里使用data字段来保存内存中的数据
+    );
 
-      // Determine permissions based on Android version
-      bool hasPermission = false;
-
-      if (Platform.isAndroid) {
-        if (await _isAndroid13OrAbove()) {
-          // For Android 13 and above, use granular permissions if needed
-          var status = await Permission.storage.request();
-          hasPermission = status.isGranted;
-        } else {
-          // For below Android 13, request storage permission
-          var status = await Permission.storage.request();
-          hasPermission = status.isGranted;
-        }
-      } else if (Platform.isIOS) {
-        // iOS typically doesn't require explicit storage permissions for app directories
-        hasPermission = true;
-      } else {
-        // Handle other platforms or set as not supported
-        hasPermission = false;
-      }
-
-      if (hasPermission) {
-        try {
-          final directory = await getApplicationDocumentsDirectory();
-          String filename =
-              'survey_${widget.surveyId}_answers_${DateTime.now().millisecondsSinceEpoch}.csv';
-          final file = File('${directory.path}/$filename');
-          await file.writeAsString(answeredPatientsCSV.join('\n'), flush: true);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('CSV已导出到: ${file.path}')),
-          );
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('导出失败：$e')),
-          );
-        }
-      } else {
+    try {
+      final filePath = await FlutterFileDialog.saveFile(params: params);
+      if (filePath != null) {
+        // 用户选择了位置并成功保存
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('无存储权限，无法导出CSV')),
+          SnackBar(content: Text('CSV已成功导出至: $filePath')),
+        );
+      } else {
+        // 用户可能取消了保存操作
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('导出操作已取消')),
         );
       }
-    } else {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('导出失败：服务器返回非200状态码')),
+        SnackBar(content: Text('导出失败：$e')),
       );
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('导出失败：服务器返回非200状态码')),
+    );
   }
+}
+
 
   Future<bool> _isAndroid13OrAbove() async {
     if (!Platform.isAndroid) return false;

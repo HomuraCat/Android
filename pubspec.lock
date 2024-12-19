@@ -254,6 +254,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.2"
+  flutter_file_dialog:
+    dependency: "direct main"
+    description:
+      name: flutter_file_dialog
+      sha256: fb19d8b7c811a70947344695001e82777921fdc0ed5c80289440f096ae22b10f
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.3.2"
   flutter_local_notifications:
     dependency: "direct main"
     description:
