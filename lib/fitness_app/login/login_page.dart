@@ -266,36 +266,7 @@ class _LoginPageState extends State<LoginPage> {
             },
           ),
         ),
-        SizedBox(height: 20),
-        SizedBox(
-          height: 56,
-          width: double.infinity,
-          child: CupertinoButton(
-            child: Text(
-              'Debug 登录',
-              style: TextStyle(color: CupertinoColors.white),
-            ),
-            color: CupertinoColors.activeBlue,
-            borderRadius: BorderRadius.circular(8),
-            onPressed: () {
-              // Assuming this code is within a Widget that has a BuildContext
-              SpStorage.instance
-                  .saveAccount(patientID: "15500000000", name: "测试人员");
-              if (my_status)
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => FitnessAppHomeScreen()),
-                );
-              else
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => FitnessAppHomeScreenNurseSide()),
-                );
-            },
-          ),
-        ),
+        
       ],
     );
   }
