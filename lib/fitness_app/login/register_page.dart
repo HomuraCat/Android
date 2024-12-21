@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:best_flutter_ui_templates/fitness_app/login/login_page.dart';
 import '../../config.dart';
+import 'document.dart';
 
 void main() {
   runApp(MyApp());
@@ -136,57 +137,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void showUserAgreement() {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Text('用户协议'), // User Agreement
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text(
-                  '这里是用户协议的内容...', // Here is the content of the user agreement...
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            CupertinoDialogAction(
-              child: Text('关闭'), // Close
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => UserAgreementPage()),);
   }
 
   void showPrivacyPolicy() {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Text('隐私政策'), // Privacy Policy
-          content: CupertinoScrollbar(
-            child: SingleChildScrollView(
-              child: Text(
-                '这里是隐私政策的内容...', // Here is the content of the privacy policy...
-              ),
-            ),
-          ),
-          actions: <Widget>[
-            CupertinoDialogAction(
-              child: Text('关闭'), // Close
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+     Navigator.push(context, MaterialPageRoute(builder: (context) => PrivacyPolicyPage()),);
   }
 
   @override
