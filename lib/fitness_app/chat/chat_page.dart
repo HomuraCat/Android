@@ -62,7 +62,7 @@ class _ChatPageState extends State<ChatPage> {
       List<String> each_patient = patientInfo.split(' ');
       each_patient.forEach((single_patient) {
         List<String> single_patient_info = single_patient.split('_');
-        ChatPartner temp_partner = ChatPartner(myid: patientID, friendname: single_patient_info[1], subinfo: "一个平平无奇的病人", friendid: single_patient_info[0], socket: socket);
+        ChatPartner temp_partner = ChatPartner(myid: patientID, friendname: single_patient_info[1], friendid: single_patient_info[0], socket: socket);
         chat_manager.addPartner(temp_partner);
       });
       setState(() {});
@@ -174,9 +174,9 @@ class _ChatPageState extends State<ChatPage> {
 }
 
 class ChatPartner extends StatelessWidget {
-  ChatPartner({Key? key, required this.myid, required this.friendname, required this.subinfo, required this.friendid, required this.socket})
+  ChatPartner({Key? key, required this.myid, required this.friendname, required this.friendid, required this.socket})
       : super(key: key) {chatController = ChatController(myid: myid, friendid: friendid, socket: socket);}
-  final String myid, friendname, subinfo, friendid;
+  final String myid, friendname, friendid;
   final IO.Socket socket;
   late final ChatController chatController;
 
@@ -196,13 +196,6 @@ class ChatPartner extends StatelessWidget {
         friendname,
         style: TextStyle(
           fontSize: 15,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      subtitle: Text(
-        subinfo,
-        style: TextStyle(
-          fontSize: 10,
           fontWeight: FontWeight.bold,
         ),
       ),

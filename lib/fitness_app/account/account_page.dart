@@ -118,23 +118,7 @@ class _AccountPageState extends State<AccountPage> {
                 ),
                 const MineCell(
                   imageName: 'assets/images/southeast.jpeg',
-                  title: '评估日记',
-                ),
-                Row(
-                  children: <Widget>[
-                    Container(width: 50, height: 0.5, color: Colors.white),
-                    Container(height: 0.5, color: Colors.grey)
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    Container(width: 50, height: 0.5, color: Colors.white),
-                    Container(height: 0.5, color: Colors.grey)
-                  ],
-                ),
-                const MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
-                  title: '喜欢',
+                  title: '问卷',
                 ),
                 const SizedBox(
                   height: 10,
@@ -144,10 +128,6 @@ class _AccountPageState extends State<AccountPage> {
                   title: '设置',
                 ),const SizedBox(
                   height: 10,
-                ),
-                const MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
-                  title: '问卷',
                 ),
               ])
             ],

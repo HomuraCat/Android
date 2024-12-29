@@ -18,12 +18,10 @@ class _DailyReportPageState extends State<DailyReportPage> {
   late String _temperature,
       high_pressure,
       low_pressure,
-      medication_type,
-      medication_dosage,
       last_time,
       patientID = "",
       name = "";
-  String weight = "?";
+  String weight = "?", medication_type = "已删除", medication_dosage = "已删除";
   String _selectedUnit = '粒';
   final List<String> _units = ['毫克', '克', '微克', '升', '毫升', '单位', '包', '片', '粒', '瓶', '管', '喷', '滴', '贴'];
   double _pain = 1.0, _tiredness = 1.0, _sleep = 1.0;
@@ -114,10 +112,10 @@ class _DailyReportPageState extends State<DailyReportPage> {
             const SizedBox(height: 10),
             buildMedicationSituationTitle(),
             buildMedicationUseField(),
-            const SizedBox(height: 10),
-            buildMedicationTypeField(),
-            const SizedBox(height: 10),
-            buildMedicationDosageField(),
+            //const SizedBox(height: 10),
+            //buildMedicationTypeField(),
+            //const SizedBox(height: 10),
+            //buildMedicationDosageField(),
             const SizedBox(height: 60),
             buildSubmitButton(context),
             if (submitstate) buildSubmitText(),
@@ -589,6 +587,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     }
 
     if (submitstate) await GetDailyInfo(context);
+      else _showDialog(context, '今日问卷未填写！', onDialogClose: () {Navigator.pop(context);});
     setState(() {});
   }
 
@@ -600,7 +599,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
 
   @override
   Widget build(BuildContext context) {
-    return (submitstate)?Scaffold(
+    return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text('每日上报'),
@@ -625,15 +624,15 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
             const SizedBox(height: 10),
             buildMedicationSituationTitle(),
             buildMedicationUseField(),
-            const SizedBox(height: 10),
-            buildMedicationTypeField(),
-            const SizedBox(height: 10),
-            buildMedicationDosageField(),
+            //const SizedBox(height: 10),
+            //buildMedicationTypeField(),
+            //const SizedBox(height: 10),
+            //buildMedicationDosageField(),
             const SizedBox(height: 60),
           ],
         ),
       ),
-    ):Center(child: Text('今日问卷尚未填写！'));
+    );
   }
 
   Widget buildSymptomEvaluationTitle() {
@@ -758,6 +757,30 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     if (flag) {
       setState(() => submitstate = false);
     }
+  }
+
+  void _showDialog(BuildContext context, String message,
+      {VoidCallback? onDialogClose}) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text("Message"),
+          content: Text(message),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                if (onDialogClose != null) {
+                  onDialogClose(); // Call the callback if it's provided
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> GetSubmitTime(BuildContext context) async {

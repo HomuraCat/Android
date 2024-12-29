@@ -5,6 +5,7 @@ import '../../config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
+import 'show_information_page.dart';
 
 class BasicInforPage extends StatefulWidget {
   @override
@@ -213,9 +214,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
               itemCount: _questions.length,
               itemBuilder: (context, index) {
                 if (submitstate) {
-                  return Center(
-                    child: Text("问卷已填写，无法继续。"),
-                  );
+                  return ShowInformationPage(patientID: patientID, patientName: user_name);
                 }
                 return _buildQuestionPage(index);
               },
@@ -224,33 +223,42 @@ class _BasicInforPageState extends State<BasicInforPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (_currentPage > 0 && !submitstate)
-                ElevatedButton(
-                  onPressed: () {
-                    _pageController.previousPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  },
-                  child: Text("上一题"),
-                ),
-              if (!submitstate) ElevatedButton(
-                onPressed: submitstate
-                    ? null
-                    : () {
-                        if (_validateInput()) {
-                          if (_currentPage < _questions.length - 1) {
-                            _pageController.nextPage(
-                              duration: Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          } else {
-                            SendBasicInformation(context);
-                          }
-                        }
-                      },
-                child: Text(_currentPage == _questions.length - 1? "提交": "下一题"),
-              ),
+              if (!submitstate)
+                Container(
+                  width: 150,
+                  height: 60,
+                  child:ElevatedButton(
+                    onPressed: _currentPage > 0?() {
+                      _pageController.previousPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    }:null,
+                    child: Text(_currentPage > 0?"上一题":"已经是第一题了", style: TextStyle(fontSize: _currentPage > 0?18:14)),
+                  )
+                 ),
+              if (!submitstate)
+                Container(
+                  width: 150,
+                  height: 60,
+                  child: ElevatedButton(
+                      onPressed: submitstate
+                          ? null
+                          : () {
+                              if (_validateInput()) {
+                                if (_currentPage < _questions.length - 1) {
+                                  _pageController.nextPage(
+                                    duration: Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                  );
+                                } else {
+                                  SendBasicInformation(context);
+                                }
+                              }
+                            },
+                      child: Text(_currentPage == _questions.length - 1? "提交": "下一题", style: TextStyle(fontSize: 18)),
+                    ),
+                )
             ],
           ),
         ],
