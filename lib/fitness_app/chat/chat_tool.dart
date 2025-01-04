@@ -106,10 +106,13 @@ class ChatController extends ChangeNotifier {
     );
   }
 
+  Future<void> stopRecording() async {
+    await _audioRecorder.stop();
+  }
+
   Future<void> stopRecordingAndSend() async {
     final path = await _audioRecorder.stop();
-    print(path);
-    if (path != null) 
+    if (path != null)
     {
       File audioFile = File(path);
       List<int> audioBytes = await audioFile.readAsBytes();

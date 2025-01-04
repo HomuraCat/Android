@@ -214,7 +214,8 @@ class ChatUI extends StatefulWidget {
 }
 
 class _ChatUI extends State<ChatUI> {
-  bool isVoiceInput = false, isSpeaking = false;
+  bool isVoiceInput = false, isSpeaking = false, isCancel = false;
+  OverlayEntry? _overlayEntry;
 
   @override
   Widget build(BuildContext context) {
@@ -287,11 +288,91 @@ class _ChatUI extends State<ChatUI> {
     );
   }
 
+  String showRecordStatus() {
+    if (isSpeaking) {
+      if (isCancel) return "取消发送";
+        else return "松开发送";
+    }
+      else return "按下说话";
+  }
+
+  void _showCancelOverlay(BuildContext context) {
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        Icons.mic,
+                        size: 80,
+                        color: Colors.white,
+                      ),
+                      if (isCancel)
+                        Icon(
+                          Icons.mic_off,
+                          size: 80,
+                          color: Colors.white,
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    isCancel ? "松开取消发送" : "正在录音...",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
   Widget buildVoiceInputButton() {
     return Expanded(
       child: GestureDetector(
-        onLongPressStart: (_) => {setState(() {isSpeaking = true;}), context.read<ChatController>().startRecording()},
-        onLongPressEnd: (_) => {setState(() {isSpeaking = false;}), context.read<ChatController>().stopRecordingAndSend()},
+          onLongPressStart: (_) {
+            setState(() {isSpeaking = true; isCancel = false;});
+            _showCancelOverlay(context);
+            context.read<ChatController>().startRecording();
+          },
+          onLongPressMoveUpdate: (details) {
+          if (details.localPosition.dy < -10) {  // 手指上移的距离
+            setState(() {
+              isCancel = true;
+            });
+            _overlayEntry?.markNeedsBuild();
+          } else {
+            setState(() {
+              isCancel = false;
+            });
+            _overlayEntry?.markNeedsBuild();
+          }
+        },
+        onLongPressEnd: (_) {
+          _removeOverlay();
+          setState(() {isSpeaking = false;});
+          if (!isCancel) context.read<ChatController>().stopRecordingAndSend();
+        },
         child: Container(
           padding: EdgeInsets.all(10),
           margin: EdgeInsets.symmetric(horizontal: 10),
@@ -301,7 +382,7 @@ class _ChatUI extends State<ChatUI> {
           ),
           child: Center(
             child: Text(
-              isSpeaking ?'松开发送' :'按下说话',
+              showRecordStatus(),
               style: TextStyle(color: isSpeaking ?Colors.black :Colors.white),
             ),
           ),
