@@ -31,9 +31,11 @@ class _MotionPageAllState extends State<MotionPageAll>
   }
 
   void _InitConfig() async {
-    Map<String, dynamic> account = await SpStorage.instance.readAccount();
-    patientID = account['patientID'];
-    name = account['name'];
+    Map<String, dynamic>? account = await SpStorage.instance.readAccount();
+    if (account != null) {
+      patientID = account['patientID'];
+      name = account['name'];
+    }
 
     setState(() {
       _fetchPosts();

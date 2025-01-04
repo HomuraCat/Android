@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'cell.dart';
 import '../utils/Spsave_module.dart';
 
-class AccountPage extends StatefulWidget {
-  const AccountPage({Key? key}) : super(key: key);
+class NurseAccountPage extends StatefulWidget {
+  const NurseAccountPage({Key? key}) : super(key: key);
   @override
-  _AccountPageState createState() => _AccountPageState();
+  _NurseAccountPageState createState() => _NurseAccountPageState();
 }
 
-class _AccountPageState extends State<AccountPage> {
+class _NurseAccountPageState extends State<NurseAccountPage> {
   late String patientID = "", name = "";
 
   @override
@@ -99,29 +99,6 @@ class _AccountPageState extends State<AccountPage> {
             children: [
               headerWidget(),
               Column(children: [
-                const SizedBox(
-                  height: 10,
-                ),
-                const MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
-                  title: '基本信息',
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
-                  title: '每日上报',
-                ),
-                Row(
-                  children: <Widget>[
-                    Container(width: 50, height: 0.5, color: Colors.white),
-                  ],
-                ),
-                const MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
-                  title: '问卷',
-                ),
                 const SizedBox(
                   height: 10,
                 ),

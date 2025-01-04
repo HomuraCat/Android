@@ -40,9 +40,11 @@ class _DailyReportPageState extends State<DailyReportPage> {
   }
 
   void _initConfig() async {
-    Map<String, dynamic> account = await SpStorage.instance.readAccount();
-    patientID = account['patientID'];
-    name = account['name'];
+    Map<String, dynamic>? account = await SpStorage.instance.readAccount();
+    if (account != null) {
+      patientID = account['patientID'];
+      name = account['name'];
+    }
     setState(() {});
     int last_submitday, last_submitmonth, last_submityear;
     await GetSubmitTime(context);
@@ -554,9 +556,11 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
   }
 
   void _initConfig() async {
-    Map<String, dynamic> account = await SpStorage.instance.readAccount();
-    patientID = account['patientID'];
-    name = account['name'];
+    Map<String, dynamic>? account = await SpStorage.instance.readAccount();
+    if (account != null) {
+      patientID = account['patientID'];
+      name = account['name'];
+    }
     setState(() {});
     int last_submitday, last_submitmonth, last_submityear;
     await GetSubmitTime(context);

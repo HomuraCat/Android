@@ -25,10 +25,24 @@ class SpStorage {
     return json.decode(content);
   }
 
-  Future<Map<String, dynamic>> readAccount() async {
-    await initSpWhenNull();
-    String content = _sp!.getString('Account-config') ?? "{}";
-    return json.decode(content);
+  Future<Map<String, dynamic>?> readAccount() async {
+    try {
+      await initSpWhenNull();
+      String content = _sp!.getString('Account-config') ?? "{}";
+      return json.decode(content);
+    } catch(e) {
+      print('Error reading Account-config: $e');
+      return null;
+    }
+  }
+
+  Future<void> clearAccount() async {
+    try {
+      await _sp!.remove('Account-config');
+      print('Account data cleared successfully');
+    } catch (e) {
+      print('Error clearing Account-config: $e');
+    }
   }
 
   Future<List<Chat>> readChat({required String sendID, required String receiveID}) async {
@@ -64,11 +78,13 @@ class SpStorage {
 
   Future<bool> saveAccount(
       {required String patientID,
-      required String name}) async {
+      required String name,
+      required bool identity}) async {
     await initSpWhenNull();
     String content = json.encode({
       'patientID': patientID,
-      'name': name
+      'name': name,
+      'identity': identity
     });
     return _sp!.setString('Account-config', content);
   }

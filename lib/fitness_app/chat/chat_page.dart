@@ -52,9 +52,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _initConfig() async {
-    Map<String, dynamic> account = await SpStorage.instance.readAccount();
-    patientID = account['patientID'];
-    name = account['name'];
+    Map<String, dynamic>? account = await SpStorage.instance.readAccount();
+    if (account != null) {
+      patientID = account['patientID'];
+      name = account['name'];
+    }
     connectToServer();
     await GetPatientInfo(context);
     if (patientInfo != "ERROR")

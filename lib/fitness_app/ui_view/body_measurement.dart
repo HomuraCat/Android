@@ -35,8 +35,11 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
 
   Future<void> fetchUserData() async {
     // Fetch patientID from storage
-    Map<String, dynamic> account = await SpStorage.instance.readAccount();
-    String patientID = account['patientID'];
+    Map<String, dynamic>? account = await SpStorage.instance.readAccount();
+    late String patientID;
+    if (account != null) {
+      patientID = account['patientID'];
+    }
 
     final String apiUrl = Config.baseUrl + '/patient/get_info_json';
     var url = Uri.parse(apiUrl);

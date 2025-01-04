@@ -4,7 +4,7 @@ import 'bottom_navigation_view/bottom_bar_view.dart';
 import 'fitness_app_theme.dart';
 import 'patient_info_nurseside/patient_info_page.dart';
 import 'nurse_new_survey/survey_list.dart';
-import 'utils/common_tools.dart';
+import 'nurse_account/nurse_account_page.dart';
 import 'nurse_upload/upload.dart'; // 导入上传页面
 
 class FitnessAppHomeScreenNurseSide extends StatefulWidget {
@@ -118,7 +118,7 @@ class _FitnessAppHomeScreenNurseSideState
                   return;
                 }
                 setState(() {
-                  tabBody = ChildPage(title: "第四页面");
+                  tabBody = NurseAccountPage();
                 });
               });
             }

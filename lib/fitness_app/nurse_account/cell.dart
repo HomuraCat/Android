@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/common_tools.dart';
-import 'daily_report_page.dart';
-import 'basic_information_page.dart';
 import 'setting_page.dart';
-import '../questionnaire/questionnaire_page.dart';
 class MineCell extends StatelessWidget {
   final String? title;
   final String? subTitle;
@@ -18,21 +15,9 @@ class MineCell extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         switch (this.title) {
-          case "每日上报":
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => ShowDailyReportPage()));
-            break;
-          case "基本信息":
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => BasicInforPage()));
-            break;
-          case "问卷":
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => QuestionnairePage()));
-            break;
           case "设置":
             Navigator.of(context).push(MaterialPageRoute(
-                builder: (BuildContext context) => SettingPage()));
+                builder: (BuildContext context) => NurseSettingPage()));
             break;
           default:
             Navigator.of(context).push(MaterialPageRoute(

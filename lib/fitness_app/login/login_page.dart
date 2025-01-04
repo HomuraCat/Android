@@ -35,16 +35,20 @@ Future<void> registerUser(
     } else {
       List<String> user_data = responseData.toString().split("+-*/");
       SpStorage.instance
-          .saveAccount(patientID: user_data[0], name: user_data[1]);
+          .saveAccount(patientID: user_data[0], name: user_data[1], identity: my_status);
 
       if (my_status) {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => FitnessAppHomeScreen()));
+        Navigator.pushAndRemoveUntil(context,
+            MaterialPageRoute(builder: (context) => FitnessAppHomeScreen()),
+            (Route<dynamic> route) => false
+          );
       } else {
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
-                builder: (context) => FitnessAppHomeScreenNurseSide()));
+                builder: (context) => FitnessAppHomeScreenNurseSide()),
+            (Route<dynamic> route) => false
+        );
       }
     }
   } else {
@@ -280,18 +284,20 @@ class _LoginPageState extends State<LoginPage> {
             onPressed: () {
               // Assuming this code is within a Widget that has a BuildContext
               SpStorage.instance
-                  .saveAccount(patientID: "15500000000", name: "测试人员");
+                  .saveAccount(patientID: "15500000000", name: "测试人员", identity: my_status);
               if (my_status)
-                Navigator.push(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
                       builder: (context) => FitnessAppHomeScreen()),
+                  (Route<dynamic> route) => false
                 );
               else
-                Navigator.push(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
                       builder: (context) => FitnessAppHomeScreenNurseSide()),
+                  (Route<dynamic> route) => false
                 );
             },
           ),

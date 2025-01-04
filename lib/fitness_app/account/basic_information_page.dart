@@ -191,9 +191,11 @@ class _BasicInforPageState extends State<BasicInforPage> {
   }
 
   void _initConfig() async {
-    Map<String, dynamic> account = await SpStorage.instance.readAccount();
-    patientID = account['patientID'];
-    user_name = account['name'];
+    Map<String, dynamic>? account = await SpStorage.instance.readAccount();
+    if (account != null) {
+      patientID = account['patientID'];
+      user_name = account['name'];
+    }
     if (user_name != "未命名") setState(() => submitstate = true);
   }
 
@@ -452,7 +454,7 @@ class _BasicInforPageState extends State<BasicInforPage> {
       var responseData = response.body;
       if (responseData == '1') {
         setState(() => submitstate = true);
-        SpStorage.instance.saveAccount(patientID: patientID, name: _answers[0]);
+        SpStorage.instance.saveAccount(patientID: patientID, name: _answers[0], identity: true);
         _showDialog(context, '提交成功！', onDialogClose: () {
           Navigator.pop(context);
         });
