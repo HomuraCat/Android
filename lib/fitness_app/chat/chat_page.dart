@@ -189,10 +189,10 @@ class ChatPartner extends StatelessWidget {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (BuildContext context) => ChangeNotifierProvider.value(
                 value: chatController,
-                child: ChatUI(friendname: friendname, avatar: "assets/images/aaa.png"))));
+                child: ChatUI(friendname: friendname, avatar: "assets/images/avatar1.png"))));
       },
       leading: CircleAvatar(
-        backgroundImage: AssetImage("assets/images/aaa.png"),
+        backgroundImage: AssetImage("assets/images/avatar1.png"),
       ),
       title: Text(
         friendname,

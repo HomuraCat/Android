@@ -25,7 +25,7 @@ class _PatientDetailsState extends State<PatientDetailsPage> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   image: const DecorationImage(
-                      image: AssetImage("assets/images/southeast.jpeg"),
+                      image: AssetImage("assets/images/avatar1.png"),
                       fit: BoxFit.cover)),
             ),
             Container(
@@ -87,7 +87,7 @@ class _PatientDetailsState extends State<PatientDetailsPage> {
                   height: 10,
                 ),
                 MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
+                  imageName: 'assets/images/account.png',
                   title: '基本信息',
                   patientID: widget.patientID,
                   patientName: widget.patientName,
@@ -96,17 +96,17 @@ class _PatientDetailsState extends State<PatientDetailsPage> {
                   height: 10,
                 ),
                 MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
+                  imageName: 'assets/images/account.png',
                   title: '每日上报',
                   patientID: widget.patientID,
                 ),
                 MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
+                  imageName: 'assets/images/account.png',
                   title: '树洞',
                   patientID: widget.patientID,
                 ),
                 MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
+                  imageName: 'assets/images/account.png',
                   title: '动态',
                   patientID: widget.patientID,
                 ),

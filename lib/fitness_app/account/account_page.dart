@@ -9,7 +9,12 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  late String patientID = "", name = "";
+  String patientID = "", name = "", selectedAvatar = "";
+  late bool identity;
+  List<String> avatarOptions = [
+      "assets/images/avatar1.png",
+      "assets/images/avatar2.png",
+  ];
 
   @override
   void initState(){
@@ -22,61 +27,89 @@ class _AccountPageState extends State<AccountPage> {
     if (account != null) {
       patientID = account['patientID'];
       name = account['name'];
+      identity = account['identity'];
+      selectedAvatar = account['avatar'];
     }
     setState(() {});
+  }
+
+  void _showAvatarSelectionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("选择头像"),
+          content: Wrap(
+            spacing: 10,
+            children: avatarOptions.map((avatarPath) {
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedAvatar = avatarPath;
+                  });
+                  SpStorage.instance.saveAccount(patientID: patientID, name: name, identity: identity, avatar: selectedAvatar);
+                  Navigator.of(context).pop();
+                },
+                child: CircleAvatar(
+                  radius: 30,
+                  backgroundImage: AssetImage(avatarPath),
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
   }
 
   Widget headerWidget() {
     return Container(
       height: 110,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
       color: Colors.white,
-      child: Container(
-        child: Container(
-          margin:
-              const EdgeInsets.only(top: 0, bottom: 20, left: 10, right: 10),
-          child: Row(children: [
-            Container(
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => _showAvatarSelectionDialog(context),
+            child: Container(
               width: 70,
               height: 70,
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  image: const DecorationImage(
-                      image: AssetImage("assets/images/southeast.jpeg"),
-                      fit: BoxFit.cover)),
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width - 90,
-              padding: const EdgeInsets.only(left: 10, top: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    height: 35,
-                    child: Text(
-                      name.isEmpty ?"加载中..." :name,
-                      style: TextStyle(fontSize: 25, color: Colors.grey),
-                    ),
-                  ),
-                  Container(
-                      height: 35,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text(
-                            patientID.isEmpty ?"加载中..." :"ID:" + patientID,
-                            style: TextStyle(fontSize: 17, color: Colors.grey),
-                          ),
-                          Image(
-                            image: AssetImage("assets/images/icon_right.png"),
-                            width: 15,
-                          )
-                        ],
-                      )),
-                ],
+                borderRadius: BorderRadius.circular(10),
+                image: DecorationImage(
+                  image: selectedAvatar.isEmpty ? AssetImage("assets/images/avatar1.png") : AssetImage(selectedAvatar),
+                  fit: BoxFit.cover,
+                ),
               ),
-            )
-          ]),
-        ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  name.isEmpty ? "加载中..." : name,
+                  style: const TextStyle(fontSize: 25, color: Colors.grey),
+                ),
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      patientID.isEmpty ? "加载中..." : "ID: $patientID",
+                      style: const TextStyle(fontSize: 17, color: Colors.grey),
+                    ),
+                    const Image(
+                      image: AssetImage("assets/images/icon_right.png"),
+                      width: 15,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -103,14 +136,14 @@ class _AccountPageState extends State<AccountPage> {
                   height: 10,
                 ),
                 const MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
+                  imageName: 'assets/images/account.png',
                   title: '基本信息',
                 ),
                 const SizedBox(
                   height: 10,
                 ),
                 const MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
+                  imageName: 'assets/images/account.png',
                   title: '每日上报',
                 ),
                 Row(
@@ -119,14 +152,14 @@ class _AccountPageState extends State<AccountPage> {
                   ],
                 ),
                 const MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
+                  imageName: 'assets/images/account.png',
                   title: '问卷',
                 ),
                 const SizedBox(
                   height: 10,
                 ),
                 const MineCell(
-                  imageName: 'assets/images/southeast.jpeg',
+                  imageName: 'assets/images/account.png',
                   title: '设置',
                 ),const SizedBox(
                   height: 10,

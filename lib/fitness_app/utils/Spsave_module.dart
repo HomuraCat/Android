@@ -79,12 +79,14 @@ class SpStorage {
   Future<bool> saveAccount(
       {required String patientID,
       required String name,
-      required bool identity}) async {
+      required bool identity,
+      String avatar = "assets/images/avatar1.png"}) async {
     await initSpWhenNull();
     String content = json.encode({
       'patientID': patientID,
       'name': name,
-      'identity': identity
+      'identity': identity,
+      'avatar': avatar
     });
     return _sp!.setString('Account-config', content);
   }

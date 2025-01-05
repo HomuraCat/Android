@@ -111,7 +111,7 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.asset('assets/images/southeast.jpeg', width: 20, height: 20),
+                child: Image.asset('assets/images/avatar1.png', width: 20, height: 20),
               ),
               SizedBox(width: 10),
               Text('${contactFriend.patientName}')
