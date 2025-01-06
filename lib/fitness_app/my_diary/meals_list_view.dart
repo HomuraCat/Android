@@ -209,7 +209,7 @@ class MealsView extends StatelessWidget {
                                 style: const TextStyle(
                                   fontFamily: FitnessAppTheme.fontName,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 15,
+                                  fontSize: 18,
                                   letterSpacing: 0.2,
                                   color: FitnessAppTheme.white,
                                 ),
