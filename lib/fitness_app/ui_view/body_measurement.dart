@@ -107,7 +107,11 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
     return AnimatedBuilder(
       animation: widget.animationController!,
       builder: (BuildContext context, Widget? child) {
-        return FadeTransition(
+        return 
+          MediaQuery(
+                            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                            child:
+        FadeTransition(
           opacity: widget.animation!,
           child: Transform(
             transform: Matrix4.translationValues(
@@ -131,7 +135,8 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                     Padding(
                       padding:
                           const EdgeInsets.only(top: 16, left: 16, right: 24),
-                      child: Column(
+                      child: 
+                        Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
@@ -174,6 +179,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                           )
                         ],
                       ),
+                      
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -273,7 +279,8 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
               ),
             ),
           ),
-        );
+        ),
+          );
       },
     );
   }

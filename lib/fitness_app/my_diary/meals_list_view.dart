@@ -151,7 +151,11 @@ class MealsView extends StatelessWidget {
     return AnimatedBuilder(
       animation: animationController,
       builder: (BuildContext context, Widget? child) {
-        return GestureDetector(
+        return 
+        MediaQuery(
+    data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+    child:
+        GestureDetector(
           onTap: onTap, // 点击后跳转到 RecipeListPage
           child: FadeTransition(
             opacity: animation,
@@ -278,7 +282,7 @@ class MealsView extends StatelessWidget {
               ),
             ),
           ),
-        );
+        ),);
       },
     );
   }

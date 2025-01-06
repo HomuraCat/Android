@@ -132,7 +132,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
     return const Padding(
         padding: EdgeInsets.only(bottom: 5),
         child: Text(
-          '症状评估',
+          '症状评估（以疼痛为例，1分为没有疼痛，10分为剧烈疼痛，请您根据实际情况填写）',
           style: TextStyle(fontSize: 20),
         ));
   }
