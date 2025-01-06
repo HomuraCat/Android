@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:http/http.dart' as http;
@@ -253,11 +254,14 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(
+          SizedBox(
+            width: screenWidth,
+            height: screenWidth,
+            child: Image.network(
               imageUrl,
-              width: screenWidth,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill,
             ),
+          ),
             Divider(),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -269,7 +273,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                '营养素含量: ${widget.recipe['nutrients']}',
+                '作用: ${widget.recipe['nutrients']}',
                 style: TextStyle(fontSize: 18),
               ),
             ),

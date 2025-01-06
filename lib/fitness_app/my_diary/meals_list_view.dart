@@ -1,35 +1,63 @@
 // lib/fitness_app/my_diary/knowledge_learning/meals_list_view.dart
 
+import 'package:flutter/material.dart';
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_theme.dart';
 import 'package:best_flutter_ui_templates/fitness_app/models/meals_list_data.dart';
-import 'package:best_flutter_ui_templates/main.dart';
-import 'package:flutter/material.dart';
 import 'package:best_flutter_ui_templates/fitness_app/my_diary/recipe/recipe.dart';
-
-import '../../main.dart';
 
 class MealsListView extends StatefulWidget {
   final AnimationController? mainScreenAnimationController;
   final Animation<double>? mainScreenAnimation;
 
-  const MealsListView({Key? key, this.mainScreenAnimationController, this.mainScreenAnimation}) : super(key: key);
+  const MealsListView({
+    Key? key,
+    this.mainScreenAnimationController,
+    this.mainScreenAnimation,
+  }) : super(key: key);
 
   @override
   _MealsListViewState createState() => _MealsListViewState();
 }
 
-class _MealsListViewState extends State<MealsListView> with TickerProviderStateMixin {
+class _MealsListViewState extends State<MealsListView>
+    with TickerProviderStateMixin {
+
   late AnimationController animationController;
-  List<MealsListData> mealsListData = MealsListData.tabIconsList;
+  // 1. 用一个列表来保存生成后的 mealsListData
+  List<MealsListData> mealsListData = [];
 
   @override
   void initState() {
     super.initState();
+
+    // 初始化本地动画控制器
     animationController = AnimationController(
-      duration: const Duration(milliseconds: 500), // Shortened for better responsiveness
+      duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    animationController.forward(); // Ensure the animation controller starts
+
+    // 2. 异步获取后端用户信息并生成餐次列表
+    fetchAndGenerateMeals();
+  }
+
+  // 2-1. 从后端获取数据并生成餐次列表
+  Future<void> fetchAndGenerateMeals() async {
+    // a) 创建一个 MealsListData 对象
+    final MealsListData dataHelper = MealsListData();
+
+    // b) 异步获取用户数据(内含 BMR 计算)
+    await dataHelper.fetchUserData();
+
+    // c) 生成餐次列表
+    final generatedList = dataHelper.generateMealsList();
+
+    // d) setState 触发UI刷新
+    setState(() {
+      mealsListData = generatedList;
+    });
+
+    // e) 播放动画
+    animationController.forward();
   }
 
   @override
@@ -40,39 +68,55 @@ class _MealsListViewState extends State<MealsListView> with TickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    // 如果这里需要动画，一定要确保 mainScreenAnimationController 非空
     return AnimatedBuilder(
-      animation: widget.mainScreenAnimationController!,
+      animation: widget.mainScreenAnimationController ?? animationController,
       builder: (BuildContext context, Widget? child) {
+        // 使用 widget.mainScreenAnimation 进行动画透明度变化
         return FadeTransition(
-          opacity: widget.mainScreenAnimation!,
+          opacity: widget.mainScreenAnimation ?? AlwaysStoppedAnimation(1.0),
           child: Transform(
             transform: Matrix4.translationValues(
-              0.0, 30 * (1.0 - widget.mainScreenAnimation!.value), 0.0),
-            child: Container(
+              0.0,
+              30 * (1.0 - (widget.mainScreenAnimation?.value ?? 1.0)),
+              0.0,
+            ),
+            child: SizedBox(
               height: 420,
               width: double.infinity,
               child: GridView.builder(
-                padding: const EdgeInsets.only(top: 0, bottom: 0, right: 16, left: 16),
+                padding: const EdgeInsets.only(
+                  top: 0, bottom: 0, right: 16, left: 16),
                 itemCount: mealsListData.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   childAspectRatio: 1.7,
                 ),
-                scrollDirection: Axis.horizontal, // Fixed scroll direction
+                scrollDirection: Axis.horizontal,
                 itemBuilder: (BuildContext context, int index) {
+                  // 根据 index 获取单项数据
                   final MealsListData data = mealsListData[index];
-                  final Animation<double> animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+                  final Animation<double> anim = Tween<double>(
+                    begin: 0.0, end: 1.0,
+                  ).animate(
                     CurvedAnimation(
                       parent: animationController,
-                      curve: Interval((1 / mealsListData.length) * index, 1.0, curve: Curves.fastOutSlowIn)
-                    )
+                      curve: Interval(
+                        (1 / mealsListData.length) * index,
+                        1.0,
+                        curve: Curves.fastOutSlowIn,
+                      ),
+                    ),
                   );
                   return MealsView(
                     mealsListData: data,
-                    animation: animation,
+                    animation: anim,
                     animationController: animationController,
                     onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => RecipeListPage(selectedMealType: data.titleTxt)),
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            RecipeListPage(selectedMealType: data.titleTxt),
+                      ),
                     ),
                   );
                 },
@@ -85,18 +129,22 @@ class _MealsListViewState extends State<MealsListView> with TickerProviderStateM
   }
 }
 
+// ----------------------------
+// 下面是 MealsView 的单项组件
+// ----------------------------
 class MealsView extends StatelessWidget {
   final MealsListData mealsListData;
   final Animation<double> animation;
   final AnimationController animationController;
-  final VoidCallback onTap; // Callback for tap event
+  final VoidCallback onTap;
 
-  MealsView({
+  const MealsView({
+    Key? key,
     required this.mealsListData,
     required this.animation,
     required this.animationController,
-    required this.onTap, // Receive the callback function
-  });
+    required this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -104,27 +152,29 @@ class MealsView extends StatelessWidget {
       animation: animationController,
       builder: (BuildContext context, Widget? child) {
         return GestureDetector(
-          onTap: onTap, // Handle tap event here
+          onTap: onTap, // 点击后跳转到 RecipeListPage
           child: FadeTransition(
             opacity: animation,
             child: Transform(
               transform: Matrix4.translationValues(
-                  100 * (1.0 - animation.value), 0.0, 0.0),
+                100 * (1.0 - animation.value), 0.0, 0.0),
               child: SizedBox(
                 width: 130,
                 child: Stack(
                   children: <Widget>[
+                    // 背景容器
                     Padding(
                       padding: const EdgeInsets.only(
-                          top: 32, left: 8, right: 8, bottom: 24),
+                        top: 32, left: 8, right: 8, bottom: 24),
                       child: Container(
                         decoration: BoxDecoration(
                           boxShadow: <BoxShadow>[
                             BoxShadow(
-                                color: HexColor(mealsListData.endColor)
-                                    .withOpacity(0.6),
-                                offset: const Offset(1.1, 4.0),
-                                blurRadius: 8.0),
+                              color: HexColor(mealsListData.endColor)
+                                  .withOpacity(0.6),
+                              offset: const Offset(1.1, 4.0),
+                              blurRadius: 8.0,
+                            ),
                           ],
                           gradient: LinearGradient(
                             colors: [
@@ -143,15 +193,16 @@ class MealsView extends StatelessWidget {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.only(
-                              top: 54, left: 16, right: 16, bottom: 8),
+                            top: 54, left: 16, right: 16, bottom: 8),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
+                              // 标题
                               Text(
                                 mealsListData.titleTxt,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontFamily: FitnessAppTheme.fontName,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 15,
@@ -159,68 +210,47 @@ class MealsView extends StatelessWidget {
                                   color: FitnessAppTheme.white,
                                 ),
                               ),
-                              Expanded(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 8, bottom: 8),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        mealsListData.meals?.join('\n') ?? '',
-                                        style: TextStyle(
-                                          fontFamily: FitnessAppTheme.fontName,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 15,
-                                          letterSpacing: 0.2,
-                                          color: FitnessAppTheme.white,
+                              // 卡路里显示
+                              mealsListData.kacl != 0
+                                  ? Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: <Widget>[
+                                        Text(
+                                          mealsListData.kacl.toString(),
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            fontFamily: FitnessAppTheme.fontName,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 18,
+                                            letterSpacing: 0.2,
+                                            color: FitnessAppTheme.white,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              // 移除 kcal 显示部分
-                              // mealsListData.kacl != 0
-                              //     ? Row(
-                              //         mainAxisAlignment: MainAxisAlignment.start,
-                              //         crossAxisAlignment: CrossAxisAlignment.end,
-                              //         children: <Widget>[
-                              //           Text(
-                              //             mealsListData.kacl.toString(),
-                              //             textAlign: TextAlign.center,
-                              //             style: TextStyle(
-                              //               fontFamily: FitnessAppTheme.fontName,
-                              //               fontWeight: FontWeight.w500,
-                              //               fontSize: 24,
-                              //               letterSpacing: 0.2,
-                              //               color: FitnessAppTheme.white,
-                              //             ),
-                              //           ),
-                              //           Padding(
-                              //             padding: const EdgeInsets.only(
-                              //                 left: 4, bottom: 3),
-                              //             child: Text(
-                              //               'kcal',
-                              //               style: TextStyle(
-                              //                 fontFamily:
-                              //                     FitnessAppTheme.fontName,
-                              //                 fontWeight: FontWeight.w500,
-                              //                 fontSize: 10,
-                              //                 letterSpacing: 0.2,
-                              //                 color: FitnessAppTheme.white,
-                              //               ),
-                              //             ),
-                              //           ),
-                              //         ],
-                              //       )
-                              //     : Container(),
+                                        const Padding(
+                                          padding: EdgeInsets.only(
+                                              left: 4, bottom: 3),
+                                          child: Text(
+                                            '卡路里',
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  FitnessAppTheme.fontName,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 12,
+                                              letterSpacing: 0.2,
+                                              color: FitnessAppTheme.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Container(),
                             ],
                           ),
                         ),
                       ),
                     ),
+                    // 左上角圆圈
                     Positioned(
                       top: 0,
                       left: 0,
@@ -233,6 +263,7 @@ class MealsView extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // 左上角餐图
                     Positioned(
                       top: 8,
                       left: 8,
@@ -241,7 +272,7 @@ class MealsView extends StatelessWidget {
                         height: 70,
                         child: Image.asset(mealsListData.imagePath),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -251,4 +282,17 @@ class MealsView extends StatelessWidget {
       },
     );
   }
+}
+
+// 辅助转换颜色的类
+class HexColor extends Color {
+  static int _getColorFromHex(String hexColor) {
+    String color = hexColor.toUpperCase().replaceAll("#", "");
+    if (color.length == 6) {
+      color = "FF$color";
+    }
+    return int.parse(color, radix: 16);
+  }
+
+  HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
 }

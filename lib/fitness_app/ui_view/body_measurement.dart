@@ -168,7 +168,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                                 value: user_BMR > 0
                                     ? user_BMR.toString()
                                     : '0.0',
-                                unit: '千卡',
+                                unit: '卡路里',
                               ),
                             ],
                           )
