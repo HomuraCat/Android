@@ -109,10 +109,10 @@ packages:
     dependency: "direct main"
     description:
       name: chewie
-      sha256: "335df378c025588aef400c704bd71f0daea479d4cd57c471c88c056c1144e7cd"
+      sha256: ccfce3350ae9fd419cd336cdf3380f77a08e45171e1e3cb3d499d204de5e7ea8
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.8.5"
+    version: "1.7.1"
   cli_util:
     dependency: transitive
     description:

@@ -10,10 +10,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'dart:io';
+import '../../utils/Spsave_module.dart';
 
 class SportAdvicePage extends StatefulWidget {
   final Map<String, dynamic> video;
-  SportAdvicePage({Key? key, required this.video}) : super(key: key);
+
+  /// 新增一个 isCompleted 参数，用来接收父页面判断好的完成状态
+  final bool isCompleted;
+
+  SportAdvicePage({
+    Key? key,
+    required this.video,
+    required this.isCompleted, // 这里要求必须传
+  }) : super(key: key);
 
   @override
   _SportAdvicePageState createState() => _SportAdvicePageState();
@@ -22,15 +31,31 @@ class SportAdvicePage extends StatefulWidget {
 class _SportAdvicePageState extends State<SportAdvicePage> {
   late VideoPlayerController _videoPlayerController;
   ChewieController? _chewieController;
+
+  /// 这里的 isPracticeVideo = false，表示初始进来用哪一个 source 播放，
+  /// 你可以根据实际需求调整默认值
   bool isPracticeVideo = false;
-  String buttonText = '跟练';
+
+  String buttonText = '跳转到完整版视频';
   double topBarOpacity = 0.0;
   String info = "温馨提示：感觉不适请立即停止运动。";
   ScrollController scrollController = ScrollController();
   bool isLoading = false;
-
+  String? _userID;
+  Future<void> fetchUserData() async {
+    // 从本地存储读取 patientID
+    Map<String, dynamic>? account = await SpStorage.instance.readAccount();
+    if (account != null) {
+      _userID = account['patientID'];
+    } else {
+      // 如果没有账户信息，可以在这里处理错误或提示
+      print('No account information found');
+      return;
+    }
+  }
   @override
   void initState() {
+    fetchUserData();
     super.initState();
     _initializeVideoPlayer();
     scrollController.addListener(_scrollListener);
@@ -107,45 +132,50 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
     final bool isPlaying = _videoPlayerController.value.isPlaying;
     final bool isVideoEnded = _videoPlayerController.value.position >=
         _videoPlayerController.value.duration;
+
+    // 当视频播放结束，并且当前是练习视频（或完整视频，视你需求而定）
+    // 这里假设 "练习视频" 才标记已完成，如果你想要"完整版"标记完成，就把条件改成 isPracticeVideo == false
     if (!isPlaying && isVideoEnded && isPracticeVideo) {
-      // 如果视频播放结束，标记为已完成
       _markVideoAsLearned();
     }
   }
 
-  void _markVideoAsLearned() async {
-    final String apiUrl = Config.baseUrl +
-        '/update_sport_video_status/${widget.video['id']}';
-    var url = Uri.parse(apiUrl);
-    try {
-      var response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'completed': 1}),
-      );
+void _markVideoAsLearned() async {
+  // 后端接口，带上当前视频的 ID
+  final String apiUrl =
+      Config.baseUrl + '/update_sport_video_status/${widget.video['id']}';
+  var url = Uri.parse(apiUrl);
 
-      if (response.statusCode == 200) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("视频标记为已完成！")),
-        );
-        // 传递更新状态回上一页面
-        Navigator.pop(context, true);
-      } else {
-        print("Failed to update video status: ${response.body}");
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("更新视频状态失败。")),
-        );
-      }
-    } catch (e) {
-      print("Error updating video status: $e");
+  try {
+    var response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      // 把 userID 传给后端
+      body: jsonEncode({'userID': _userID}),
+    );
+
+    if (response.statusCode == 200) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("更新视频状态失败: $e")),
+        SnackBar(content: Text("视频标记为已完成！")),
+      );
+      // 返回上一页，通知父页面刷新
+      Navigator.pop(context, true);
+    } else {
+      print("Failed to update video status: ${response.body}");
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("更新视频状态失败。")),
       );
     }
+  } catch (e) {
+    print("Error updating video status: $e");
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("更新视频状态失败: $e")),
+    );
   }
+}
 
   @override
   void dispose() {
@@ -188,7 +218,7 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
     await _videoPlayerController.dispose();
     _chewieController?.dispose();
     isPracticeVideo = !isPracticeVideo;
-    buttonText = isPracticeVideo ? '教学' : '跟练';
+    buttonText = isPracticeVideo ? '跳转预览视频' : '跳转完整视频';
     await _initializeVideoPlayer();
     setState(() {
       isLoading = false;
@@ -233,6 +263,9 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
       );
     }
 
+    // 拿到父页面传入的完成状态
+    bool userAlreadyCompleted = widget.isCompleted;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.video['title']),
@@ -241,16 +274,16 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
         controller: scrollController,
         child: Column(
           children: [
-            // 使用 AspectRatio 包裹视频播放器或封面图片
+            // 视频播放器区域或封面
             AspectRatio(
               aspectRatio: _chewieController != null &&
                       _chewieController!.videoPlayerController.value.isInitialized
                   ? _chewieController!.videoPlayerController.value.aspectRatio
-                  : 16 / 9, // 默认宽高比
+                  : 16 / 9,
               child: _chewieController != null &&
                       _chewieController!.videoPlayerController.value.isInitialized
                   ? Chewie(
-                      key: UniqueKey(), // 确保每次切换时重新构建
+                      key: UniqueKey(),
                       controller: _chewieController!,
                     )
                   : CachedNetworkImage(
@@ -269,6 +302,7 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
                       ),
                     ),
             ),
+            // 切换按钮
             Padding(
               padding: EdgeInsets.all(16),
               child: ElevatedButton(
@@ -277,16 +311,16 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
                       MaterialStateProperty.resolveWith<Color>(
                     (Set<MaterialState> states) {
                       if (states.contains(MaterialState.pressed))
-                        return buttonText == "跟练"
+                        return buttonText == "跳转完整视频"
                             ? Colors.green[800]!
                             : Colors.blue[800]!;
-                      return buttonText == "教学" ? Colors.green : Colors.blue;
+                      return buttonText == "跳转预览视频" ? Colors.green : Colors.blue;
                     },
                   ),
                   foregroundColor:
                       MaterialStateProperty.all<Color>(Colors.white),
-                  minimumSize: MaterialStateProperty.all<Size>(
-                      Size(double.infinity, 50)),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(Size(double.infinity, 50)),
                 ),
                 onPressed: () {
                   _toggleVideo();
@@ -299,6 +333,7 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
                 ),
               ),
             ),
+            // 提示信息
             Padding(
               padding: EdgeInsets.all(16),
               child: Text(
@@ -308,6 +343,19 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
                 ),
               ),
             ),
+            // 当 isPracticeVideo = false（假设此时是完整版）时，显示已学/学习中
+            // 你可以根据自己需求决定这里用什么条件判断
+            if (true)
+              Padding(
+                padding: EdgeInsets.only(bottom: 20),
+                child: Text(
+                  userAlreadyCompleted ? '已学' : '学习中',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: userAlreadyCompleted ? Colors.green : Colors.orange,
+                  ),
+                ),
+              ),
           ],
         ),
       ),

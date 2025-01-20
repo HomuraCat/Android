@@ -78,8 +78,8 @@ class _UploadExerciseSuggestionPageState
     print('标题: ${_titleController.text}');
     print('描述: ${_descriptionController.text}');
     print('图片文件路径: ${_imageFile!.path}');
-    print('教程视频文件路径: ${_tutorialVideo!.path}');
-    print('跟练视频文件路径: ${_followAlongVideo!.path}');
+    print('完整视频文件路径: ${_tutorialVideo!.path}');
+    print('预览视频文件路径: ${_followAlongVideo!.path}');
 
     // 添加图片文件，指定 MIME 类型
     request.files.add(
@@ -178,21 +178,21 @@ class _UploadExerciseSuggestionPageState
               // 上传教程视频
               ElevatedButton(
                 onPressed: _pickTutorialVideo,
-                child: Text('选择教程视频'),
+                child: Text('选择预览视频'),
               ),
               if (_tutorialVideo != null)
                 Text(
-                    '已选择教程视频: ${_tutorialVideo!.path.split('/').last}'),
+                    '已选择预览视频: ${_tutorialVideo!.path.split('/').last}'),
               SizedBox(height: 10),
 
               // 上传跟练视频
               ElevatedButton(
                 onPressed: _pickFollowAlongVideo,
-                child: Text('选择跟练视频'),
+                child: Text('选择完整视频'),
               ),
               if (_followAlongVideo != null)
                 Text(
-                    '已选择跟练视频: ${_followAlongVideo!.path.split('/').last}'),
+                    '已选择完整视频: ${_followAlongVideo!.path.split('/').last}'),
               SizedBox(height: 10),
 
               // 上传图片
