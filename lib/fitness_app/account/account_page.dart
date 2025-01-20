@@ -101,6 +101,10 @@ class _AccountPageState extends State<AccountPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
+                      patientID.isEmpty ? "加载中..." : "ID: $patientID",
+                      style: const TextStyle(fontSize: 17, color: Colors.grey),
+                    ),
+                    Text(
                       point.isEmpty ? "加载中..." : "积分: $point",
                       style: const TextStyle(fontSize: 17, color: Colors.grey),
                     ),

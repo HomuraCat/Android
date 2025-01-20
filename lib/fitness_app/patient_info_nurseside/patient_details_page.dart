@@ -80,8 +80,12 @@ class _PatientDetailsState extends State<PatientDetailsPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Text(
-                            point.isEmpty ?"加载中..." :"积分:" + point,
-                            style: TextStyle(fontSize: 17, color: Colors.grey),
+                            widget.patientID.isEmpty ? "加载中..." : "ID:" + widget.patientID,
+                            style: const TextStyle(fontSize: 17, color: Colors.grey),
+                          ),
+                          Text(
+                            point.isEmpty ? "加载中..." : "积分: $point",
+                            style: const TextStyle(fontSize: 17, color: Colors.grey),
                           ),
                           Image(
                             image: AssetImage("assets/images/icon_right.png"),
