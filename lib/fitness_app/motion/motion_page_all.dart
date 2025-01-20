@@ -40,9 +40,41 @@ class _MotionPageAllState extends State<MotionPageAll>
     });
   }
 
+  Future<void> _addPoint(int pointValue) async {
+    final String apiUrl =
+        Config.baseUrl + '/addPoint'; // Replace with actual API endpoint
+    var url = Uri.parse(apiUrl);
+
+    try {
+      var response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'id': patientID, // Pass patientID
+          'points_to_add': pointValue, // Pass the point value to be added
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // final data = jsonDecode(response.body);
+        setState(() {
+          // Update points with the response
+        });
+        print('Point added successfully');
+      } else {
+        print('Failed to add point. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error adding point: $e');
+    }
+  }
+
   Future<void> _fetchPosts() async {
     final String apiUrl = Config.baseUrl + '/motion/fetchall';
     var url = Uri.parse(apiUrl);
+
     try {
       var response = await http.post(
         url,
@@ -53,27 +85,27 @@ class _MotionPageAllState extends State<MotionPageAll>
       );
 
       if (response.statusCode == 200) {
+        // 如果请求成功，更新状态消息
         List<dynamic> responseData = jsonDecode(response.body);
-        _statusMessages = responseData.map((post) {
-          return {
-            'content': post['content'],
-            'time': post['time'],
-            'post_id': post['post_id'],
-            'user_id': post['patient_id'],
-          };
-        }).toList();
-        setState(() {});
+        setState(() {
+          _statusMessages = responseData.map((post) {
+            return {
+              'content': post['content'],
+              'time': post['time'],
+              'post_id': post['post_id'],
+              'user_id': post['patient_id'],
+            };
+          }).toList();
+        });
       } else {
         print('Request failed with status: ${response.statusCode}.');
-        setState(() {
-          _statusMessages = [];
-        });
+        // 请求失败时保留原内容，不清空数据
       }
     } catch (e) {
+      // 捕获所有错误并保留原有内容
       print('Error fetching posts: $e');
-      setState(() {
-        _statusMessages = [];
-      });
+      // 可以选择在 UI 上显示错误提示
+      // _showErrorDialog('网络异常，请稍后再试！');
     }
   }
 
@@ -91,7 +123,28 @@ class _MotionPageAllState extends State<MotionPageAll>
 
       if (response.statusCode == 200) {
         print('Post created successfully.');
-        _fetchPosts(); // Refresh the posts list to include the new post
+        _addPoint(5);
+
+        // 显示成功弹窗
+        showCupertinoDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text('成功'),
+              content: Text('发表成功，分数加5！'),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  child: Text('确定'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // 关闭弹窗
+                  },
+                ),
+              ],
+            );
+          },
+        );
+
+        _fetchPosts(); // 刷新帖子列表，显示新发表的帖子
       } else {
         print('Failed to create the post. Status code: ${response.statusCode}');
       }
