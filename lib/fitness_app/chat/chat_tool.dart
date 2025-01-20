@@ -233,7 +233,7 @@ class Bubble extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: crossAlignmentOnType,
                   children: [
-                    Text(
+                    SelectableText(
                       chat.message,
                       style: TextStyle(color: textColorOnType),
                     ),

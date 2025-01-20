@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'cell.dart';
+import 'dart:convert';
 import '../utils/Spsave_module.dart';
+import '../../config.dart';
+import 'package:http/http.dart' as http;
 
 class AccountPage extends StatefulWidget {
   const AccountPage({Key? key}) : super(key: key);
@@ -9,7 +12,7 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  String patientID = "", name = "", selectedAvatar = "";
+  String patientID = "", name = "", selectedAvatar = "", point = "";
   late bool identity;
   List<String> avatarOptions = [
       "assets/images/avatar1.png",
@@ -30,6 +33,7 @@ class _AccountPageState extends State<AccountPage> {
       identity = account['identity'];
       selectedAvatar = account['avatar'];
     }
+    await GetPoint(context);
     setState(() {});
   }
 
@@ -97,7 +101,7 @@ class _AccountPageState extends State<AccountPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
-                      patientID.isEmpty ? "加载中..." : "ID: $patientID",
+                      point.isEmpty ? "加载中..." : "积分: $point",
                       style: const TextStyle(fontSize: 17, color: Colors.grey),
                     ),
                     const Image(
@@ -112,6 +116,24 @@ class _AccountPageState extends State<AccountPage> {
         ],
       ),
     );
+  }
+
+  Future<void> GetPoint(BuildContext context) async {
+    final String apiUrl = Config.baseUrl + '/getPoint';
+    var url = Uri.parse(apiUrl);
+
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{'patientID': patientID}),
+    );
+    
+    if (response.statusCode == 200) {
+      setState(() => point = response.body);
+    }
+      else setState(() => point = "ERROR");
   }
 
   @override

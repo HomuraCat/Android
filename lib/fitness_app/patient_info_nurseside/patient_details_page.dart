@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'cell.dart';
+import 'dart:convert';
+import '../../config.dart';
+import 'package:http/http.dart' as http;
 
 class PatientDetailsPage extends StatefulWidget {
   const PatientDetailsPage({Key? key, required this.patientName, required this.patientID}) : super(key: key);
@@ -9,6 +12,36 @@ class PatientDetailsPage extends StatefulWidget {
 }
 
 class _PatientDetailsState extends State<PatientDetailsPage> {
+  String point = "";
+
+  @override
+  void initState(){
+    super.initState();
+    _InitConfig();
+  }
+
+  void _InitConfig() async{
+    await GetPoint(context);
+    setState(() {});
+  }
+
+  Future<void> GetPoint(BuildContext context) async {
+    final String apiUrl = Config.baseUrl + '/getPoint';
+    var url = Uri.parse(apiUrl);
+
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{'patientID': widget.patientID}),
+    );
+    
+    if (response.statusCode == 200) {
+      setState(() => point = response.body);
+    }
+      else setState(() => point = "ERROR");
+  }
 
   Widget headerWidget() {
     return Container(
@@ -47,7 +80,7 @@ class _PatientDetailsState extends State<PatientDetailsPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Text(
-                            widget.patientID.isEmpty ?"加载中..." :"ID:" + widget.patientID,
+                            point.isEmpty ?"加载中..." :"积分:" + point,
                             style: TextStyle(fontSize: 17, color: Colors.grey),
                           ),
                           Image(

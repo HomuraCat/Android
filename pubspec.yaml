@@ -34,7 +34,7 @@ dependencies:
   animations: ^2.0.3
   shared_preferences: ^2.1.1
   video_player: ^2.8.5
-  chewie: ^1.7.1
+  chewie: 1.7.1
   fijkplayer: ^0.10.0
   http: ^0.13.3
   flutter_local_notifications: ^15.0.1
