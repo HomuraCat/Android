@@ -500,7 +500,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
     } else print('Request failed with status: ${response.statusCode}.');
   }
 
-  Future<void> AddPoint(BuildContext context) async {
+  Future<void> AddPoint() async {
     final String apiUrl = Config.baseUrl + '/addPoint';
     var url = Uri.parse(apiUrl);
 
@@ -515,7 +515,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
       }),
     );
 
-    if (response.statusCode == 200) print('Add point 1!') 
+    if (response.statusCode == 200) print('Add point 1!');
       else print('Request failed with status: ${response.statusCode}.');
   }
 
