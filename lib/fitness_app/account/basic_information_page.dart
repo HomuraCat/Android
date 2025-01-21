@@ -353,24 +353,56 @@ class _BasicInforPageState extends State<BasicInforPage> {
     );
   }
 
-  bool _validateInput() {
+bool _validateInput() {
     final question = _questions[_currentPage];
     final regex = question['regex'];
     final errorMessage = question['errorMessage'];
     final answer = _answers[_currentPage];
 
+    // 1. 如果有正则，先判断是否符合正则
     if (regex != null) {
       final regExp = RegExp(regex);
       if (answer == null || !regExp.hasMatch(answer.toString())) {
         _showErrorDialog(errorMessage);
         return false;
       }
-    } else if (answer == null) {
+    } 
+    // 2. 如果该题答案必填，又没有输入，则给出提示
+    else if (answer == null) {
       _showErrorDialog(errorMessage);
       return false;
     }
+
+    // 3. 特殊题目做额外数值范围校验
+    final questionText = question['question'];
+    // 年龄：0-140
+    if (questionText == '年龄') {
+      int age = int.parse(answer.toString());
+      if (age < 0 || age > 140) {
+        _showErrorDialog('年龄必须在 0 ~ 140岁 之间');
+        return false;
+      }
+    }
+    // 体重：0-300
+    else if (questionText == '体重') {
+      int weight = int.parse(answer.toString());
+      if (weight < 0 || weight > 300) {
+        _showErrorDialog('体重必须在 0 ~ 300 kg 之间');
+        return false;
+      }
+    }
+    // 身高：0-250
+    else if (questionText == '身高') {
+      int height = int.parse(answer.toString());
+      if (height < 0 || height > 250) {
+        _showErrorDialog('身高必须在 0 ~ 250 cm 之间');
+        return false;
+      }
+    }
+
     return true;
   }
+
 
   void _showErrorDialog(String error) {
     showDialog(

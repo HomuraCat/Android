@@ -382,6 +382,17 @@ void _showErrorDialog(String? error) {
     );
 
     if (response.statusCode == 201) {
+      final String addPointUrl = Config.baseUrl + '/addPoint';
+      var addPointResponse = await http.post(
+        Uri.parse(addPointUrl),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'id': patientID, 
+          'points_to_add': 1
+        }),
+      );
       setState(() => submitstate = true);
       _showDialog(context, '提交成功！', onDialogClose: () {
         Navigator.pop(context);
