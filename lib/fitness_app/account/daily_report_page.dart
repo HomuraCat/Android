@@ -491,12 +491,32 @@ class _DailyReportPageState extends State<DailyReportPage> {
     if (response.statusCode == 200) {
       var responseData = jsonDecode(response.body);
       if (responseData == 1) {
+        AddPoint();
         setState(() => submitstate = true);
         _showDialog(context, '提交成功！', onDialogClose: () {
           Navigator.pop(context);
         });
       }
     } else print('Request failed with status: ${response.statusCode}.');
+  }
+
+  Future<void> AddPoint(BuildContext context) async {
+    final String apiUrl = Config.baseUrl + '/addPoint';
+    var url = Uri.parse(apiUrl);
+
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'id': patientID,
+        'points_to_add': '1',
+      }),
+    );
+
+    if (response.statusCode == 200) print('Add point 1!') 
+      else print('Request failed with status: ${response.statusCode}.');
   }
 
   void _showDialog(BuildContext context, String message,
