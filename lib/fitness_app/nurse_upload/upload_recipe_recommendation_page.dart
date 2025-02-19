@@ -129,7 +129,7 @@ class _UploadRecipeRecommendationPageState
               ),
               TextField(
                 controller: _nutrientsController,
-                decoration: InputDecoration(labelText: '营养成分'),
+                decoration: InputDecoration(labelText: '作用'),
               ),
               TextField(
                 controller: _ingredientsController,

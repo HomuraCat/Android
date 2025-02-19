@@ -168,6 +168,9 @@ class _MotionPageAllState extends State<MotionPageAll>
 
   // Method to build MotionPageAll content
   Widget _buildMotionPageAll() {
+    final parentMediaQuery = MediaQuery.of(context);
+    final parentScale = parentMediaQuery.textScaleFactor;
+    final limitedScale = parentScale > 1.2 ? 1.2 : parentScale;
     return CustomScrollView(
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
@@ -216,13 +219,18 @@ class _MotionPageAllState extends State<MotionPageAll>
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(16),
-                        child: Column(
+                        child: 
+                        MediaQuery(
+                          data: MediaQuery.of(context).copyWith(textScaleFactor: limitedScale),
+                          child: 
+                      Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // Top row with user id and time
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
+                                
                                 Text(
                                   '用户ID: ${message['user_id']}',
                                   style: const TextStyle(
@@ -241,6 +249,7 @@ class _MotionPageAllState extends State<MotionPageAll>
                               style: const TextStyle(fontSize: 16),
                             ),
                           ],
+                        ),
                         ),
                       ),
                     ),

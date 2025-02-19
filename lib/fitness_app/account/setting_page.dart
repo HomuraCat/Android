@@ -70,8 +70,8 @@ class _SettingPageState extends State<SettingPage> {
   Widget _buildDeleteButton(BuildContext context) {
     return Align(
       child: SizedBox(
-        height: 40,
-        width: 250,
+        height: 60,
+        width: 300,
         child: FloatingActionButton(
           backgroundColor: Colors.red,
           child: Text(

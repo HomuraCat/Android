@@ -92,22 +92,34 @@ class _AccountPageState extends State<AccountPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  name.isEmpty ? "加载中..." : name,
-                  style: const TextStyle(fontSize: 25, color: Colors.grey),
-                ),
+                MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaleFactor: 1.1),
+                    child: 
+                      Text(
+                      name.isEmpty ? "加载中..." : name,
+                            style: const TextStyle(fontSize: 25, color: Colors.grey),
+                      ),
+                  ),
                 const SizedBox(height: 5),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text(
+                    MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                    child: Text(
                       patientID.isEmpty ? "加载中..." : "ID: $patientID",
                       style: const TextStyle(fontSize: 17, color: Colors.grey),
                     ),
-                    Text(
+                  ),
+                    
+                    MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                    child: Text(
                       point.isEmpty ? "加载中..." : "积分: $point",
                       style: const TextStyle(fontSize: 17, color: Colors.grey),
                     ),
+                  ),
+                    
                     const Image(
                       image: AssetImage("assets/images/icon_right.png"),
                       width: 15,
