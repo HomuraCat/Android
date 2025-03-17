@@ -67,7 +67,7 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
 
   void addAllListData() {
     const int count = 6; // Updated count based on new order and sections
-
+  
     // 1. Add "运动建议" (Sport Advice) section first
     listViews.add(
       TitleView(

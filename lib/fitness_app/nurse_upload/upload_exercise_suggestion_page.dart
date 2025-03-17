@@ -21,6 +21,7 @@ class _UploadExerciseSuggestionPageState
   File? _followAlongVideo;
   File? _imageFile; // 用于存储选择的图片
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _infoController = TextEditingController();
   final TextEditingController _titleController = TextEditingController(); // 新增：用于输入标题
 
   // 定义 GlobalKey 用于获取 ScaffoldMessengerState
@@ -72,6 +73,7 @@ class _UploadExerciseSuggestionPageState
     var request = http.MultipartRequest('POST', uri);
     request.fields['title'] = _titleController.text; // 添加标题字段
     request.fields['info'] = _descriptionController.text;
+    request.fields['source'] = _infoController.text;
 
     // 打印请求详细信息，便于调试
     print('正在上传到 $uploadUrl');
@@ -130,6 +132,7 @@ class _UploadExerciseSuggestionPageState
           _followAlongVideo = null;
           _imageFile = null; // 重置图片
           _descriptionController.clear();
+          _infoController.clear();
         });
       } else {
         _scaffoldMessengerKey.currentState?.showSnackBar(
@@ -149,6 +152,7 @@ class _UploadExerciseSuggestionPageState
   @override
   void dispose() {
     _descriptionController.dispose();
+    _infoController.dispose();
     _titleController.dispose(); // 释放标题控制器
     super.dispose();
   }
@@ -221,6 +225,15 @@ class _UploadExerciseSuggestionPageState
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _infoController,
+                decoration: InputDecoration(
+                  labelText: '信息来源（可以为空）',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 1,
               ),
               SizedBox(height: 20),
 

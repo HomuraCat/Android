@@ -19,6 +19,7 @@ class _UploadRecipeRecommendationPageState
   final TextEditingController _nutrientsController = TextEditingController();
   final TextEditingController _ingredientsController = TextEditingController();
   final TextEditingController _instructionsController = TextEditingController();
+  final TextEditingController _sourceController = TextEditingController();
 
   // 定义餐类型选项
   final List<String> _mealTypes = [
@@ -68,6 +69,7 @@ class _UploadRecipeRecommendationPageState
     request.fields['ingredients'] = _ingredientsController.text;
     request.fields['instructions'] = _instructionsController.text;
     request.fields['mealType'] = _selectedMealType!;
+    request.fields['source'] = _sourceController.text;
     request.files.add(
       await http.MultipartFile.fromPath('food_image', _foodImage!.path),
     );
@@ -88,6 +90,7 @@ class _UploadRecipeRecommendationPageState
         _nutrientsController.clear();
         _ingredientsController.clear();
         _instructionsController.clear();
+        _sourceController.clear();
         _selectedMealType = null;
       });
     } else {
@@ -139,6 +142,11 @@ class _UploadRecipeRecommendationPageState
                 controller: _instructionsController,
                 decoration: InputDecoration(labelText: '制作过程'),
                 maxLines: 5,
+              ),
+              TextField(
+                controller: _sourceController,
+                decoration: InputDecoration(labelText: '信息来源（可以为空）'),
+                maxLines: 1,
               ),
               DropdownButtonFormField<String>(
                 value: _selectedMealType,

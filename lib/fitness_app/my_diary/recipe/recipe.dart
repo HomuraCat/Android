@@ -317,7 +317,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
     // 获取制作过程
     String instructions = widget.recipe['instructions'] ?? '暂无制作过程';
-
+    String source = widget.recipe['source'] ?? '暂无';
     // 构建图片 URL
     String imageUrl = Config.baseUrl + '/' + widget.recipe['image'];
 
@@ -383,6 +383,23 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
                 instructions,
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+            SizedBox(height: 16),
+            
+            Divider(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                '信息来源:',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                source,
                 style: TextStyle(fontSize: 18),
               ),
             ),

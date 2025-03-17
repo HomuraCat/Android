@@ -31,7 +31,8 @@ class SportAdvicePage extends StatefulWidget {
 class _SportAdvicePageState extends State<SportAdvicePage> {
   late VideoPlayerController _videoPlayerController;
   ChewieController? _chewieController;
-
+  Map<String, dynamic>? _videoDetails;
+  bool _isLoadingDetails = true;
   /// 这里的 isPracticeVideo = false，表示初始进来用哪一个 source 播放，
   /// 你可以根据实际需求调整默认值
   bool isPracticeVideo = false;
@@ -57,10 +58,40 @@ class _SportAdvicePageState extends State<SportAdvicePage> {
   void initState() {
     fetchUserData();
     super.initState();
+    fetchUserData().then((_) {
+      // 初始化时先加载视频详情
+      _fetchVideoDetails();
+    });
     _initializeVideoPlayer();
     scrollController.addListener(_scrollListener);
   }
-
+  Future<void> _fetchVideoDetails() async {
+    final String apiUrl = '${Config.baseUrl}/get_video_details/${widget.video['id']}';
+    
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        setState(() {
+          _videoDetails = jsonDecode(response.body);
+          _isLoadingDetails = false;
+        });
+      } else {
+        print('Failed to load video details: ${response.body}');
+        _handleLoadError();
+      }
+    } catch (e) {
+      print('Error fetching video details: $e');
+      _handleLoadError();
+    }
+  }
+    void _handleLoadError() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('无法加载视频详情'))
+    );
+    Navigator.pop(context);
+  }
+  
   Future<void> _initializeVideoPlayer() async {
     String videoSource =
         isPracticeVideo ? widget.video['source_2'] : widget.video['source_1'];
@@ -266,6 +297,7 @@ void _markVideoAsLearned() async {
     // 拿到父页面传入的完成状态
     bool userAlreadyCompleted = widget.isCompleted;
 
+  
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.video['title']),
@@ -343,6 +375,37 @@ void _markVideoAsLearned() async {
                 ),
               ),
             ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 运动描述
+                  if (widget.video['info'] != null && widget.video['info'].isNotEmpty)
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: Text(
+                        widget.video['info'],
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ),
+                  // 信息来源
+                  if (widget.video['source'] != null && widget.video['source'].isNotEmpty)
+                    Text(
+                      '信息来源：${widget.video['source']}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
             // 当 isPracticeVideo = false（假设此时是完整版）时，显示已学/学习中
             // 你可以根据自己需求决定这里用什么条件判断
             if (true)
