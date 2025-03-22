@@ -83,7 +83,7 @@ class _SurveyDetailPageState extends State<SurveyDetailPage> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (questionType == 'multiple_choice' && question['choices'] != null)
+          if ((questionType == 'multiple_choice' || questionType == 'single_choice') && question['choices'] != null)
             ...List.generate(question['choices'].length, (index) {
               return Text('选项 ${index + 1}: ${question['choices'][index]}');
             }),

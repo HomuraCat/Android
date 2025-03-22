@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'new_question_page.dart';
 import '../../config.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 class NewSurveyPage extends StatefulWidget {
   @override
@@ -83,6 +84,7 @@ class _NewSurveyPageState extends State<NewSurveyPage> {
                     initialDate: scheduledStartTime,
                     firstDate: DateTime(2000),
                     lastDate: DateTime(2101),
+                    locale: const Locale('zh', 'CN'),
                   );
                   if (picked != null && picked != scheduledStartTime)
                     setState(() {
@@ -99,6 +101,7 @@ class _NewSurveyPageState extends State<NewSurveyPage> {
                     initialDate: scheduledEndTime,
                     firstDate: DateTime(2000),
                     lastDate: DateTime(2101),
+                    locale: const Locale('zh', 'CN'),
                   );
                   if (picked != null && picked != scheduledEndTime)
                     setState(() {

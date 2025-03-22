@@ -325,7 +325,7 @@ class MeasurementItem extends StatelessWidget {
               style: TextStyle(
                 fontFamily: FitnessAppTheme.fontName,
                 fontWeight: FontWeight.w600,
-                fontSize: 32,
+                fontSize: 28,
                 color: FitnessAppTheme.nearlyDarkBlue,
               ),
             ),
@@ -335,7 +335,7 @@ class MeasurementItem extends StatelessWidget {
               style: TextStyle(
                 fontFamily: FitnessAppTheme.fontName,
                 fontWeight: FontWeight.w500,
-                fontSize: 18,
+                fontSize: 16,
                 letterSpacing: -0.2,
                 color: FitnessAppTheme.nearlyDarkBlue,
               ),

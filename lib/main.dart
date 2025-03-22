@@ -13,7 +13,7 @@ import 'fitness_app/utils/font_scale_notifier.dart';
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_home_screen.dart';
 import 'package:best_flutter_ui_templates/fitness_app/fitness_app_home_screen_nurseside.dart';
 import 'package:best_flutter_ui_templates/fitness_app/login/welcome_view.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -86,6 +86,15 @@ class MyApp extends StatelessWidget {
 
     // 3. 在MaterialApp里，通过builder使用MediaQuery覆盖 textScaleFactor
     return MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', 'US'), // 英语
+        const Locale('zh', 'CN'), // 中文
+      ],
       title: 'Flutter UI',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

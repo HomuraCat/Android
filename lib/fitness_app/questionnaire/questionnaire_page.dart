@@ -63,7 +63,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       var data = jsonDecode(response.body);
       bool answered = data['answered'];
       setState(() {
-        submitstate = answered; 
+        submitstate = answered;
       });
     } else {
       print('Failed to check if answered');
@@ -80,16 +80,26 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       List questionsData = data['questions'];
       print(questionsData);
 
-      // 保存问卷标题
       String title = data['title'] ?? "问卷";
-      
-      // 将后端返回的question数据结构转成前端需要的结构
+
+      // Map backend question types to frontend types
       List<Map<String, dynamic>> transformedQuestions = questionsData.map((q) {
-        String frontType = q['question_type'] == 'multiple_choice' 
-                           ? 'multipleChoice' 
-                           : 'shortAnswer';
-        
-        // 确保options是List<String>类型
+        String frontType;
+        switch (q['question_type']) {
+          case 'multiple_choice':
+            frontType = 'multipleChoice';
+            break;
+          case 'single_choice':
+            frontType = 'singleChoice';
+            break;
+          case 'fill_in_the_blank':
+            frontType = 'shortAnswer';
+            break;
+          default:
+            frontType = 'unknown';
+            break;
+        }
+
         List<dynamic> rawOptions = q['choices'] ?? [];
         List<String> options = rawOptions.map((opt) => opt.toString()).toList();
 
@@ -97,18 +107,20 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
           'question_id': q['question_id'],
           'type': frontType,
           'question': q['question'],
-          'options': options, 
-          'regex': null, 
+          'options': options,
+          'regex': null,
           'errorMessage': '请填写/选择合适的答案',
         };
       }).toList().cast<Map<String, dynamic>>();
 
+      print("!!!!!!");
+      print(transformedQuestions);
       setState(() {
         _questions = transformedQuestions;
         _answers.clear();
         _currentPage = 0;
         _selectedSurveyId = surveyId;
-        _surveyTitle = title; // 设置survey标题
+        _surveyTitle = title;
       });
     } else {
       print('打开问卷失败');
@@ -117,7 +129,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
   @override
   Widget build(BuildContext context) {
-    // 如果还未选择问卷，则先显示问卷选择界面
     if (_selectedSurveyId == null) {
       return Scaffold(
         appBar: AppBar(title: Text("选择问卷")),
@@ -129,7 +140,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                   var survey = _validSurveys[index];
                   return ListTile(
                     title: Text(survey['title'] ?? '无标题'),
-                    subtitle: Text("起始时间: ${survey['scheduled_start_time']}\n结束时间: ${survey['scheduled_end_time']}"),
+                    subtitle: Text(
+                        "起始时间: ${survey['scheduled_start_time']}\n结束时间: ${survey['scheduled_end_time']}"),
                     onTap: () {
                       _fetchSurveyDetails(survey['survey_id']);
                     },
@@ -139,7 +151,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       );
     }
 
-    // 已选择问卷，开始作答
     return Scaffold(
       appBar: AppBar(title: Text(_surveyTitle.isEmpty ? "问卷" : _surveyTitle)),
       body: _questions.isEmpty
@@ -156,7 +167,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                     },
                     itemCount: _questions.length,
                     itemBuilder: (context, index) {
-                      // 如果问卷已填写，可以在这里判断submitstate
                       if (submitstate) {
                         return Center(
                           child: Text("问卷已填写，无法继续。"),
@@ -195,7 +205,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                                   }
                                 }
                               },
-                        child: Text(_currentPage == _questions.length - 1 ? "提交" : "下一题"),
+                        child: Text(
+                            _currentPage == _questions.length - 1 ? "提交" : "下一题"),
                       ),
                   ],
                 ),
@@ -208,6 +219,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     final question = _questions[index];
     if (question['type'] == 'shortAnswer') {
       return _buildShortAnswerPage(index, question['question']);
+    } else if (question['type'] == 'singleChoice') {
+      return _buildSingleChoicePage(index, question['question'], question['options']);
     } else if (question['type'] == 'multipleChoice') {
       return _buildMultipleChoicePage(index, question['question'], question['options']);
     } else {
@@ -246,7 +259,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     );
   }
 
-  Widget _buildMultipleChoicePage(int index, String question, List<String> options) {
+  Widget _buildSingleChoicePage(int index, String question, List<String> options) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -282,54 +295,94 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     );
   }
 
+  Widget _buildMultipleChoicePage(int index, String question, List<String> options) {
+    if (_answers[index] == null) {
+      _answers[index] = [];
+    }
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "问题 ${index + 1}/${_questions.length}",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 20),
+          Text(
+            question,
+            style: TextStyle(fontSize: 16),
+          ),
+          SizedBox(height: 20),
+          ...options.map((option) {
+            return CheckboxListTile(
+              title: Text(option),
+              value: (_answers[index] as List).contains(option),
+              onChanged: (bool? value) {
+                setState(() {
+                  if (value == true) {
+                    (_answers[index] as List).add(option);
+                  } else {
+                    (_answers[index] as List).remove(option);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
   bool _validateInput() {
     final question = _questions[_currentPage];
-    final regex = question['regex'];
     final errorMessage = question['errorMessage'];
     final answer = _answers[_currentPage];
 
     if (question['type'] == 'shortAnswer') {
-      if (regex != null) {
-        final regExp = RegExp(regex);
-        if (answer == null || !regExp.hasMatch(answer.toString())) {
-          _showErrorDialog(errorMessage);
-          return false;
-        }
-      } else if (answer == null || answer.toString().isEmpty) {
+      if (answer == null || answer.toString().isEmpty) {
         _showErrorDialog(errorMessage);
         return false;
       }
-    }
-
-    if (question['type'] == 'multipleChoice') {
+      final regex = question['regex'];
+      if (regex != null) {
+        final regExp = RegExp(regex);
+        if (!regExp.hasMatch(answer.toString())) {
+          _showErrorDialog(errorMessage);
+          return false;
+        }
+      }
+    } else if (question['type'] == 'singleChoice') {
       if (answer == null) {
         _showErrorDialog(errorMessage);
         return false;
       }
+    } else if (question['type'] == 'multipleChoice') {
+      if (answer == null || (answer is List && answer.isEmpty)) {
+        _showErrorDialog(errorMessage);
+        return false;
+      }
     }
-
     return true;
   }
 
-void _showErrorDialog(String? error) {
-  // Ensure 'error' is non-null by providing a default message
-  final displayError = error ?? "请填写正确的答案";
-
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text("输入错误"),
-      content: Text(displayError), // 'displayError' is non-null
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text("确定"),
-        ),
-      ],
-    ),
-  );
-}
-
+  void _showErrorDialog(String? error) {
+    final displayError = error ?? "请填写正确的答案";
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("输入错误"),
+        content: Text(displayError),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("确定"),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _showDialog(BuildContext context, String message, {VoidCallback? onDialogClose}) {
     showCupertinoDialog(
@@ -342,9 +395,9 @@ void _showErrorDialog(String? error) {
             CupertinoDialogAction(
               child: Text("Close"),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
                 if (onDialogClose != null) {
-                  onDialogClose(); // Call the callback if it's provided
+                  onDialogClose();
                 }
               },
             ),
@@ -355,12 +408,11 @@ void _showErrorDialog(String? error) {
   }
 
   void SendBasicInformation(BuildContext context) async {
-    // 准备提交的数据
     List<Map<String, dynamic>> answersList = [];
     for (int i = 0; i < _questions.length; i++) {
       final q = _questions[i];
       final question_id = q['question_id'];
-      final answer_val = _answers[i]; 
+      final answer_val = _answers[i];
       answersList.add({
         "question_id": question_id,
         "answer": answer_val
@@ -376,7 +428,7 @@ void _showErrorDialog(String? error) {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode({
-        'patient_id': patientID, 
+        'patient_id': patientID,
         'answers': answersList
       }),
     );
@@ -389,7 +441,7 @@ void _showErrorDialog(String? error) {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode({
-          'id': patientID, 
+          'id': patientID,
           'points_to_add': 1
         }),
       );

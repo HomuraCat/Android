@@ -17,10 +17,11 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
 
   /// 问题列表，每个问题数据示例：
   /// {
-  ///   'questionType': 'multiple_choice' 或 'fill_in_the_blank',
+  ///   'questionType': 'multiple_choice' 或 'single_choice' 或 'fill_in_the_blank',
   ///   'question': '',
-  ///   'choices': ['选项1', '选项2', ...] (multiple_choice使用),
-  ///   'answer': '' (fill_in_the_blank使用，如果不需要正确答案，此字段可忽略)
+  ///   'choices': ['选项1', '选项2', ...] (multiple_choice 和 single_choice 使用),
+  ///   'correct_choice_index': -1 (single_choice 使用，记录正确答案索引),
+  ///   'answer': '' (fill_in_the_blank 使用，如果不需要正确答案，此字段可忽略)
   /// }
   List<Map<String, dynamic>> questions = [];
 
@@ -30,6 +31,7 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
         'questionType': 'multiple_choice',
         'question': '',
         'choices': [''],
+        'correct_choice_index': -1, // 单选题使用，默认-1表示未选择
         'answer': ''
       });
     });
@@ -50,6 +52,14 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
   void removeChoice(int questionIndex, int choiceIndex) {
     setState(() {
       questions[questionIndex]['choices'].removeAt(choiceIndex);
+      // 如果删除的是单选题的正确答案，重置 correct_choice_index
+      if (questions[questionIndex]['questionType'] == 'single_choice') {
+        if (questions[questionIndex]['correct_choice_index'] == choiceIndex) {
+          questions[questionIndex]['correct_choice_index'] = -1;
+        } else if (questions[questionIndex]['correct_choice_index'] > choiceIndex) {
+          questions[questionIndex]['correct_choice_index']--;
+        }
+      }
     });
   }
 
@@ -65,13 +75,11 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
         'question': question['question'],
         'question_type': question['questionType']
       };
-
-      if (question['questionType'] == 'multiple_choice') {
+      if (question['questionType'] == 'multiple_choice' || question['questionType'] == 'single_choice') {
         requestBody['choices'] = question['choices'];
-        // 无需正确选项字段
       } else if (question['questionType'] == 'fill_in_the_blank') {
-        // 如果也不需要正确答案，请移除此行
-        //requestBody['answer'] = question['answer'];
+        // 如果填空题不需要答案，此行可移除
+        // requestBody['answer'] = question['answer'];
       }
 
       var response = await http.post(
@@ -109,8 +117,7 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
                 child: TextFormField(
                   decoration: InputDecoration(
                     labelText: '选项 ${choiceIndex + 1}',
-                    labelStyle:
-                        TextStyle(color: Color.fromARGB(255, 19, 194, 194)),
+                    labelStyle: TextStyle(color: Color.fromARGB(255, 19, 194, 194)),
                   ),
                   initialValue: choiceText,
                   onChanged: (value) {
@@ -143,6 +150,58 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
     );
   }
 
+  Widget buildSingleChoiceSection(int index) {
+    var question = questions[index];
+    List<String> choices = List<String>.from(question['choices']);
+    int correctIndex = question['correct_choice_index'];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...choices.asMap().entries.map((entry) {
+          int choiceIndex = entry.key;
+          String choiceText = entry.value;
+
+          return Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: '选项 ${choiceIndex + 1}',
+                    labelStyle: TextStyle(color: Color.fromARGB(255, 19, 194, 194)),
+                  ),
+                  initialValue: choiceText,
+                  onChanged: (value) {
+                    setState(() {
+                      questions[index]['choices'][choiceIndex] = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return '请输入选项 ${choiceIndex + 1}';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: choices.length > 1
+                    ? () => removeChoice(index, choiceIndex)
+                    : null,
+              ),
+            ],
+          );
+        }).toList(),
+        ElevatedButton(
+          onPressed: () => addChoice(index),
+          child: Text('添加选项'),
+        ),
+      ],
+    );
+    
+  }
+
   Widget buildFillInTheBlankSection(int index) {
     return TextFormField(
       decoration: InputDecoration(
@@ -155,7 +214,6 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
           questions[index]['answer'] = value;
         });
       },
-
     );
   }
 
@@ -203,8 +261,7 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 '问题 ${index + 1}',
@@ -224,35 +281,34 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
                           DropdownButtonFormField<String>(
                             value: question['questionType'],
                             items: [
-                              DropdownMenuItem(
-                                  value: 'multiple_choice', child: Text('多选题')),
-                              DropdownMenuItem(
-                                  value: 'fill_in_the_blank', child: Text('填空题')),
+                              DropdownMenuItem(value: 'multiple_choice', child: Text('多选题')),
+                              DropdownMenuItem(value: 'single_choice', child: Text('单选题')),
+                              DropdownMenuItem(value: 'fill_in_the_blank', child: Text('填空题')),
                             ],
                             onChanged: (value) {
                               setState(() {
                                 questions[index]['questionType'] = value!;
-                                // 切换题型后重置相应的数据
-                                if (value == 'multiple_choice') {
+                                // 切换题型后重置相应数据
+                                if (value == 'multiple_choice' || value == 'single_choice') {
                                   questions[index]['choices'] = [''];
+                                  questions[index]['correct_choice_index'] = -1;
                                   questions[index]['answer'] = '';
                                 } else {
                                   questions[index]['choices'] = [];
+                                  questions[index]['correct_choice_index'] = -1;
                                   questions[index]['answer'] = '';
                                 }
                               });
                             },
                             decoration: InputDecoration(
                               labelText: '题型',
-                              labelStyle:
-                                  TextStyle(color: Color.fromARGB(255, 0, 71, 79)),
+                              labelStyle: TextStyle(color: Color.fromARGB(255, 0, 71, 79)),
                             ),
                           ),
                           TextFormField(
                             decoration: InputDecoration(
                               labelText: '题干 ${index + 1}',
-                              labelStyle: TextStyle(
-                                  color: Color.fromARGB(255, 0, 71, 79)),
+                              labelStyle: TextStyle(color: Color.fromARGB(255, 0, 71, 79)),
                             ),
                             initialValue: question['question'],
                             onChanged: (value) {
@@ -269,6 +325,8 @@ class _NewQuestionPageState extends State<NewQuestionPage> {
                           ),
                           if (question['questionType'] == 'multiple_choice')
                             buildMultipleChoiceSection(index),
+                          if (question['questionType'] == 'single_choice')
+                            buildSingleChoiceSection(index),
                           //if (question['questionType'] == 'fill_in_the_blank')
                           //  buildFillInTheBlankSection(index),
                           SizedBox(height: 20),
