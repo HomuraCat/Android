@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'upload_exercise_suggestion_page.dart';
 import 'upload_recipe_recommendation_page.dart';
 import 'upload_knowledge_learning_page.dart';
+import 'upload_point_shopping_page.dart';
 
 class UploadPage extends StatelessWidget {
   @override
@@ -67,6 +68,26 @@ class UploadPage extends StatelessWidget {
                     );
                   },
                   child: Text('上传知识学习'),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    textStyle: TextStyle(fontSize: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 36.0),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => UploadPointShoppingPage()),
+                    );
+                  },
+                  child: Text('上传积分商城'),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16.0),
                     textStyle: TextStyle(fontSize: 16),

@@ -3,6 +3,7 @@ import '../utils/common_tools.dart';
 import 'daily_report_page.dart';
 import 'basic_information_page.dart';
 import 'setting_page.dart';
+import 'point_shopping.dart';
 import '../questionnaire/questionnaire_page.dart';
 class MineCell extends StatelessWidget {
   final String? title;
@@ -29,6 +30,10 @@ class MineCell extends StatelessWidget {
           case "问卷":
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (BuildContext context) => QuestionnairePage()));
+            break;
+          case "积分商城":
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (BuildContext context) => PointShoppingPage()));
             break;
           case "设置":
             Navigator.of(context).push(MaterialPageRoute(

@@ -193,6 +193,10 @@ class _AccountPageState extends State<AccountPage> {
                   imageName: 'assets/images/account.png',
                   title: '问卷',
                 ),
+                const MineCell(
+                  imageName: 'assets/images/account.png',
+                  title: '积分商城',
+                ),
                 const SizedBox(
                   height: 10,
                 ),
