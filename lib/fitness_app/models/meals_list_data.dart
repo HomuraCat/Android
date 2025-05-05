@@ -35,6 +35,7 @@ class MealsListData {
   double userBMR;
   String userSex;
   int userAge;
+  double consumedCalories = 0;
 
   /// 计算 BMR 的方法（公因式）
   double calcBMR(String sex, double weight, double height, int age) {
@@ -60,7 +61,6 @@ class MealsListData {
         return;
       }
       final String patientID = account['patientID'];
-      
       // 2. 请求后端接口
       final String apiUrl = Config.baseUrl + '/patient/get_info_json';
       final url = Uri.parse(apiUrl);
@@ -74,7 +74,6 @@ class MealsListData {
           'patientID': patientID,
         }),
       );
-
       // 3. 后端返回成功则更新本地属性
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(response.body);
@@ -92,7 +91,6 @@ class MealsListData {
         if (data['age'] != null) {
           userAge = int.tryParse(data['age'].toString()) ?? 0;
         }
-
         // 4. 计算 BMR
         if (userWeight > 0 &&
             userHeight > 0 &&
@@ -108,6 +106,7 @@ class MealsListData {
     } catch (e) {
       print('Error in fetchUserData: $e');
     }
+
   }
 
   /// --- 用来获取早餐/午餐/晚餐卡路里配比的 Getter ---

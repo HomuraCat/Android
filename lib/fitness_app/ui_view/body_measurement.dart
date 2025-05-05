@@ -26,6 +26,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
   double user_BMR = 0.0;
   String user_sex = '';
   int user_age = 0;
+  double consumedCalories = 0;
 
   @override
   void initState() {
@@ -53,6 +54,31 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
         'patientID': patientID,
       }),
     );
+    final String caloriesApiUrl = Config.baseUrl + '/patient/get_consumed_calories';
+          final caloriesUrl = Uri.parse(caloriesApiUrl);
+
+          final caloriesResponse = await http.post(
+            caloriesUrl,
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode(<String, String>{
+              'patientID': patientID, // 使用相同的 patientID
+            }),
+          );
+
+          if (caloriesResponse.statusCode == 200) {
+              Map<String, dynamic> caloriesData = jsonDecode(utf8.decode(caloriesResponse.bodyBytes));
+              print('Received consumed calories data: $caloriesData');
+              consumedCalories = double.tryParse(caloriesData['consumed_calories']?.toString() ?? '0.0') ?? 0.0;
+              print('Parsed Consumed Calories: ${consumedCalories.toStringAsFixed(2)}');
+          } else {
+              print('Failed to fetch consumed calories: ${caloriesResponse.statusCode} ${caloriesResponse.reasonPhrase}');
+              // 获取失败，可以选择将 consumedCalories 设为 0 继续，或认为 BMR 计算不完整而设为 0
+              // 这里我们选择前者：即使获取失败，也用 0 卡路里来调整
+              consumedCalories = 0.0;
+              print('Warning: Could not fetch consumed calories. Using 0 for adjustment.');
+          }
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
@@ -82,7 +108,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
             user_height > 0 &&
             user_age > 0 &&
             (user_sex == 'male' || user_sex == 'female')) {
-          user_BMR = calcBMR(user_sex, user_weight, user_height, user_age);
+          user_BMR = calcBMR(user_sex, user_weight, user_height, user_age) - consumedCalories;
         }
       });
     } else {
@@ -170,9 +196,9 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> {
                               // BMR 信息
                               MeasurementItem(
                                 label: 'BMR',
-                                value: user_BMR > 0
-                                    ? user_BMR.toString()
-                                    : '0.0',
+                                value: 
+                                    user_BMR.toStringAsFixed(2),
+                                    
                                 unit: '卡路里',
                               ),
                             ],
