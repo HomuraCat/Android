@@ -17,11 +17,24 @@ class PointShoppingPage extends StatefulWidget {
 
 class _PointShoppingPageState extends State<PointShoppingPage> {
   List<Map<String, dynamic>> shopping_lists = [];
+  String _userID = "", point = "";
 
   @override
   void initState() {
     super.initState();
     fetchRecipes();
+    fetchUserData().then((_) {
+        GetPoint(context);
+    });
+  }
+
+  Future<void> fetchUserData() async {
+    Map<String, dynamic>? account = await SpStorage.instance.readAccount();
+    if (account != null) {
+      _userID = account['patientID'];
+    } else {
+      print('No account information found');
+    }
   }
 
   Future<void> fetchRecipes() async {
@@ -38,6 +51,33 @@ class _PointShoppingPageState extends State<PointShoppingPage> {
     }
   }
 
+  Future<void> GetPoint(BuildContext context) async {
+    final String apiUrl = Config.baseUrl + '/getPoint';
+    var url = Uri.parse(apiUrl);
+
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{'patientID': _userID}),
+    );
+    
+    if (response.statusCode == 200) {
+      setState(() => point = response.body);
+    }
+      else setState(() => point = "ERROR");
+  }
+
+  Widget buildPointField() {
+    return Padding(
+        padding: EdgeInsets.only(left: 5),
+        child: Text(
+          '积分: ${point}',
+          style: TextStyle(fontSize: 20),
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     // Determine the width of each grid item
@@ -51,6 +91,7 @@ class _PointShoppingPageState extends State<PointShoppingPage> {
       ),
       body: Column(
         children: [
+          buildPointField(),
           Expanded(
             child: shopping_lists.isEmpty
                 ? Center(child: CircularProgressIndicator())
@@ -102,6 +143,17 @@ class _PointShoppingPageState extends State<PointShoppingPage> {
                                 padding: EdgeInsets.all(8.0),
                                 child: Text(
                                   shopping_lists[index]['name'],
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Text(
+                                  "所需积分：" + shopping_lists[index]['points'],
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -170,7 +222,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       else setState(() => point = "ERROR");
   }
 
-  Future<void> deletePoint(String points_to_delete) async {
+  Future<void> deletePoint(String name, String points_to_delete) async {
     final String apiUrl = Config.baseUrl + '/deletePoint';
     var url = Uri.parse(apiUrl);
 
@@ -184,6 +236,24 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     
     if (response.statusCode == 200) {
       setState(() => point = response.body);
+      addOrders(name);
+    }
+      else _showDialog(context, "购买发生错误！");
+  }
+
+  Future<void> addOrders(String name) async {
+    final String apiUrl = Config.baseUrl + '/upload_orders';
+    var url = Uri.parse(apiUrl);
+
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{'name': name}),
+    );
+    
+    if (response.statusCode == 200) {
       _showDialog(context, "购买成功！");
     }
       else _showDialog(context, "购买发生错误！");
@@ -256,7 +326,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           child: Text('购买',
               style: Theme.of(context).primaryTextTheme.headlineSmall),
           onPressed: () {
-            if (int.parse(point) >= int.parse(widget.shopping_list['points'])) deletePoint(widget.shopping_list['points']);
+            if (int.parse(point) >= int.parse(widget.shopping_list['points'])) deletePoint(widget.shopping_list['name'], widget.shopping_list['points']);
               else _showDialog(context, "您的积分余额不足！");
           },
         ),
