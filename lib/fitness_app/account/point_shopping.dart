@@ -250,10 +250,10 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{'name': name}),
+      body: jsonEncode(<String, String>{'name': name, 'id': _userID}),
     );
     
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && response.body == "1") {
       _showDialog(context, "购买成功！");
     }
       else _showDialog(context, "购买发生错误！");
