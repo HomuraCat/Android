@@ -15,8 +15,8 @@ class _AccountPageState extends State<AccountPage> {
   String patientID = "", name = "", selectedAvatar = "", point = "";
   late bool identity;
   List<String> avatarOptions = [
-      "assets/images/avatar1.png",
-      "assets/images/avatar2.png",
+      "assets/images/avatar1.jpg",
+      "assets/images/avatar2.jpg",
   ];
 
   @override
@@ -81,7 +81,7 @@ class _AccountPageState extends State<AccountPage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 image: DecorationImage(
-                  image: selectedAvatar.isEmpty ? AssetImage("assets/images/avatar1.png") : AssetImage(selectedAvatar),
+                  image: selectedAvatar.isEmpty ? AssetImage("assets/images/avatar1.jpg") : AssetImage(selectedAvatar),
                   fit: BoxFit.cover,
                 ),
               ),

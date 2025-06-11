@@ -186,6 +186,10 @@ class RecipeDetailPage extends StatefulWidget {
 class _RecipeDetailPageState extends State<RecipeDetailPage> {
   bool isCompleted = false;
   String _userID = "", point = "";
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _recipientController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
 
   @override
   void initState() {
@@ -193,6 +197,14 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     fetchUserData().then((_) {
         GetPoint(context);
     });
+  }
+
+  @override
+  void dispose() {
+    _recipientController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchUserData() async {
@@ -222,7 +234,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       else setState(() => point = "ERROR");
   }
 
-  Future<void> deletePoint(String name, String points_to_delete) async {
+  Future<void> deletePoint(String recipient, String phone, String address, String name, String points_to_delete) async {
     final String apiUrl = Config.baseUrl + '/deletePoint';
     var url = Uri.parse(apiUrl);
 
@@ -236,12 +248,12 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     
     if (response.statusCode == 200) {
       setState(() => point = response.body);
-      addOrders(name);
+      addOrders(recipient, phone, address, name);
     }
       else _showDialog(context, "购买发生错误！");
   }
 
-  Future<void> addOrders(String name) async {
+  Future<void> addOrders(String recipient, String phone, String address, String name) async {
     final String apiUrl = Config.baseUrl + '/upload_orders';
     var url = Uri.parse(apiUrl);
 
@@ -250,7 +262,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{'name': name, 'id': _userID}),
+      body: jsonEncode(<String, String>{'name': name, 'id': _userID, 'recipient': recipient, 'phone': phone, 'address': address}),
     );
     
     if (response.statusCode == 200 && response.body == "1") {
@@ -326,12 +338,114 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
           child: Text('购买',
               style: Theme.of(context).primaryTextTheme.headlineSmall),
           onPressed: () {
-            if (int.parse(point) >= int.parse(widget.shopping_list['points'])) deletePoint(widget.shopping_list['name'], widget.shopping_list['points']);
+            if (int.parse(point) >= int.parse(widget.shopping_list['points'])) _showAddressDialog();
               else _showDialog(context, "您的积分余额不足！");
           },
         ),
       ),
     );
+  }
+
+  void _showAddressDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('填写收货信息'),
+          content: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _recipientController,
+                    decoration: const InputDecoration(
+                      labelText: '收件人',
+                      prefixIcon: Icon(Icons.person),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '请输入收件人姓名';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _phoneController,
+                    decoration: const InputDecoration(
+                      labelText: '手机号',
+                      prefixIcon: Icon(Icons.phone),
+                    ),
+                    keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '请输入手机号码';
+                      }
+                      if (!RegExp(r'^1[0-9]\d{9}$').hasMatch(value)) {
+                        return '请输入有效的手机号码';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _addressController,
+                    decoration: const InputDecoration(
+                      labelText: '详细地址',
+                      prefixIcon: Icon(Icons.location_on),
+                    ),
+                    maxLines: 3,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '请输入详细地址';
+                      }
+                      if (value.length < 10) {
+                        return '地址信息太简短';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('取消'),
+            ),
+            ElevatedButton(
+              onPressed: _submitForm,
+              child: const Text('提交'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      final recipient = _recipientController.text;
+      final phone = _phoneController.text;
+      final address = _addressController.text;
+      final name = widget.shopping_list['name'], points = widget.shopping_list['points'];
+      deletePoint(recipient, phone, address, name, points);
+      
+      //print('提交信息: $recipient, $phone, $address, $name, $points');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('地址信息提交成功!')),
+      );
+
+      Navigator.pop(context);
+
+      _recipientController.clear();
+      _phoneController.clear();
+      _addressController.clear();
+    }
   }
 
   void _showDialog(BuildContext context, String message) {

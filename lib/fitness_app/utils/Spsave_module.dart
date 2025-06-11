@@ -108,7 +108,7 @@ class SpStorage {
     required String patientID,
     required String name,
     required bool identity,
-    String avatar = "assets/images/avatar1.png",
+    String avatar = "assets/images/avatar1.jpg",
   }) async {
     await initSpWhenNull();
     String content = json.encode({
