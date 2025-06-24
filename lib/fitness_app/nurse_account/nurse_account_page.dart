@@ -77,7 +77,7 @@ class _NurseAccountPageState extends State<NurseAccountPage> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 image: DecorationImage(
-                  image: selectedAvatar.isEmpty ? AssetImage("assets/images/avatar1.png") : AssetImage(selectedAvatar),
+                  image: selectedAvatar.isEmpty ? AssetImage("assets/images/avatar1.jpg") : AssetImage(selectedAvatar),
                   fit: BoxFit.cover,
                 ),
               ),

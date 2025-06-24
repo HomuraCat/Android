@@ -148,7 +148,7 @@ class UploadPage extends StatelessWidget {
                     style: _buttonStyle(isManageButton: true), // Pass context, use manage style
                   ),
                 ),
-                SizedBox(height: 20.0), // Bottom padding
+                SizedBox(height: 80.0), // Bottom padding
               ],
             ),
           ),

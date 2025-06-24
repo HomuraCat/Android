@@ -58,7 +58,7 @@ class _PatientDetailsState extends State<PatientDetailsPage> {
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   image: const DecorationImage(
-                      image: AssetImage("assets/images/avatar1.png"),
+                      image: AssetImage("assets/images/avatar1.jpg"),
                       fit: BoxFit.cover)),
             ),
             Container(

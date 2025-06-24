@@ -120,30 +120,42 @@ class _ChatPageState extends State<ChatPage> {
     socket.destroy();
     super.dispose();
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => chat_manager,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            '聊天',
-            style: TextStyle(color: Colors.black),
-          ),
-        ),
-        body: Consumer<ChatManager>(
-          builder: (context, chatManager, child) {
-          return ListView.builder(
-            itemCount: chatManager.partners.length,
-            itemBuilder: (context, index) {
-              return chatManager.partners[index];
-            },
-          );},
+@override
+Widget build(BuildContext context) {
+  return ChangeNotifierProvider(
+    create: (_) => chat_manager,
+    // Scaffold 应该作为页面的最外层结构
+    child: Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          '聊天',
+          style: TextStyle(color: Colors.black),
         ),
       ),
-    );
-  }
+      // 将 Column 放到 body 里面
+      body: Column(
+        children: [
+          // 用 Expanded 包裹 ListView.builder
+          Expanded(
+            child: Consumer<ChatManager>(
+              builder: (context, chatManager, child) {
+                return ListView.builder(
+                  itemCount: chatManager.partners.length,
+                  itemBuilder: (context, index) {
+                    return chatManager.partners[index];
+                  },
+                );
+              },
+            ),
+          ),
+          // 在 ListView 的下方放置一个固定高度的 SizedBox
+          // 注意：这里的拼写已更正为 SizedBox
+          SizedBox(height: 80),
+        ],
+      ),
+    ),
+  );
+}
 
   Future<void> GetPatientInfo(BuildContext context) async {
     final String apiUrl = Config.baseUrl + '/patient/get_list';
@@ -182,27 +194,32 @@ class ChatPartner extends StatelessWidget {
   final IO.Socket socket;
   late final ChatController chatController;
 
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (BuildContext context) => ChangeNotifierProvider.value(
-                value: chatController,
-                child: ChatUI(friendname: friendname, avatar: "assets/images/avatar1.png"))));
-      },
-      leading: CircleAvatar(
-        backgroundImage: AssetImage("assets/images/avatar1.png"),
-      ),
-      title: Text(
-        friendname,
-        style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.bold,
+@override
+Widget build(BuildContext context) {
+  // 将原有的ListTile和新增的SizedBox包裹在一个Column中
+  return Column(
+    children: [
+      ListTile(
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (BuildContext context) => ChangeNotifierProvider.value(
+                  value: chatController,
+                  child: ChatUI(friendname: friendname, avatar: "assets/images/avatar1.jpg"))));
+        },
+        leading: CircleAvatar(
+          backgroundImage: AssetImage("assets/images/avatar1.jpg"),
+        ),
+        title: Text(
+          friendname,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
-    );
-  }
+    ],
+  );
+}
 }
 
 class ChatUI extends StatefulWidget {

@@ -111,7 +111,7 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.asset('assets/images/avatar1.png', width: 20, height: 20),
+                child: Image.asset('assets/images/avatar1.jpg', width: 20, height: 20),
               ),
               SizedBox(width: 10),
               Text('${contactFriend.patientName}')
@@ -136,18 +136,29 @@ class _PatientInfoPageState extends State<PatientInfoPage> {
       );
     }
 
-    return ListView.builder(
-      controller: _scrollController,
-      shrinkWrap: true,
-      itemBuilder: (BuildContext context, int index) {
-        if (index == 0) {
-          return _contactHeader();
-        } else {
-          return _contactBody(context, contactGroupList[index - 1]);
-        }
-      },
-      itemCount: contactGroupList.length + 1,
-    );
+return ListView.builder(
+  controller: _scrollController,
+  shrinkWrap: true,
+  // 1. itemCount 在原有基础上再加 1，为 SizedBox 腾出位置
+  itemCount: contactGroupList.length + 2,
+  itemBuilder: (BuildContext context, int index) {
+    // 顶部的 Header (index 为 0)，逻辑不变
+    if (index == 0) {
+      return _contactHeader();
+    } 
+    // 2. 新增逻辑：判断是否为最后一项
+    // 最后一项的 index 是 itemCount - 1，即 (contactGroupList.length + 2) - 1
+    else if (index == contactGroupList.length + 1) {
+      return SizedBox(height: 80); // 在最底部返回一个 SizedBox
+    } 
+    // 中间的联系人列表，逻辑不变
+    else {
+      // 这里的 index - 1 依然是正确的，因为它将 ListView 中从 1 开始的索引
+      // 映射到 contactGroupList 中从 0 开始的索引
+      return _contactBody(context, contactGroupList[index - 1]);
+    }
+  },
+);
   }
 
   Future<void> GetPatientInfo(BuildContext context) async {
