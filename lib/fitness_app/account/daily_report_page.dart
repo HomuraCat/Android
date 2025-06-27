@@ -21,7 +21,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
       last_time,
       patientID = "",
       name = "";
-  String weight = "?", medication_type = "已删除", medication_dosage = "已删除";
+  String weight = "?", medication_reaction = "", medication_dosage = "已删除";
   String _selectedUnit = '粒';
   final List<String> _units = ['毫克', '克', '微克', '升', '毫升', '单位', '包', '片', '粒', '瓶', '管', '喷', '滴', '贴'];
   double _pain = 1.0, _tiredness = 1.0, _sleep = 1.0;
@@ -114,8 +114,8 @@ class _DailyReportPageState extends State<DailyReportPage> {
             const SizedBox(height: 10),
             buildMedicationSituationTitle(),
             buildMedicationUseField(),
-            //const SizedBox(height: 10),
-            //buildMedicationTypeField(),
+            const SizedBox(height: 10),
+            buildReactionField(),
             //const SizedBox(height: 10),
             //buildMedicationDosageField(),
             const SizedBox(height: 60),
@@ -333,19 +333,19 @@ class _DailyReportPageState extends State<DailyReportPage> {
     ]);
   }
 
-  Widget buildMedicationTypeField() {
+  Widget buildReactionField() {
     return TextFormField(
       enabled: !submitstate,
       decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
           border: OutlineInputBorder(),
-          labelText: '药品种类'),
+          labelText: '不良反应'),
       validator: (v) {
         if (v!.isEmpty) {
-          return '请输入药品种类';
+          return '请输入不良反应';
         }
       },
-      onSaved: (v) => medication_type = v!,
+      onSaved: (v) => medication_reaction = v!,
     );
   }
 
@@ -475,7 +475,7 @@ class _DailyReportPageState extends State<DailyReportPage> {
         'high_pressure': high_pressure,
         'low_pressure': low_pressure,
         'weight': weight,
-        'medication_type': medication_type,
+        'medication_reaction': medication_reaction,
         'medication_dosage': medication_dosage,
         'pain': _pain.toString(), 
         'tiredness': _tiredness.toString(), 
@@ -557,7 +557,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
   String _temperature = "",
       high_pressure = "",
       low_pressure = "",
-      medication_type = "",
+      medication_reaction = "",
       medication_dosage = "",
       patientID = "",
       name = "";
@@ -648,8 +648,8 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
             const SizedBox(height: 10),
             buildMedicationSituationTitle(),
             buildMedicationUseField(),
-            //const SizedBox(height: 10),
-            //buildMedicationTypeField(),
+            const SizedBox(height: 10),
+            buildReactionField(),
             //const SizedBox(height: 10),
             //buildMedicationDosageField(),
             const SizedBox(height: 60),
@@ -750,11 +750,11 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     ]);
   }
 
-  Widget buildMedicationTypeField() {
+  Widget buildReactionField() {
     return Padding(
         padding: EdgeInsets.only(left: 5),
         child: Text(
-          (medication_type.isEmpty)?'药品种类: 加载中...':'药品种类: $medication_type',
+          (medication_reaction.isEmpty)?'不良反应: 加载中...':'不良反应: $medication_reaction',
           style: TextStyle(fontSize: 20),
         ));
   }
@@ -854,7 +854,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
         _temperature = temp_daily_info[0];
         high_pressure = temp_daily_info[1];
         low_pressure = temp_daily_info[2];
-        medication_type = temp_daily_info[3];
+        medication_reaction = temp_daily_info[3];
         medication_dosage = temp_daily_info[4];
         _pain = double.parse(temp_daily_info[5]);
         _tiredness = double.parse(temp_daily_info[6]);

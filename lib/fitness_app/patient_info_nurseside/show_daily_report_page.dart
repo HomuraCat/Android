@@ -20,7 +20,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
   String _temperature = "",
       high_pressure = "",
       low_pressure = "",
-      medication_type = "",
+      medication_reaction= "",
       medication_dosage = "";
   double _pain = -1.0, _tiredness = -1.0, _sleep = -1.0;
   bool submitstate = false;
@@ -104,8 +104,8 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
             const SizedBox(height: 10),
             buildMedicationSituationTitle(),
             buildMedicationUseField(),
-            //const SizedBox(height: 10),
-            //buildMedicationTypeField(),
+            const SizedBox(height: 10),
+            buildReactionField(),
             //const SizedBox(height: 10),
             //buildMedicationDosageField(),
             const SizedBox(height: 60),
@@ -206,11 +206,11 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
     ]);
   }
 
-  Widget buildMedicationTypeField() {
+  Widget buildReactionField() {
     return Padding(
         padding: EdgeInsets.only(left: 5),
         child: Text(
-          (medication_type.isEmpty)?'药品种类: 加载中...':'药品种类: $medication_type',
+          (medication_reaction.isEmpty)?'不良反应: 加载中...':'不良反应: $medication_reaction',
           style: TextStyle(fontSize: 20),
         ));
   }
@@ -310,7 +310,7 @@ class _ShowDailyReportPageState extends State<ShowDailyReportPage> {
         _temperature = temp_daily_info[0];
         high_pressure = temp_daily_info[1];
         low_pressure = temp_daily_info[2];
-        medication_type = temp_daily_info[3];
+        medication_reaction = temp_daily_info[3];
         medication_dosage = temp_daily_info[4];
         _pain = double.parse(temp_daily_info[5]);
         _tiredness = double.parse(temp_daily_info[6]);

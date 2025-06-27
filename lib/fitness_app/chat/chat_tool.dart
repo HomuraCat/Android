@@ -94,6 +94,7 @@ class ChatController extends ChangeNotifier {
         ...chatList,
         Chat.received_voice(message: message),
       ];
+    save_chat_history();
     notifyListeners();
   }
 
@@ -134,6 +135,7 @@ class ChatController extends ChangeNotifier {
       );
 
       textEditingController.text = '';
+      save_chat_history();
       notifyListeners();
     }
   }
@@ -160,6 +162,7 @@ class ChatController extends ChangeNotifier {
     );
 
     textEditingController.text = '';
+    save_chat_history();
     notifyListeners();
   }
 

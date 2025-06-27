@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "chat_tool.dart";
+import "../chat/chat_tool.dart";
 import "package:flutter_svg/svg.dart";
 import "package:provider/provider.dart";
 import 'package:http/http.dart' as http;
@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../utils/Spsave_module.dart';
 import '../utils/common_tools.dart';
 import '../../config.dart';
+import 'patient_details_page.dart';
 
 class ChatManager extends ChangeNotifier{
   final List<ChatPartner> partners = [];
@@ -28,15 +29,15 @@ class ChatManager extends ChangeNotifier{
   }
 }
 
-class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+class NurseChatPage extends StatefulWidget {
+  const NurseChatPage({Key? key}) : super(key: key);
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<NurseChatPage> createState() => _NurseChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
-  late String patientInfo = "", nurseInfo = "";
+class _NurseChatPageState extends State<NurseChatPage> {
+  late String patientInfo = "";
   List<ChatPartner> ChatPartners = <ChatPartner>[];
   late IO.Socket socket;
   String patientID = "", name = "";
@@ -58,17 +59,6 @@ class _ChatPageState extends State<ChatPage> {
       name = account['name'];
     }
     connectToServer();
-    await GetNurseInfo(context);
-    if (nurseInfo != "ERROR")
-    {
-      List<String> each_nurse = nurseInfo.split(' ');
-      each_nurse.forEach((single_nurse) {
-        List<String> single_nurse_info = single_nurse.split('_');
-        ChatPartner temp_partner = ChatPartner(myid: patientID, friendname: single_nurse_info[1], friendid: single_nurse_info[0], type: 3, socket: socket);
-        chat_manager.addPartner(temp_partner);
-      });
-      setState(() {});
-    }
     await GetPatientInfo(context);
     if (patientInfo != "ERROR")
     {
@@ -139,7 +129,7 @@ Widget build(BuildContext context) {
     child: Scaffold(
       appBar: AppBar(
         title: const Text(
-          '聊天',
+          '病人列表',
           style: TextStyle(color: Colors.black),
         ),
       ),
@@ -167,33 +157,6 @@ Widget build(BuildContext context) {
     ),
   );
 }
-
-  Future<void> GetNurseInfo(BuildContext context) async {
-    final String apiUrl = Config.baseUrl + '/nurse/get_list';
-    var url = Uri.parse(apiUrl);
-
-    var response = await http.get(url);
-    
-    if (response.statusCode == 200) {
-      if (response.body != '0') 
-      {
-        String res = "";
-        List<String> temp_res = response.body.split("/*-+");
-        for (int i = 0; i < temp_res.length; i++)
-        {
-          if (i != 0) res = res + " ";
-          List<String> temp = temp_res[i].split("+-*/");
-          res = res + temp[0] + "_";
-          if (temp[1] == "") res = res + "未命名";
-            else res = res + temp[1];
-        }
-        print(res);
-        setState(() => nurseInfo = res);
-      }
-        else setState(() => nurseInfo = "ERROR");
-    }
-      else setState(() => nurseInfo = "ERROR");
-  }
 
   Future<void> GetPatientInfo(BuildContext context) async {
     final String apiUrl = Config.baseUrl + '/patient/get_list';
@@ -243,7 +206,7 @@ Widget build(BuildContext context) {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (BuildContext context) => ChangeNotifierProvider.value(
                   value: chatController,
-                  child: ChatUI(friendname: friendname, avatar: "assets/images/avatar$type.jpg"))));
+                  child: ChatUI(friendID: friendid, friendname: friendname, avatar: "assets/images/avatar$type.jpg"))));
         },
         leading: CircleAvatar(
           backgroundImage: AssetImage("assets/images/avatar$type.jpg"),
@@ -262,8 +225,8 @@ Widget build(BuildContext context) {
 }
 
 class ChatUI extends StatefulWidget {
-  const ChatUI({Key? key, required this.friendname, required this.avatar}) : super(key: key);
-  final String friendname, avatar;
+  const ChatUI({Key? key, required this.friendID, required this.friendname, required this.avatar}) : super(key: key);
+  final String friendID, friendname, avatar;
 
   @override
   State<ChatUI> createState() => _ChatUI();
@@ -276,10 +239,27 @@ class _ChatUI extends State<ChatUI> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
+    appBar: AppBar(
         title: Text(widget.friendname),
         backgroundColor: const Color(0xFF007AFF),
+        // 添加右侧菜单按钮
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_vert), // 三个点图标
+            onPressed: () {
+              // 跳转到您已写好的详细信息面板
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PatientDetailsPage( // 替换为您的详情面板类名
+                    patientID: widget.friendID, // 传递必要参数
+                    patientName: widget.friendname,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
