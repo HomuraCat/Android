@@ -1,3 +1,5 @@
+# You can see demos of the app in this repo.
+
 # This repository has been made private at the request of the client. The current version is a public showcase repository with selected non-sensitive materials only.
 
 # Clinical Follow-up Mobile Application
